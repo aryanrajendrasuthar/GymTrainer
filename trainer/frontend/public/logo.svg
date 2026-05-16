@@ -1,0 +1,15 @@
+<svg width="200" height="48" viewBox="0 0 200 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Icon mark -->
+  <rect width="48" height="48" rx="10" fill="#0F0F1A"/>
+  <!-- T barbell crossbar -->
+  <rect x="8" y="13" width="32" height="7" rx="3.5" fill="#6C63FF"/>
+  <!-- T vertical post -->
+  <rect x="20.5" y="13" width="7" height="27" rx="3.5" fill="#6C63FF"/>
+  <!-- Lightning bolt -->
+  <path d="M28 16 L22 26 L26 26 L20 36 L30 23 L25 23 Z" fill="#FFD700"/>
+  <!-- Wordmark -->
+  <text x="60" y="32" font-family="system-ui, sans-serif" font-size="22" font-weight="700" fill="white" letter-spacing="-1">T</text>
+  <text x="74" y="32" font-family="system-ui, sans-serif" font-size="22" font-weight="300" fill="white" letter-spacing="-1">RAINER</text>
+  <!-- Accent line -->
+  <rect x="60" y="36" width="130" height="2" rx="1" fill="#6C63FF"/>
+</svg>
