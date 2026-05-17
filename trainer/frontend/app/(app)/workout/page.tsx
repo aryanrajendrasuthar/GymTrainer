@@ -12,6 +12,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
+import { sessionsApi } from "@/app/lib/api";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useSession } from "@/app/hooks/useSession";
@@ -391,7 +392,7 @@ function WorkoutPageContent() {
   const dayParam = searchParams.get("day");
   const dayIndex = dayParam !== null && !isNaN(Number(dayParam)) ? parseInt(dayParam, 10) : 0;
 
-  const { profile } = useUserStore();
+  const { profile, accessToken } = useUserStore();
   const { allExerciseLogs, sessionDates, addCompletedSession } = useSessionStore();
   const { settings } = useSettingsStore();
 
@@ -507,6 +508,9 @@ function WorkoutPageContent() {
         onSave={(notes) => {
           const updated = { ...completedSession, sessionNotes: notes };
           addCompletedSession(updated);
+          if (accessToken) {
+            sessionsApi.create(accessToken, updated).catch(() => {});
+          }
           router.push("/dashboard");
         }}
         onDiscard={() => {

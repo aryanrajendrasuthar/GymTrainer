@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
+import { authApi } from "@/app/lib/api";
 import { Button } from "@/app/components/ui/Button";
 import { GoalStep } from "@/app/components/onboarding/GoalStep";
 import { FitnessLevelStep } from "@/app/components/onboarding/FitnessLevelStep";
@@ -55,7 +56,7 @@ const slideVariants = {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { isAuthenticated, onboardingComplete, updateProfile, setOnboardingComplete } =
+  const { isAuthenticated, onboardingComplete, updateProfile, setOnboardingComplete, accessToken } =
     useUserStore();
 
   const [step, setStep] = useState(0);
@@ -103,6 +104,18 @@ export default function OnboardingPage() {
     if (!goal || !fitnessLevel || !splitId) return;
     updateProfile({ goal, fitnessLevel, equipment, splitId });
     setOnboardingComplete(true);
+
+    if (accessToken) {
+      authApi
+        .updateProfile(accessToken, {
+          goal,
+          fitness_level: fitnessLevel,
+          equipment,
+          split_id: splitId,
+        })
+        .catch(() => {});
+    }
+
     router.push("/dashboard");
   };
 

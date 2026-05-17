@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 import { type WorkoutSession, type ExerciseLog } from "@/app/types";
 import { type ActiveSession, type ActiveSet } from "@/app/hooks/useSession";
 
@@ -18,7 +19,9 @@ interface SessionState {
   appendExerciseLogs: (logs: ExerciseLog[]) => void;
 }
 
-export const useSessionStore = create<SessionState>()((set) => ({
+export const useSessionStore = create<SessionState>()(
+  persist(
+    (set) => ({
   activeSession: null,
   recentSessions: [],
   allExerciseLogs: [],
@@ -66,4 +69,14 @@ export const useSessionStore = create<SessionState>()((set) => ({
     set((state) => ({
       allExerciseLogs: [...state.allExerciseLogs, ...logs],
     })),
-}));
+    }),
+    {
+      name: "trainer-sessions",
+      partialize: (state) => ({
+        recentSessions: state.recentSessions,
+        allExerciseLogs: state.allExerciseLogs,
+        sessionDates: state.sessionDates,
+      }),
+    }
+  )
+);
