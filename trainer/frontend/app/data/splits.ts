@@ -1,0 +1,809 @@
+import { type WorkoutSplit } from "@/app/types";
+
+export const workoutSplits: WorkoutSplit[] = [
+  // ─── Push / Pull / Legs ────────────────────────────────────────────────────
+  {
+    id: "ppl-6-day",
+    name: "Push / Pull / Legs (6-Day)",
+    description:
+      "The gold-standard split for intermediate to advanced trainees. Each muscle group is trained twice per week across three distinct movement patterns. Push (chest, shoulders, triceps) → Pull (back, biceps) → Legs (quads, hamstrings, glutes, calves) × 2.",
+    daysPerWeek: 6,
+    days: [
+      {
+        dayName: "Push A",
+        muscleGroups: ["chest", "shoulders", "triceps"],
+        isRestDay: false,
+        exercises: [
+          "barbell-bench-press",
+          "incline-dumbbell-press",
+          "cable-chest-fly",
+          "overhead-press",
+          "lateral-raise",
+          "tricep-pushdown",
+          "overhead-tricep-extension",
+        ],
+      },
+      {
+        dayName: "Pull A",
+        muscleGroups: ["back", "biceps", "rear-delts"],
+        isRestDay: false,
+        exercises: [
+          "barbell-deadlift",
+          "pull-up",
+          "barbell-row",
+          "cable-row",
+          "face-pull",
+          "barbell-curl",
+          "hammer-curl",
+        ],
+      },
+      {
+        dayName: "Legs A",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "barbell-squat",
+          "leg-press",
+          "romanian-deadlift",
+          "leg-curl",
+          "leg-extension",
+          "standing-calf-raise",
+          "seated-calf-raise",
+        ],
+      },
+      {
+        dayName: "Push B",
+        muscleGroups: ["chest", "shoulders", "triceps"],
+        isRestDay: false,
+        exercises: [
+          "incline-barbell-bench-press",
+          "dumbbell-bench-press",
+          "pec-deck-fly",
+          "dumbbell-shoulder-press",
+          "cable-lateral-raise",
+          "close-grip-bench-press",
+          "skull-crusher",
+        ],
+      },
+      {
+        dayName: "Pull B",
+        muscleGroups: ["back", "biceps", "rear-delts"],
+        isRestDay: false,
+        exercises: [
+          "trap-bar-deadlift",
+          "lat-pulldown",
+          "dumbbell-row",
+          "cable-face-pull",
+          "reverse-fly",
+          "incline-dumbbell-curl",
+          "cable-curl",
+        ],
+      },
+      {
+        dayName: "Legs B",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "front-squat",
+          "walking-lunge",
+          "barbell-hip-thrust",
+          "nordics",
+          "sissy-squat",
+          "standing-calf-raise",
+          "tibialis-raise",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["muscle-gain", "recomp", "greek-god"],
+    difficulty: "intermediate",
+  },
+
+  // ─── Upper / Lower ─────────────────────────────────────────────────────────
+  {
+    id: "upper-lower-4-day",
+    name: "Upper / Lower (4-Day)",
+    description:
+      "A well-balanced 4-day split training the upper and lower body twice per week. Excellent for intermediates seeking strength and hypertrophy. High frequency for major compound lifts.",
+    daysPerWeek: 4,
+    days: [
+      {
+        dayName: "Upper A — Strength Focus",
+        muscleGroups: ["chest", "back", "shoulders", "arms"],
+        isRestDay: false,
+        exercises: [
+          "barbell-bench-press",
+          "barbell-row",
+          "overhead-press",
+          "pull-up",
+          "barbell-curl",
+          "tricep-pushdown",
+        ],
+      },
+      {
+        dayName: "Lower A — Strength Focus",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "barbell-squat",
+          "barbell-deadlift",
+          "leg-press",
+          "leg-curl",
+          "standing-calf-raise",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Upper B — Hypertrophy Focus",
+        muscleGroups: ["chest", "back", "shoulders", "arms"],
+        isRestDay: false,
+        exercises: [
+          "incline-dumbbell-press",
+          "lat-pulldown",
+          "cable-lateral-raise",
+          "cable-row",
+          "incline-dumbbell-curl",
+          "skull-crusher",
+          "face-pull",
+        ],
+      },
+      {
+        dayName: "Lower B — Hypertrophy Focus",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "front-squat",
+          "romanian-deadlift",
+          "barbell-hip-thrust",
+          "leg-extension",
+          "leg-curl",
+          "seated-calf-raise",
+          "walking-lunge",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["muscle-gain", "strength", "recomp"],
+    difficulty: "intermediate",
+  },
+
+  // ─── Full Body (3-Day) ─────────────────────────────────────────────────────
+  {
+    id: "full-body-3-day",
+    name: "Full Body (3-Day)",
+    description:
+      "The ideal split for beginners and general-fitness enthusiasts. Three full-body sessions per week allow maximum practice of fundamental movement patterns and optimal recovery.",
+    daysPerWeek: 3,
+    days: [
+      {
+        dayName: "Day 1 — Squat Dominant",
+        muscleGroups: ["quads", "chest", "back", "shoulders", "arms"],
+        isRestDay: false,
+        exercises: [
+          "barbell-squat",
+          "barbell-bench-press",
+          "barbell-row",
+          "dumbbell-shoulder-press",
+          "barbell-curl",
+          "plank",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Day 2 — Hinge Dominant",
+        muscleGroups: ["hamstrings", "glutes", "chest", "back", "arms"],
+        isRestDay: false,
+        exercises: [
+          "barbell-deadlift",
+          "incline-dumbbell-press",
+          "pull-up",
+          "lateral-raise",
+          "hammer-curl",
+          "side-plank",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Day 3 — Full Body Power",
+        muscleGroups: ["quads", "hamstrings", "chest", "back", "shoulders"],
+        isRestDay: false,
+        exercises: [
+          "goblet-squat",
+          "trap-bar-deadlift",
+          "dumbbell-bench-press",
+          "lat-pulldown",
+          "face-pull",
+          "farmer-carry",
+          "ab-wheel-rollout",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["muscle-gain", "fat-loss", "general-fitness"],
+    difficulty: "beginner",
+  },
+
+  // ─── Arnold Split ──────────────────────────────────────────────────────────
+  {
+    id: "arnold-split",
+    name: "Arnold Split (6-Day)",
+    description:
+      "Arnold Schwarzenegger's iconic 6-day split popularized in the Golden Era. Chest and back are trained together to maximize blood flow and the pump, followed by shoulders and arms, then legs.",
+    daysPerWeek: 6,
+    days: [
+      {
+        dayName: "Chest & Back A",
+        muscleGroups: ["chest", "back"],
+        isRestDay: false,
+        exercises: [
+          "barbell-bench-press",
+          "barbell-row",
+          "incline-dumbbell-press",
+          "pull-up",
+          "cable-chest-fly",
+          "cable-row",
+          "push-up",
+        ],
+      },
+      {
+        dayName: "Shoulders & Arms A",
+        muscleGroups: ["shoulders", "biceps", "triceps"],
+        isRestDay: false,
+        exercises: [
+          "overhead-press",
+          "lateral-raise",
+          "barbell-curl",
+          "skull-crusher",
+          "hammer-curl",
+          "tricep-pushdown",
+          "face-pull",
+        ],
+      },
+      {
+        dayName: "Legs A",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "barbell-squat",
+          "romanian-deadlift",
+          "leg-press",
+          "leg-curl",
+          "standing-calf-raise",
+          "seated-calf-raise",
+        ],
+      },
+      {
+        dayName: "Chest & Back B",
+        muscleGroups: ["chest", "back"],
+        isRestDay: false,
+        exercises: [
+          "incline-barbell-bench-press",
+          "barbell-deadlift",
+          "dumbbell-bench-press",
+          "lat-pulldown",
+          "pec-deck-fly",
+          "dumbbell-row",
+        ],
+      },
+      {
+        dayName: "Shoulders & Arms B",
+        muscleGroups: ["shoulders", "biceps", "triceps"],
+        isRestDay: false,
+        exercises: [
+          "dumbbell-shoulder-press",
+          "cable-lateral-raise",
+          "incline-dumbbell-curl",
+          "close-grip-bench-press",
+          "cable-curl",
+          "overhead-tricep-extension",
+          "reverse-fly",
+        ],
+      },
+      {
+        dayName: "Legs B",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "front-squat",
+          "barbell-hip-thrust",
+          "walking-lunge",
+          "leg-extension",
+          "seated-leg-curl",
+          "standing-calf-raise",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["muscle-gain", "greek-god"],
+    difficulty: "advanced",
+  },
+
+  // ─── Bro Split (5-Day) ────────────────────────────────────────────────────
+  {
+    id: "bro-split-5-day",
+    name: "Classic Bro Split (5-Day)",
+    description:
+      "One muscle group per day, five days per week. Lower frequency per muscle but very high volume per session. Best for advanced trainees who can recover quickly.",
+    daysPerWeek: 5,
+    days: [
+      {
+        dayName: "Chest Day",
+        muscleGroups: ["chest"],
+        isRestDay: false,
+        exercises: [
+          "barbell-bench-press",
+          "incline-barbell-bench-press",
+          "incline-dumbbell-press",
+          "cable-chest-fly",
+          "pec-deck-fly",
+          "dips",
+          "push-up",
+        ],
+      },
+      {
+        dayName: "Back Day",
+        muscleGroups: ["back"],
+        isRestDay: false,
+        exercises: [
+          "barbell-deadlift",
+          "pull-up",
+          "barbell-row",
+          "lat-pulldown",
+          "cable-row",
+          "dumbbell-row",
+          "face-pull",
+        ],
+      },
+      {
+        dayName: "Shoulders Day",
+        muscleGroups: ["shoulders"],
+        isRestDay: false,
+        exercises: [
+          "overhead-press",
+          "dumbbell-shoulder-press",
+          "lateral-raise",
+          "cable-lateral-raise",
+          "face-pull",
+          "reverse-fly",
+          "shrug",
+        ],
+      },
+      {
+        dayName: "Arms Day",
+        muscleGroups: ["biceps", "triceps"],
+        isRestDay: false,
+        exercises: [
+          "barbell-curl",
+          "incline-dumbbell-curl",
+          "hammer-curl",
+          "cable-curl",
+          "skull-crusher",
+          "tricep-pushdown",
+          "overhead-tricep-extension",
+          "close-grip-bench-press",
+        ],
+      },
+      {
+        dayName: "Legs Day",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "barbell-squat",
+          "leg-press",
+          "romanian-deadlift",
+          "barbell-hip-thrust",
+          "leg-curl",
+          "leg-extension",
+          "standing-calf-raise",
+          "seated-calf-raise",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["muscle-gain", "greek-god"],
+    difficulty: "advanced",
+  },
+
+  // ─── HIIT Training ─────────────────────────────────────────────────────────
+  {
+    id: "hiit-conditioning",
+    name: "HIIT & Conditioning (4-Day)",
+    description:
+      "High-intensity interval training combined with strength circuits. Four sessions per week alternating between conditioning workouts and metabolic strength days. Designed for maximum fat loss and cardiovascular fitness while preserving muscle.",
+    daysPerWeek: 4,
+    days: [
+      {
+        dayName: "HIIT Sprint Day",
+        muscleGroups: ["glutes", "quads", "hamstrings", "calves"],
+        isRestDay: false,
+        exercises: [
+          "jumping-jacks",
+          "high-knees",
+          "sprint-intervals",
+          "squat-jump",
+          "jump-lunge",
+          "mountain-climbers",
+          "burpee",
+          "battle-ropes",
+        ],
+      },
+      {
+        dayName: "Metabolic Strength — Upper",
+        muscleGroups: ["chest", "back", "shoulders", "arms"],
+        isRestDay: false,
+        exercises: [
+          "push-up",
+          "pull-up",
+          "dumbbell-thruster",
+          "battle-ropes",
+          "medicine-ball-slam",
+          "plank",
+          "ab-wheel-rollout",
+        ],
+      },
+      {
+        dayName: "Rest / Active Recovery",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "HIIT Circuit Day",
+        muscleGroups: ["full-body"],
+        isRestDay: false,
+        exercises: [
+          "box-jump",
+          "jump-rope",
+          "burpee",
+          "kettlebell-swing",
+          "battle-rope-jump-slam",
+          "assault-bike",
+          "mountain-climbers",
+          "sprint-10s",
+        ],
+      },
+      {
+        dayName: "Metabolic Strength — Lower",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "goblet-squat",
+          "squat-jump",
+          "jump-lunge",
+          "dumbbell-thruster",
+          "sled-push",
+          "farmer-carry",
+          "step-up",
+          "seated-calf-raise",
+        ],
+      },
+      {
+        dayName: "Rest / Active Recovery",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Rest / Active Recovery",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["fat-loss", "general-fitness", "recomp"],
+    difficulty: "intermediate",
+  },
+
+  // ─── Calisthenics / Bodyweight ────────────────────────────────────────────
+  {
+    id: "calisthenics-4-day",
+    name: "Calisthenics (4-Day)",
+    description:
+      "A progressive bodyweight training system that builds functional strength, muscle, and skills. Structured around the fundamental calisthenics patterns: push, pull, legs, and core.",
+    daysPerWeek: 4,
+    days: [
+      {
+        dayName: "Push Day — Horizontal",
+        muscleGroups: ["chest", "triceps", "anterior-deltoid"],
+        isRestDay: false,
+        exercises: [
+          "push-up",
+          "close-grip-push-up",
+          "decline-push-up",
+          "pike-push-up",
+          "dip",
+          "tuck-planche-lean",
+          "diamond-push-up",
+        ],
+      },
+      {
+        dayName: "Pull Day",
+        muscleGroups: ["back", "biceps", "rear-delts"],
+        isRestDay: false,
+        exercises: [
+          "pull-up",
+          "chin-up",
+          "inverted-row",
+          "hanging-leg-raise",
+          "toes-to-bar",
+          "l-sit",
+          "band-pull-apart",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Legs & Core",
+        muscleGroups: ["quads", "hamstrings", "glutes", "core"],
+        isRestDay: false,
+        exercises: [
+          "goblet-squat",
+          "pistol-squat-assisted",
+          "jump-lunge",
+          "glute-bridge",
+          "single-leg-deadlift",
+          "plank",
+          "hollow-body-hold",
+          "dragon-flag",
+        ],
+      },
+      {
+        dayName: "Skill & Conditioning",
+        muscleGroups: ["full-body", "core"],
+        isRestDay: false,
+        exercises: [
+          "bear-crawl",
+          "mountain-climbers",
+          "hollow-body-rock",
+          "l-sit",
+          "burpee",
+          "box-jump",
+          "jump-rope",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["calisthenics", "general-fitness", "recomp"],
+    difficulty: "intermediate",
+  },
+
+  // ─── Powerlifting (SBD) ───────────────────────────────────────────────────
+  {
+    id: "powerlifting-4-day",
+    name: "Powerlifting — Strength Focus (4-Day)",
+    description:
+      "A 4-day strength-focused program centered around the squat, bench press, and deadlift. Built on progressive overload principles with accessory work to reinforce weaknesses.",
+    daysPerWeek: 4,
+    days: [
+      {
+        dayName: "Squat Day A",
+        muscleGroups: ["quads", "hamstrings", "glutes", "core"],
+        isRestDay: false,
+        exercises: [
+          "barbell-squat",
+          "pause-squat",
+          "romanian-deadlift",
+          "leg-press",
+          "leg-curl",
+          "plank",
+        ],
+      },
+      {
+        dayName: "Bench Day A",
+        muscleGroups: ["chest", "shoulders", "triceps"],
+        isRestDay: false,
+        exercises: [
+          "barbell-bench-press",
+          "close-grip-bench-press",
+          "overhead-press",
+          "incline-dumbbell-press",
+          "tricep-pushdown",
+          "face-pull",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Deadlift Day",
+        muscleGroups: ["back", "hamstrings", "glutes", "traps"],
+        isRestDay: false,
+        exercises: [
+          "barbell-deadlift",
+          "sumo-deadlift",
+          "deficit-deadlift",
+          "barbell-row",
+          "pull-up",
+          "farmer-carry",
+        ],
+      },
+      {
+        dayName: "Bench Day B",
+        muscleGroups: ["chest", "shoulders", "triceps"],
+        isRestDay: false,
+        exercises: [
+          "incline-barbell-bench-press",
+          "barbell-bench-press",
+          "dumbbell-shoulder-press",
+          "lateral-raise",
+          "skull-crusher",
+          "band-pull-apart",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["strength"],
+    difficulty: "advanced",
+  },
+
+  // ─── Home Workout (No Equipment) ──────────────────────────────────────────
+  {
+    id: "home-no-equipment-4-day",
+    name: "Home — No Equipment (4-Day)",
+    description:
+      "A complete 4-day training program requiring no gym equipment. Builds strength and muscle using progressive bodyweight variations, resistance bands optional.",
+    daysPerWeek: 4,
+    days: [
+      {
+        dayName: "Upper Push",
+        muscleGroups: ["chest", "shoulders", "triceps"],
+        isRestDay: false,
+        exercises: [
+          "push-up",
+          "incline-push-up",
+          "decline-push-up",
+          "pike-push-up",
+          "close-grip-push-up",
+          "plank",
+          "arm-circles",
+        ],
+      },
+      {
+        dayName: "Lower Body",
+        muscleGroups: ["quads", "hamstrings", "glutes", "calves"],
+        isRestDay: false,
+        exercises: [
+          "goblet-squat",
+          "squat-jump",
+          "reverse-lunge",
+          "glute-bridge",
+          "wall-sit",
+          "calf-raise",
+          "cossack-squat",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Upper Pull",
+        muscleGroups: ["back", "biceps", "rear-delts"],
+        isRestDay: false,
+        exercises: [
+          "pull-up",
+          "inverted-row",
+          "band-pull-apart",
+          "face-pull",
+          "renegade-row",
+          "hanging-leg-raise",
+          "bird-dog",
+        ],
+      },
+      {
+        dayName: "Full Body & Cardio",
+        muscleGroups: ["full-body"],
+        isRestDay: false,
+        exercises: [
+          "burpee",
+          "mountain-climbers",
+          "jump-rope",
+          "squat-jump",
+          "bear-crawl",
+          "hollow-body-hold",
+          "inchworm",
+        ],
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+      {
+        dayName: "Rest",
+        muscleGroups: [],
+        isRestDay: true,
+      },
+    ],
+    targetGoals: ["muscle-gain", "fat-loss", "general-fitness"],
+    difficulty: "beginner",
+  },
+];
+
+export const splitMap: Record<string, WorkoutSplit> = Object.fromEntries(
+  workoutSplits.map((s) => [s.id, s])
+);
+
+export function getSplitById(id: string): WorkoutSplit | undefined {
+  return splitMap[id];
+}
+
+export function getSplitsByGoal(goal: WorkoutSplit["targetGoals"][number]): WorkoutSplit[] {
+  return workoutSplits.filter((s) => s.targetGoals.includes(goal));
+}
+
+export function getSplitsByDifficulty(difficulty: WorkoutSplit["difficulty"]): WorkoutSplit[] {
+  return workoutSplits.filter((s) => s.difficulty === difficulty);
+}
+
+export function getSplitsByDaysPerWeek(days: number): WorkoutSplit[] {
+  return workoutSplits.filter((s) => s.daysPerWeek === days);
+}
