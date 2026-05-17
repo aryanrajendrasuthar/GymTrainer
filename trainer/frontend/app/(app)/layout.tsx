@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/app/store/userStore";
 import { usePhysioStore } from "@/app/store/physioStore";
-import BottomNav from "@/app/components/ui/BottomNav";
+import { BottomNav } from "@/app/components/ui/BottomNav";
 
 export default function AppLayout({
   children,
