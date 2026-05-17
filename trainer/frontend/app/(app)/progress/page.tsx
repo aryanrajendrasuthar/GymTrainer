@@ -7,6 +7,7 @@ import { useSessionStore } from "@/app/store/sessionStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
 import { useProgressStore } from "@/app/store/progressStore";
+import { progressApi } from "@/app/lib/api";
 import { VolumeChart, type WeeklyVolumeData } from "@/app/components/progress/VolumeChart";
 import { OneRMChart, type OneRMDataPoint } from "@/app/components/progress/OneRMChart";
 import { PRCard, type ExercisePR } from "@/app/components/progress/PRCard";
@@ -208,7 +209,7 @@ function SummaryStats({
 export default function ProgressPage() {
   const { recentSessions, allExerciseLogs, sessionDates } = useSessionStore();
   const { settings } = useSettingsStore();
-  const { profile } = useUserStore();
+  const { profile, accessToken } = useUserStore();
 
   const { bodyWeightLogs, addWeightLog } = useProgressStore();
 
@@ -224,7 +225,9 @@ export default function ProgressPage() {
     const val = parseFloat(weightInput);
     if (isNaN(val) || val <= 0) return;
     const kg = unit === "lb" ? val / 2.20462 : val;
-    addWeightLog(Math.round(kg * 10) / 10);
+    const rounded = Math.round(kg * 10) / 10;
+    addWeightLog(rounded);
+    if (accessToken) progressApi.logWeight(accessToken, rounded).catch(() => {});
     setWeightInput("");
   }
 

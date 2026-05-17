@@ -24,6 +24,7 @@ import { useExerciseHistory } from "@/app/hooks/useExerciseHistory";
 import { getGoalBasedRestSeconds } from "@/app/hooks/useSettings";
 import { getSplitById } from "@/app/data/splits";
 import { exerciseMap } from "@/app/data/exercises";
+import { getWarmupForSession, type SessionTag } from "@/app/data/protocols";
 import { SetLogger } from "@/app/components/workout/SetLogger";
 import { PreviousPerformancePanel } from "@/app/components/workout/PreviousPerformancePanel";
 import { ProgressiveOverloadSuggestion } from "@/app/components/workout/ProgressiveOverloadSuggestion";
@@ -37,6 +38,19 @@ import { cn, formatVolume } from "@/app/lib/utils";
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
 type WorkoutPhase = "pre" | "active" | "complete";
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function muscleGroupsToSessionTag(muscleGroups: string[]): SessionTag {
+  const groups = muscleGroups.map((g) => g.toLowerCase());
+  if (groups.some((g) => ["chest", "triceps", "anterior-deltoid"].includes(g))) return "push";
+  if (groups.some((g) => ["back", "biceps", "rear-delts", "lats", "rhomboids"].includes(g))) return "pull";
+  if (groups.some((g) => ["quads", "hamstrings", "glutes", "calves", "legs"].includes(g))) return "legs";
+  if (groups.some((g) => ["shoulders", "traps"].includes(g))) return "shoulders";
+  if (groups.some((g) => ["biceps", "triceps", "arms"].includes(g))) return "arms";
+  if (groups.some((g) => ["core", "abs"].includes(g))) return "core";
+  return "upper";
+}
 
 // ─── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -318,6 +332,9 @@ function PreWorkoutView({
   exercises: Exercise[];
   onBegin: () => void;
 }) {
+  const sessionTag = muscleGroupsToSessionTag(muscleGroups);
+  const warmup = getWarmupForSession(sessionTag);
+
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
@@ -337,6 +354,40 @@ function PreWorkoutView({
           ))}
         </div>
       </div>
+
+      {/* Warmup protocol */}
+      {warmup && (
+        <div className="mx-5 mb-5 bg-trainer-elevated border border-white/8 rounded-[14px] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-xs text-trainer-warning/80 font-semibold uppercase tracking-widest">
+              Warmup · {warmup.totalDurationMinutes} min
+            </p>
+            <span className="text-[10px] text-white/25">{warmup.steps.length} steps</span>
+          </div>
+          <div className="flex flex-col gap-2">
+            {warmup.steps.map((step, i) => (
+              <div key={i} className="flex items-start gap-3">
+                <div className="w-5 h-5 rounded-full bg-trainer-warning/15 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[9px] font-bold text-trainer-warning">{i + 1}</span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white/80">{step.name}</p>
+                  <p className="text-[11px] text-white/35 mt-0.5">
+                    {step.durationSeconds
+                      ? `${step.durationSeconds}s`
+                      : step.reps
+                      ? `${step.reps} reps${step.sets && step.sets > 1 ? ` × ${step.sets}` : ""}${step.eachSide ? " each side" : ""}`
+                      : step.holdSeconds
+                      ? `Hold ${step.holdSeconds}s`
+                      : ""}
+                    {step.notes && ` · ${step.notes}`}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Exercise list */}
       <div className="flex-1 px-5 pb-8">

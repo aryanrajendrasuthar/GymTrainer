@@ -305,7 +305,7 @@ function ExerciseRow({
 type PhysioView = "list" | "pre" | "active" | "post";
 
 export default function PhysioPage() {
-  const { profile } = useUserStore();
+  const { profile, updateInjury } = useUserStore();
   const {
     todayCompletedSlots,
     addSession,
@@ -651,13 +651,23 @@ export default function PhysioPage() {
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
-                  className="mt-2 flex items-start gap-2.5 px-3.5 py-2.5 rounded-[10px] bg-trainer-success/8 border border-trainer-success/25"
+                  className="mt-2 flex items-start gap-2.5 px-3.5 py-3 rounded-[10px] bg-trainer-success/8 border border-trainer-success/25"
                 >
                   <TrendingUp size={14} className="text-trainer-success shrink-0 mt-0.5" />
-                  <p className="text-xs text-white/65 leading-relaxed">
-                    <span className="font-semibold text-trainer-success">Ready to progress </span>
-                    to {PHASE_STYLE[gate.suggestedPhase].label} phase. {gate.reason}
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-xs text-white/65 leading-relaxed">
+                      <span className="font-semibold text-trainer-success">Ready to progress </span>
+                      to {PHASE_STYLE[gate.suggestedPhase].label} phase. {gate.reason}
+                    </p>
+                    <button
+                      onClick={() =>
+                        updateInjury(injury.condition, { phase: gate.suggestedPhase! })
+                      }
+                      className="mt-2 text-xs font-bold text-trainer-success bg-trainer-success/15 border border-trainer-success/30 px-3 py-1.5 rounded-full hover:bg-trainer-success/25 transition-colors"
+                    >
+                      Advance to {PHASE_STYLE[gate.suggestedPhase].label} →
+                    </button>
+                  </div>
                 </motion.div>
               )}
             </div>

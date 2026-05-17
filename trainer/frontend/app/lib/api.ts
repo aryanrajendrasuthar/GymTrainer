@@ -183,4 +183,11 @@ export const progressApi = {
       `/api/progress/volume?days=${days}`,
       { token }
     ),
+
+  logWeight: (token: string, weightKg: number) =>
+    apiFetch<unknown>("/api/progress/weight", {
+      token,
+      method: "POST",
+      body: { weight_kg: weightKg },
+    }),
 };

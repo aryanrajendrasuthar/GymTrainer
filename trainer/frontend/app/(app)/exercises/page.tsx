@@ -2,7 +2,8 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, SlidersHorizontal, ChevronRight, Wind } from "lucide-react";
+import { Search, X, SlidersHorizontal, ChevronRight, Wind, BookOpen } from "lucide-react";
+import Link from "next/link";
 import { useUserStore } from "@/app/store/userStore";
 import { allExercises } from "@/app/data/exercises";
 import { Modal } from "@/app/components/ui/Modal";
@@ -324,15 +325,24 @@ export default function ExercisesPage() {
       <div className="px-5 pt-14 pb-4 space-y-3">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold text-white">Exercises</h1>
-          {activeFilterCount > 0 && (
-            <button
-              onClick={clearFilters}
-              className="flex items-center gap-1 text-xs text-trainer-indigo"
+          <div className="flex items-center gap-2">
+            {activeFilterCount > 0 && (
+              <button
+                onClick={clearFilters}
+                className="flex items-center gap-1 text-xs text-trainer-indigo"
+              >
+                Clear ({activeFilterCount})
+                <X size={12} />
+              </button>
+            )}
+            <Link
+              href="/glossary"
+              className="flex items-center gap-1.5 text-xs font-semibold text-white/40 hover:text-white/70 transition-colors"
             >
-              Clear ({activeFilterCount})
-              <X size={12} />
-            </button>
-          )}
+              <BookOpen size={14} />
+              Glossary
+            </Link>
+          </div>
         </div>
 
         {/* Search */}
