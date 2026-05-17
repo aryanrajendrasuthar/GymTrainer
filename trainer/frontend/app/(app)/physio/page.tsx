@@ -13,12 +13,14 @@ import {
   ChevronUp,
   TrendingUp,
   Activity,
+  Plus,
 } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { usePhysioStore } from "@/app/store/physioStore";
 import { buildPhysioSession, assessPhaseGate } from "@/app/lib/physio-engine";
 import { Badge } from "@/app/components/ui/Badge";
 import { Button } from "@/app/components/ui/Button";
+import { AddInjurySheet } from "@/app/components/physio/AddInjurySheet";
 import {
   type PhysioCondition,
   type PhysioPhase,
@@ -316,6 +318,7 @@ export default function PhysioPage() {
   const injuries: UserInjury[] = profile?.injuries ?? [];
 
   const [view, setView] = useState<PhysioView>("list");
+  const [showAddInjury, setShowAddInjury] = useState(false);
   const [selectedInjury, setSelectedInjury] = useState<UserInjury | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<"morning" | "evening">("morning");
   const [session, setSession] = useState<PhysioSession | null>(null);
@@ -395,18 +398,27 @@ export default function PhysioPage() {
 
   if (view === "list" && injuries.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-full px-5 gap-5 text-center">
-        <div className="w-16 h-16 rounded-full bg-trainer-success/12 flex items-center justify-center">
-          <Heart size={28} className="text-trainer-success/60" />
+      <>
+        <div className="flex flex-col items-center justify-center min-h-full px-5 gap-5 text-center">
+          <div className="w-16 h-16 rounded-full bg-trainer-success/12 flex items-center justify-center">
+            <Heart size={28} className="text-trainer-success/60" />
+          </div>
+          <div>
+            <h2 className="text-xl font-bold text-white mb-2">No active conditions</h2>
+            <p className="text-sm text-white/45 leading-relaxed max-w-xs">
+              Add an injury or condition to begin your personalised physiotherapy programme.
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAddInjury(true)}
+            className="flex items-center gap-2 px-5 py-3 bg-trainer-indigo rounded-[14px] text-sm font-bold text-white hover:bg-trainer-indigo-hover transition-colors"
+          >
+            <Plus size={15} />
+            Add Condition
+          </button>
         </div>
-        <div>
-          <h2 className="text-xl font-bold text-white mb-2">No active conditions</h2>
-          <p className="text-sm text-white/45 leading-relaxed max-w-xs">
-            When injuries or conditions are added to your profile, your personalised
-            physiotherapy programme will appear here.
-          </p>
-        </div>
-      </div>
+        <AddInjurySheet open={showAddInjury} onClose={() => setShowAddInjury(false)} />
+      </>
     );
   }
 
@@ -602,10 +614,21 @@ export default function PhysioPage() {
         animate={{ opacity: 1, y: 0 }}
         className="px-5 pt-14 pb-6"
       >
-        <h1 className="text-2xl font-bold text-white">Physiotherapy</h1>
-        <p className="text-sm text-white/40 mt-1">
-          {injuries.length} active condition{injuries.length !== 1 ? "s" : ""}
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-bold text-white">Physiotherapy</h1>
+            <p className="text-sm text-white/40 mt-1">
+              {injuries.length} active condition{injuries.length !== 1 ? "s" : ""}
+            </p>
+          </div>
+          <button
+            onClick={() => setShowAddInjury(true)}
+            className="w-9 h-9 rounded-full bg-trainer-indigo/15 border border-trainer-indigo/25 flex items-center justify-center hover:bg-trainer-indigo/25 transition-colors"
+            aria-label="Add condition"
+          >
+            <Plus size={16} className="text-trainer-indigo" />
+          </button>
+        </div>
       </motion.div>
 
       <div className="flex flex-col gap-4 px-5">
@@ -641,6 +664,8 @@ export default function PhysioPage() {
           );
         })}
       </div>
+
+      <AddInjurySheet open={showAddInjury} onClose={() => setShowAddInjury(false)} />
     </div>
   );
 }

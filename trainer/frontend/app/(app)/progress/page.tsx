@@ -1,18 +1,20 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { motion } from "framer-motion";
-import { Clock, Dumbbell, TrendingUp } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Clock, Dumbbell, TrendingUp, Scale, X, ChevronRight } from "lucide-react";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
+import { useProgressStore } from "@/app/store/progressStore";
 import { VolumeChart, type WeeklyVolumeData } from "@/app/components/progress/VolumeChart";
 import { OneRMChart, type OneRMDataPoint } from "@/app/components/progress/OneRMChart";
 import { PRCard, type ExercisePR } from "@/app/components/progress/PRCard";
+import { BodyWeightChart } from "@/app/components/progress/BodyWeightChart";
 import { exerciseMap } from "@/app/data/exercises";
 import { estimateOneRepMax } from "@/app/lib/progression-engine";
 import { type WorkoutSession, type ExerciseLog } from "@/app/types";
-import { formatVolume, cn } from "@/app/lib/utils";
+import { formatVolume, convertWeight, cn } from "@/app/lib/utils";
 
 // ─── Period options ─────────────────────────────────────────────────────────────
 
@@ -208,11 +210,27 @@ export default function ProgressPage() {
   const { settings } = useSettingsStore();
   const { profile } = useUserStore();
 
+  const { bodyWeightLogs, addWeightLog } = useProgressStore();
+
   const [period, setPeriod] = useState<Period>(PERIODS[1]); // default 8W
-  const [selectedSection, setSelectedSection] = useState<"volume" | "records">("volume");
+  const [selectedSection, setSelectedSection] = useState<"volume" | "records" | "body">("volume");
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(null);
+  const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(null);
+  const [weightInput, setWeightInput] = useState("");
 
   const unit = (settings.weightUnit ?? profile?.units ?? "kg") as "kg" | "lb";
+
+  function handleLogWeight() {
+    const val = parseFloat(weightInput);
+    if (isNaN(val) || val <= 0) return;
+    const kg = unit === "lb" ? val / 2.20462 : val;
+    addWeightLog(Math.round(kg * 10) / 10);
+    setWeightInput("");
+  }
+
+  const todayWeight = bodyWeightLogs[0]?.date === new Date().toISOString().split("T")[0]
+    ? bodyWeightLogs[0]
+    : null;
 
   // Filter sessions to selected period
   const cutoff = useMemo(() => {
@@ -281,7 +299,7 @@ export default function ProgressPage() {
 
         {/* Section tabs */}
         <div className="flex gap-1 p-1 bg-trainer-elevated rounded-[12px]">
-          {(["volume", "records"] as const).map((tab) => (
+          {(["volume", "records", "body"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setSelectedSection(tab)}
@@ -292,7 +310,7 @@ export default function ProgressPage() {
                   : "text-white/40 hover:text-white/70"
               )}
             >
-              {tab === "volume" ? "Volume" : "Records"}
+              {tab === "volume" ? "Volume" : tab === "records" ? "Records" : "Body"}
             </button>
           ))}
         </div>
@@ -323,12 +341,13 @@ export default function ProgressPage() {
               ) : (
                 <div className="flex flex-col divide-y divide-white/5">
                   {periodSessions.slice(0, 10).map((session, i) => (
-                    <motion.div
+                    <motion.button
                       key={session.id}
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: i * 0.04 }}
-                      className="flex items-center gap-3 py-3 first:pt-0 last:pb-0"
+                      onClick={() => setSelectedSession(session)}
+                      className="flex items-center gap-3 py-3 first:pt-0 last:pb-0 w-full text-left"
                     >
                       <div className="w-8 h-8 rounded-[8px] bg-trainer-indigo/12 flex items-center justify-center shrink-0">
                         <Dumbbell size={14} className="text-trainer-indigo/60" />
@@ -345,15 +364,18 @@ export default function ProgressPage() {
                           })}
                         </p>
                       </div>
-                      <div className="flex flex-col items-end gap-0.5">
-                        <span className="text-xs font-semibold text-white/65 tabular-nums">
-                          {formatVolume(session.totalVolumeKg, unit)}
-                        </span>
-                        <span className="text-[10px] text-white/30">
-                          {session.durationMinutes}m
-                        </span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex flex-col items-end gap-0.5">
+                          <span className="text-xs font-semibold text-white/65 tabular-nums">
+                            {formatVolume(session.totalVolumeKg, unit)}
+                          </span>
+                          <span className="text-[10px] text-white/30">
+                            {session.durationMinutes}m
+                          </span>
+                        </div>
+                        <ChevronRight size={13} className="text-white/20" />
                       </div>
-                    </motion.div>
+                    </motion.button>
                   ))}
                 </div>
               )}
@@ -408,7 +430,194 @@ export default function ProgressPage() {
             </div>
           </motion.div>
         )}
+
+        {/* ── Body section ── */}
+        {selectedSection === "body" && (
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex flex-col gap-4"
+          >
+            {/* Log weight card */}
+            <div className="bg-trainer-surface border border-white/8 rounded-[16px] p-4">
+              <p className="text-xs text-white/35 uppercase tracking-widest font-semibold mb-4">
+                Today's Weight
+              </p>
+              {todayWeight && (
+                <p className="text-2xl font-bold text-white tabular-nums mb-3">
+                  {unit === "lb"
+                    ? `${Math.round(todayWeight.weightKg * 2.20462 * 10) / 10} lb`
+                    : `${todayWeight.weightKg} kg`}
+                  <span className="text-sm font-normal text-white/35 ml-2">logged today</span>
+                </p>
+              )}
+              <div className="flex gap-2">
+                <input
+                  type="number"
+                  step="0.1"
+                  min="20"
+                  max="500"
+                  placeholder={`Weight in ${unit}`}
+                  value={weightInput}
+                  onChange={(e) => setWeightInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleLogWeight()}
+                  className="flex-1 bg-trainer-elevated border border-white/10 rounded-[10px] px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-trainer-success/50 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+                />
+                <button
+                  onClick={handleLogWeight}
+                  disabled={!weightInput || isNaN(parseFloat(weightInput))}
+                  className="px-4 py-2.5 bg-trainer-success/15 border border-trainer-success/30 text-trainer-success text-sm font-semibold rounded-[10px] transition-colors hover:bg-trainer-success/25 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Log
+                </button>
+              </div>
+            </div>
+
+            {/* Body weight chart */}
+            <div className="bg-trainer-surface border border-white/8 rounded-[16px] p-4">
+              <p className="text-xs text-white/35 uppercase tracking-widest font-semibold mb-4">
+                Weight Trend ({unit})
+              </p>
+              <BodyWeightChart data={bodyWeightLogs} unit={unit} />
+            </div>
+
+            {/* Weight log history */}
+            {bodyWeightLogs.length > 0 && (
+              <div className="bg-trainer-surface border border-white/8 rounded-[16px] p-4">
+                <p className="text-xs text-white/35 uppercase tracking-widest font-semibold mb-3">
+                  History
+                </p>
+                <div className="flex flex-col divide-y divide-white/5">
+                  {bodyWeightLogs.slice(0, 14).map((entry) => (
+                    <div key={entry.date} className="flex items-center justify-between py-2.5 first:pt-0 last:pb-0">
+                      <p className="text-sm text-white/50">
+                        {new Date(entry.date).toLocaleDateString("en-US", {
+                          weekday: "short",
+                          month: "short",
+                          day: "numeric",
+                        })}
+                      </p>
+                      <span className="text-sm font-semibold text-white/80 tabular-nums">
+                        {unit === "lb"
+                          ? `${Math.round(entry.weightKg * 2.20462 * 10) / 10} lb`
+                          : `${entry.weightKg} kg`}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </motion.div>
+        )}
       </div>
+
+      {/* ── Session detail modal ── */}
+      <AnimatePresence>
+        {selectedSession && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSelectedSession(null)}
+              className="fixed inset-0 bg-black/60 z-40"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 380, damping: 40 }}
+              className="fixed bottom-0 inset-x-0 z-50 bg-trainer-elevated border-t border-white/10 rounded-t-[24px] max-h-[80vh] flex flex-col"
+            >
+              {/* Sheet header */}
+              <div className="flex items-center justify-between px-5 pt-5 pb-4 border-b border-white/8 shrink-0">
+                <div>
+                  <p className="text-base font-bold text-white">{selectedSession.splitDay}</p>
+                  <p className="text-xs text-white/35 mt-0.5">
+                    {new Date(selectedSession.date).toLocaleDateString("en-US", {
+                      weekday: "long",
+                      month: "long",
+                      day: "numeric",
+                    })}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedSession(null)}
+                  className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+                >
+                  <X size={15} />
+                </button>
+              </div>
+
+              {/* Session stats */}
+              <div className="flex gap-4 px-5 py-3 border-b border-white/5 shrink-0">
+                <div className="flex items-center gap-1.5">
+                  <TrendingUp size={13} className="text-trainer-success" />
+                  <span className="text-xs font-semibold text-white/65 tabular-nums">
+                    {formatVolume(selectedSession.totalVolumeKg, unit)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock size={13} className="text-trainer-warning" />
+                  <span className="text-xs font-semibold text-white/65 tabular-nums">
+                    {selectedSession.durationMinutes}m
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Dumbbell size={13} className="text-trainer-indigo" />
+                  <span className="text-xs font-semibold text-white/65">
+                    {selectedSession.exercisesCompleted.length} exercises
+                  </span>
+                </div>
+              </div>
+
+              {/* Exercise list */}
+              <div className="overflow-y-auto flex-1 px-5 py-4">
+                {selectedSession.exercisesCompleted.length === 0 ? (
+                  <p className="text-sm text-white/30 text-center py-6">No exercise data recorded.</p>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {selectedSession.exercisesCompleted.map((log) => {
+                      const ex = exerciseMap[log.exerciseId];
+                      return (
+                        <div key={log.id ?? log.exerciseId}>
+                          <p className="text-sm font-semibold text-white/80 capitalize mb-2">
+                            {ex?.name?.replace(/-/g, " ") ?? log.exerciseId}
+                          </p>
+                          <div className="flex flex-col gap-1.5">
+                            {log.sets.map((s) => (
+                              <div
+                                key={s.setNumber}
+                                className="flex items-center gap-3 bg-trainer-surface rounded-[8px] px-3 py-2"
+                              >
+                                <span className="text-[11px] text-white/25 w-5 tabular-nums">
+                                  {s.setNumber}
+                                </span>
+                                <span className="text-sm font-semibold text-white/80 tabular-nums">
+                                  {formatVolume(s.weightUsed, unit)}
+                                </span>
+                                <span className="text-xs text-white/35">×</span>
+                                <span className="text-sm font-semibold text-white/80 tabular-nums">
+                                  {s.repsCompleted} reps
+                                </span>
+                                {s.rpe != null && (
+                                  <span className="ml-auto text-[11px] text-white/25 tabular-nums">
+                                    RPE {s.rpe}
+                                  </span>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
