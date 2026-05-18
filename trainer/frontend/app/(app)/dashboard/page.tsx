@@ -180,7 +180,7 @@ function NoProgrammeCard() {
     >
       <p className="text-sm text-white/40 mb-1">No programme selected</p>
       <p className="text-white font-semibold mb-4">
-        Set up your training split to see today's workout.
+        Set up your training split to see today&apos;s workout.
       </p>
       <Link
         href="/settings"

@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { type WorkoutSession, type ExerciseLog } from "@/app/types";
-import { type ActiveSession, type ActiveSet } from "@/app/hooks/useSession";
+import { type ActiveSession } from "@/app/hooks/useSession";
 
 interface SessionState {
   activeSession: ActiveSession | null;

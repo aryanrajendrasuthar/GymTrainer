@@ -21,7 +21,6 @@ import {
   useSuggestedWeight,
 } from "@/app/hooks/useProgressiveOverload";
 import { useExerciseHistory } from "@/app/hooks/useExerciseHistory";
-import { getGoalBasedRestSeconds } from "@/app/hooks/useSettings";
 import { getSplitById } from "@/app/data/splits";
 import { exerciseMap } from "@/app/data/exercises";
 import { getWarmupForSession, type SessionTag } from "@/app/data/protocols";
@@ -340,7 +339,7 @@ function PreWorkoutView({
       {/* Header */}
       <div className="px-5 pt-14 pb-6">
         <p className="text-xs text-trainer-indigo/80 font-semibold uppercase tracking-wider mb-1">
-          Today's Workout
+          Today&apos;s Workout
         </p>
         <h1 className="text-2xl font-bold text-white">{dayName}</h1>
         <div className="flex flex-wrap gap-1.5 mt-3">

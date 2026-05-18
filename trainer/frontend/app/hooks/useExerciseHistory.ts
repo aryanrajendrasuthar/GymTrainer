@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo } from "react";
-import { type ExerciseLog, type SetLog, type PersonalRecord } from "@/app/types";
+import { type ExerciseLog, type SetLog } from "@/app/types";
 import { estimateOneRepMax, calcSessionVolume } from "@/app/lib/progression-engine";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

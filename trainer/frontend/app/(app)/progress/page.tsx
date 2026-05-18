@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, Dumbbell, TrendingUp, Scale, X, ChevronRight } from "lucide-react";
+import { Clock, Dumbbell, TrendingUp, X, ChevronRight } from "lucide-react";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
@@ -15,7 +15,7 @@ import { BodyWeightChart } from "@/app/components/progress/BodyWeightChart";
 import { exerciseMap } from "@/app/data/exercises";
 import { estimateOneRepMax } from "@/app/lib/progression-engine";
 import { type WorkoutSession, type ExerciseLog } from "@/app/types";
-import { formatVolume, convertWeight, cn } from "@/app/lib/utils";
+import { formatVolume, cn } from "@/app/lib/utils";
 
 // ─── Period options ─────────────────────────────────────────────────────────────
 
@@ -444,7 +444,7 @@ export default function ProgressPage() {
             {/* Log weight card */}
             <div className="bg-trainer-surface border border-white/8 rounded-[16px] p-4">
               <p className="text-xs text-white/35 uppercase tracking-widest font-semibold mb-4">
-                Today's Weight
+                Today&apos;s Weight
               </p>
               {todayWeight && (
                 <p className="text-2xl font-bold text-white tabular-nums mb-3">

@@ -46,28 +46,6 @@ export interface GeneratedRoutine {
   skippedExerciseIds: string[];
 }
 
-// ─── Muscle Group → Session Tag Mapping ──────────────────────────────────────
-
-const MUSCLE_GROUP_TO_SESSION_TAG: Record<string, SessionTag> = {
-  chest: "chest",
-  shoulders: "shoulders",
-  triceps: "push",
-  back: "back",
-  lats: "back",
-  "rear-delts": "pull",
-  biceps: "pull",
-  quads: "legs",
-  hamstrings: "legs",
-  glutes: "legs",
-  calves: "legs",
-  legs: "legs",
-  arms: "arms",
-  core: "core",
-  "full-body": "full-body",
-  hiit: "hiit",
-  cardio: "cardio",
-};
-
 function inferSessionTag(muscleGroups: string[]): SessionTag {
   const groups = muscleGroups.map((g) => g.toLowerCase());
 

@@ -52,7 +52,7 @@ function CustomTooltip({
   );
 }
 
-export function OneRMChart({ data, unit, exerciseName, className }: OneRMChartProps) {
+export function OneRMChart({ data, unit, className }: OneRMChartProps) {
   if (data.length < 2) {
     return (
       <div

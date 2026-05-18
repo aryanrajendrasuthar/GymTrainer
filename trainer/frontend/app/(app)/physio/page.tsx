@@ -18,7 +18,6 @@ import {
 import { useUserStore } from "@/app/store/userStore";
 import { usePhysioStore } from "@/app/store/physioStore";
 import { buildPhysioSession, assessPhaseGate } from "@/app/lib/physio-engine";
-import { Badge } from "@/app/components/ui/Badge";
 import { Button } from "@/app/components/ui/Button";
 import { AddInjurySheet } from "@/app/components/physio/AddInjurySheet";
 import {
@@ -315,7 +314,7 @@ export default function PhysioPage() {
     sessionHistory,
   } = usePhysioStore();
 
-  const injuries: UserInjury[] = profile?.injuries ?? [];
+  const injuries = useMemo(() => profile?.injuries ?? [], [profile]);
 
   const [view, setView] = useState<PhysioView>("list");
   const [showAddInjury, setShowAddInjury] = useState(false);
@@ -454,7 +453,7 @@ export default function PhysioPage() {
 
           <div className="bg-trainer-elevated border border-white/10 rounded-[12px] p-4">
             <p className="text-xs text-white/35 uppercase tracking-wider font-semibold mb-3">
-              Today's session · {session.exercises.length} exercises · ~{session.estimatedDurationMinutes}min
+              Today&apos;s session · {session.exercises.length} exercises · ~{session.estimatedDurationMinutes}min
             </p>
             <div className="flex flex-col gap-1.5">
               {session.exercises.map(({ exercise }) => (

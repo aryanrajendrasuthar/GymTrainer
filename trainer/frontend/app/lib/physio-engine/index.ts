@@ -5,10 +5,8 @@ import {
   type UserInjury,
 } from "@/app/types";
 import {
-  allPhysioExercises,
   physioExerciseMap,
   getPhysioExercisesByCondition,
-  getPhysioExercisesByPhase,
 } from "@/app/data/physioExercises";
 
 // ─── Types ────────────────────────────────────────────────────────────────────

@@ -87,7 +87,7 @@ export function TodayWorkoutCard({ split, splitDay, dayIndex }: TodayWorkoutCard
         <div className="flex items-start justify-between mb-4">
           <div>
             <p className="text-xs text-trainer-indigo/80 font-semibold uppercase tracking-wider mb-1">
-              Today's Workout
+              Today&apos;s Workout
             </p>
             <h2 className="text-xl font-bold text-white leading-tight">
               {splitDay.dayName}

@@ -9,7 +9,6 @@ import { MuscleActivationDiagram } from "@/app/components/ui/MuscleActivationDia
 import { Badge } from "@/app/components/ui/Badge";
 import { type WorkoutSession, type MuscleGroup } from "@/app/types";
 import { formatVolume } from "@/app/lib/utils";
-import { cn } from "@/app/lib/utils";
 
 interface PersonalRecord {
   exerciseName: string;
@@ -26,28 +25,6 @@ interface SessionCompleteProps {
   onSave: (notes: string) => void;
   onDiscard: () => void;
 }
-
-const StatCard = ({
-  icon: Icon,
-  label,
-  value,
-  color = "text-trainer-indigo",
-}: {
-  icon: React.ComponentType<{ size: number; className?: string }>;
-  label: string;
-  value: string;
-  color?: string;
-}) => (
-  <motion.div
-    initial={{ opacity: 0, y: 12 }}
-    animate={{ opacity: 1, y: 0 }}
-    className="bg-trainer-elevated border border-white/8 rounded-[16px] p-4 flex flex-col gap-2"
-  >
-    <Icon size={20} className={color} />
-    <span className="text-2xl font-bold text-white">{value}</span>
-    <span className="text-xs text-white/40">{label}</span>
-  </motion.div>
-);
 
 export function SessionComplete({
   session,

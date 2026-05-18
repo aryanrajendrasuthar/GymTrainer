@@ -287,7 +287,7 @@ export default function ExercisesPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedExercise, setSelectedExercise] = useState<Exercise | null>(null);
 
-  const userEquipment = profile?.equipment ?? [];
+  const userEquipment = useMemo(() => profile?.equipment ?? [], [profile?.equipment]);
 
   const filtered = useMemo(() => {
     return allExercises.filter((ex) => {

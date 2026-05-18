@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import {
   Dumbbell,
   Zap,
-  Timer,
   Eye,
   Bell,
   Heart,
