@@ -19,7 +19,7 @@ const PORT = process.env.PORT ?? 4000;
 app.use(helmet());
 const allowedOrigins = (process.env.FRONTEND_URL ?? "http://localhost:3000")
   .split(",")
-  .map((o) => o.trim());
+  .map((o) => o.trim().replace(/\/$/, ""));
 
 app.use(
   cors({
