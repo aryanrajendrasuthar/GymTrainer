@@ -1655,7 +1655,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute ankle sprain"],
     progressionExercise: "single-leg-calf-raise",
-    regressionExercise: [],
+    regressionExercise: "",
     tags: ["warmup", "mobility", "ankle", "beginner-friendly", "joint-health"],
   },
   {
@@ -2744,7 +2744,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute rotator cuff tear", "shoulder dislocation"],
     progressionExercise: "band-pull-apart",
-    regressionExercise: [],
+    regressionExercise: "",
     tags: ["warmup", "shoulders", "mobility", "beginner-friendly", "rotator-cuff"],
   },
   {
@@ -2790,7 +2790,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute hip impingement", "labral tear"],
     progressionExercise: "hip-90-90",
-    regressionExercise: [],
+    regressionExercise: "",
     tags: ["warmup", "hip", "mobility", "beginner-friendly", "joint-health"],
   },
   {
@@ -2930,7 +2930,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute knee pain", "ankle injury"],
     progressionExercise: "extended-puppy-pose",
-    regressionExercise: [],
+    regressionExercise: "",
     tags: ["cooldown", "stretch", "back", "yoga", "beginner-friendly", "stress-relief"],
   },
   {
@@ -3735,7 +3735,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute knee pain", "hip impingement"],
     progressionExercise: "assault-bike",
-    regressionExercise: [],
+    regressionExercise: "",
     tags: ["cardio", "machine", "low-impact", "beginner-friendly", "fat-loss"],
   },
   {
@@ -3970,7 +3970,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: [],
     progressionExercise: "glute-bridge",
-    regressionExercise: [],
+    regressionExercise: "",
     tags: ["warmup", "mobility", "lumbar", "beginner-friendly", "rehab-friendly"],
   },
   {
@@ -4064,7 +4064,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute hamstring tear", "sciatica — pain down the leg"],
     progressionExercise: "seated-forward-fold",
-    regressionExercise: [],
+    regressionExercise: "",
     tags: ["cooldown", "hamstrings", "stretch", "beginner-friendly", "rehab-friendly"],
   },
   {
@@ -4111,7 +4111,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute knee pain"],
     progressionExercise: "world-greatest-stretch",
-    regressionExercise: [],
+    regressionExercise: "",
     tags: ["cooldown", "hip-flexors", "stretch", "beginner-friendly", "posture", "rehab-friendly"],
   },
   {
@@ -4345,7 +4345,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute knee pain", "IT band syndrome"],
     progressionExercise: "lateral-squat",
-    regressionExercise: ["clamshell"],
+    regressionExercise: "clamshell",
     tags: ["warmup", "glutes", "resistance-band", "lateral", "beginner-friendly", "rehab-friendly"],
   },
   {
@@ -4392,7 +4392,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 0, lower: 0, isolation: 0 },
     contraindications: ["acute hip pain", "IT band syndrome"],
     progressionExercise: "lateral-band-walk",
-    regressionExercise: ["side-lying-hip-abduction"],
+    regressionExercise: "side-lying-hip-abduction",
     tags: ["warmup", "glutes", "abductor", "resistance-band", "beginner-friendly", "rehab-friendly"],
   },
   {
@@ -4439,7 +4439,7 @@ export const coreExercises: Exercise[] = [
     suggestedWeightIncreaseKg: { upper: 2.5, lower: 5, isolation: 2.5 },
     contraindications: ["Achilles tendinopathy", "plantar fasciitis"],
     progressionExercise: "standing-calf-raise",
-    regressionExercise: ["calf-stretch"],
+    regressionExercise: "calf-stretch",
     tags: ["legs", "calves", "isolation", "machine", "beginner-friendly"],
   },
   {

@@ -702,7 +702,7 @@ export const legsGlutesExercises: Exercise[] = [
     location: ["gym"],
     difficulty: "beginner",
     primaryMuscles: ["hamstrings-biceps-femoris", "hamstrings-semimembranosus", "hamstrings-semitendinosus"],
-    secondaryMuscles: ["gastrocnemius", "popliteus"],
+    secondaryMuscles: ["gastrocnemius"],
     gripVariations: ["machine"],
     movementType: "isolation",
     forceType: "pull",

@@ -6,7 +6,7 @@ import { cn } from "@/app/lib/utils";
 
 type CardVariant = "standard" | "elevated" | "glass";
 
-interface CardProps extends HTMLAttributes<HTMLDivElement> {
+interface CardProps extends Omit<HTMLAttributes<HTMLDivElement>, "onDrag" | "onDragEnd" | "onDragStart" | "onAnimationStart"> {
   variant?: CardVariant;
   interactive?: boolean;
   noPad?: boolean;

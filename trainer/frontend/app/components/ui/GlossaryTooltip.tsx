@@ -3,9 +3,8 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExternalLink, X } from "lucide-react";
-import { glossary } from "@/app/data/glossary";
-import { type GlossaryEntry } from "@/app/types";
+import { X } from "lucide-react";
+import { glossaryTerms, type GlossaryTerm } from "@/app/data/glossary";
 import { cn } from "@/app/lib/utils";
 
 interface GlossaryTooltipProps {
@@ -20,9 +19,9 @@ export function GlossaryTooltip({ term, children, className }: GlossaryTooltipPr
   const [position, setPosition] = useState<{ top: number; left: number } | null>(null);
   const triggerRef = useRef<HTMLSpanElement>(null);
 
-  const entry = glossary.find(
-    (g) => g.term.toLowerCase() === term.toLowerCase()
-  ) as GlossaryEntry | undefined;
+  const entry = glossaryTerms.find(
+    (g: GlossaryTerm) => g.term.toLowerCase() === term.toLowerCase()
+  );
 
   useEffect(() => {
     setIsMounted(true);
@@ -134,7 +133,7 @@ function GlossaryContent({
   onClose,
   compact = false,
 }: {
-  entry: GlossaryEntry;
+  entry: GlossaryTerm;
   onClose: () => void;
   compact?: boolean;
 }) {
@@ -143,10 +142,10 @@ function GlossaryContent({
       <div className="flex items-start justify-between gap-2">
         <div>
           <h3 className="font-semibold text-white text-base">{entry.term}</h3>
-          {entry.alsoCalledTerms.length > 0 && (
+          {entry.relatedTerms.length > 0 && (
             <p className="text-xs text-white/40 mt-0.5">
-              Also called:{" "}
-              <span className="text-white/60">{entry.alsoCalledTerms.join(", ")}</span>
+              Related:{" "}
+              <span className="text-white/60">{entry.relatedTerms.join(", ")}</span>
             </p>
           )}
         </div>
@@ -161,33 +160,24 @@ function GlossaryContent({
         )}
       </div>
 
-      <p className="text-sm text-white/70 leading-relaxed">{entry.plainEnglishDefinition}</p>
-
-      {entry.hasConditionPage && entry.conditionId && (
-        <a
-          href={`/physio/conditions/${entry.conditionId}`}
-          className="inline-flex items-center gap-1.5 text-xs text-trainer-indigo hover:text-trainer-indigo-hover transition-colors"
-          onClick={onClose}
-        >
-          <span>Learn more</span>
-          <ExternalLink size={12} />
-        </a>
-      )}
+      <p className="text-sm text-white/70 leading-relaxed">
+        {compact ? entry.shortDefinition : entry.fullDefinition}
+      </p>
 
       <div className="inline-flex items-center gap-1.5">
         <span
           className={cn(
             "inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium",
-            entry.category === "condition" && "bg-trainer-danger/10 text-trainer-danger",
-            entry.category === "anatomy" && "bg-trainer-indigo/10 text-trainer-muted",
-            entry.category === "physio-exercise" && "bg-trainer-success/10 text-trainer-success",
-            entry.category === "gym-term" && "bg-trainer-gold/10 text-trainer-gold"
+            entry.category === "physio-condition" && "bg-trainer-danger/10 text-trainer-danger",
+            entry.category === "anatomy" && "bg-trainer-indigo/10 text-trainer-indigo",
+            entry.category === "movement" && "bg-trainer-success/10 text-trainer-success",
+            entry.category === "assessment" && "bg-trainer-gold/10 text-trainer-gold"
           )}
         >
-          {entry.category === "condition" && "Condition"}
+          {entry.category === "physio-condition" && "Condition"}
           {entry.category === "anatomy" && "Anatomy"}
-          {entry.category === "physio-exercise" && "Exercise"}
-          {entry.category === "gym-term" && "Gym Term"}
+          {entry.category === "movement" && "Movement"}
+          {entry.category === "assessment" && "Assessment"}
         </span>
       </div>
     </div>
