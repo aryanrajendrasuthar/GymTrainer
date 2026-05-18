@@ -214,7 +214,7 @@ export default function AchievementsPage() {
   let globalIdx = 0;
 
   return (
-    <div className="flex flex-col min-h-full pb-24">
+    <div className="flex flex-col min-h-full pb-24 page-enter">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

@@ -17,7 +17,7 @@ export default function GlobalError({
   }, [error]);
 
   return (
-    <div className="min-h-screen bg-trainer-black flex flex-col items-center justify-center px-5 text-center gap-6">
+    <div className="min-h-screen gym-bg flex flex-col items-center justify-center px-5 text-center gap-6">
       <motion.div
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}

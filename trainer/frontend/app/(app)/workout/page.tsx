@@ -818,7 +818,7 @@ function WorkoutPageContent() {
   };
 
   return (
-    <div className="flex flex-col min-h-full bg-trainer-black">
+    <div className="flex flex-col min-h-full gym-bg">
       <WorkoutHeader
         elapsed={elapsedSeconds}
         current={currentExerciseIdx + 1}
@@ -957,6 +957,7 @@ function WorkoutPageContent() {
                   variant="danger"
                   fullWidth
                   onClick={() => {
+                    setPhase("pre");
                     abandonSession();
                     clearDraftSession();
                     router.push("/dashboard");

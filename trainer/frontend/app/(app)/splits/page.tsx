@@ -291,7 +291,7 @@ export default function SplitsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full pb-28">
+    <div className="flex flex-col min-h-full pb-28 page-enter">
       {/* Header */}
       <div className="sticky top-0 z-20 flex items-center gap-3 px-4 pt-12 pb-4 bg-trainer-black/95 backdrop-blur-md border-b border-white/8">
         <button

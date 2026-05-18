@@ -123,7 +123,7 @@ export function SessionComplete({
   const animatedExercises = useCountUp(exerciseCount, 500, 300);
 
   return (
-    <div className="min-h-screen bg-trainer-black flex flex-col">
+    <div className="min-h-screen gym-bg flex flex-col">
       {/* Canvas confetti overlay */}
       <Confetti active={showConfetti} count={100} originY={0.25} />
 

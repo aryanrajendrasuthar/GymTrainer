@@ -644,7 +644,7 @@ export default function PhysioPage() {
   // ─── Condition list ───────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col min-h-full pb-24">
+    <div className="flex flex-col min-h-full pb-24 page-enter">
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}

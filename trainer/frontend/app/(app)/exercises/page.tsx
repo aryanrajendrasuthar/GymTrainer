@@ -320,7 +320,7 @@ export default function ExercisesPage() {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-full">
+    <div className="flex flex-col min-h-full page-enter">
       {/* Header */}
       <div className="px-5 pt-14 pb-4 space-y-3">
         <div className="flex items-center justify-between">

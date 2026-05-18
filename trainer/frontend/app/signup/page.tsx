@@ -77,7 +77,7 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className="min-h-screen bg-trainer-black flex flex-col items-center justify-center px-5 py-12">
+    <div className="min-h-screen gym-bg-auth flex flex-col items-center justify-center px-5 py-12">
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

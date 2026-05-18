@@ -103,6 +103,38 @@ input, select, textarea {
   100% { background-position: 200% 0; }
 }
 
+/* Gym atmosphere backgrounds — CSS-only, zero latency, offline-safe */
+@layer utilities {
+  /* Subtle overhead spotlight: used in app shell (layout) */
+  .gym-bg {
+    background-color: #0A0A0F;
+    background-image:
+      radial-gradient(ellipse 100% 55% at 50% 0%, rgba(108, 99, 255, 0.09) 0%, transparent 65%),
+      radial-gradient(ellipse 60% 35% at 15% 60%, rgba(50, 35, 90, 0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 60% 35% at 85% 60%, rgba(35, 25, 70, 0.05) 0%, transparent 55%);
+  }
+
+  /* Dramatic version for auth / onboarding hero screens */
+  .gym-bg-auth {
+    background-color: #0A0A0F;
+    background-image:
+      radial-gradient(ellipse 130% 65% at 50% -5%, rgba(108, 99, 255, 0.17) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 50% at 10% 55%, rgba(70, 50, 120, 0.09) 0%, transparent 55%),
+      radial-gradient(ellipse 80% 50% at 90% 55%, rgba(50, 35, 90, 0.07) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 40% at 50% 110%, rgba(25, 18, 50, 0.14) 0%, transparent 50%);
+  }
+}
+
+/* Page entrance — applied to pages that mount fresh on navigation */
+@keyframes page-enter {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.page-enter {
+  animation: page-enter 0.28s ease-out both;
+}
+
 /* Bottom safe area for mobile */
 @supports (padding-bottom: env(safe-area-inset-bottom)) {
   .pb-safe {

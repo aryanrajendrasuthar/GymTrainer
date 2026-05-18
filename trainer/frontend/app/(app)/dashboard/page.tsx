@@ -126,7 +126,7 @@ export default function DashboardPage() {
   );
 
   return (
-    <div className="flex flex-col min-h-full pb-6">
+    <div className="flex flex-col min-h-full pb-6 page-enter">
       {/* PWA install banner */}
       <InstallBanner />
 
@@ -135,10 +135,15 @@ export default function DashboardPage() {
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.35 }}
-        className="px-5 pt-14 pb-6"
+        className="relative px-5 pt-14 pb-6 overflow-hidden"
       >
-        <p className="text-sm text-white/40 font-medium">{getGreeting()}</p>
-        <h1 className="text-2xl font-black text-white mt-0.5">{firstName}</h1>
+        {/* Overhead spotlight behind the greeting */}
+        <div
+          className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 w-64 h-40 rounded-full"
+          style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(108,99,255,0.18) 0%, transparent 70%)" }}
+        />
+        <p className="text-sm text-white/40 font-medium relative">{getGreeting()}</p>
+        <h1 className="text-2xl font-black text-white mt-0.5 relative">{firstName}</h1>
       </motion.div>
 
       <div className="flex flex-col gap-4 px-5">

@@ -384,7 +384,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-full pb-28">
+    <div className="flex flex-col min-h-full pb-28 page-enter">
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

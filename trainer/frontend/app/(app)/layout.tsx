@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 import { useUserStore } from "@/app/store/userStore";
 import { usePhysioStore } from "@/app/store/physioStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
@@ -107,37 +106,29 @@ function useNotificationTriggers() {
   }, [isAuthenticated, activeInjuries, todayCompletedSlots, settings, profile, push, recentSessions]);
 }
 
-// Page entry animation — fade + 8px slide up, as specified
-const pageVariants = {
-  initial: { opacity: 0, y: 8 },
-  enter: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -4 },
-};
-
-const pageTransition = {
-  duration: 0.22,
-  ease: [0.25, 0.46, 0.45, 0.94] as [number, number, number, number],
-};
-
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
   const { isAuthenticated, onboardingComplete } = useUserStore();
   const { resetDailySlots } = usePhysioStore();
-  const [mounted, setMounted] = useState(false);
+
+  // Use Zustand's own hydration signal — goes true exactly once, never resets
+  const [hydrated, setHydrated] = useState(
+    () => useUserStore.persist.hasHydrated()
+  );
 
   useNotificationTriggers();
   useDataSync();
 
   useEffect(() => {
-    setMounted(true);
-  }, []);
+    if (hydrated) return;
+    return useUserStore.persist.onFinishHydration(() => setHydrated(true));
+  }, [hydrated]);
 
   useEffect(() => {
-    if (!mounted) return;
+    if (!hydrated) return;
     if (!isAuthenticated) { router.replace("/signin"); return; }
     if (!onboardingComplete) { router.replace("/onboarding"); return; }
-  }, [mounted, isAuthenticated, onboardingComplete, router]);
+  }, [hydrated, isAuthenticated, onboardingComplete, router]);
 
   // Reset daily physio slots at midnight
   useEffect(() => {
@@ -148,31 +139,23 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(t);
   }, [resetDailySlots]);
 
-  if (!mounted || !isAuthenticated || !onboardingComplete) {
+  // Show shell with BottomNav while hydrating so there is never a blank screen
+  if (!hydrated || !isAuthenticated || !onboardingComplete) {
     return (
-      <div className="flex flex-col min-h-screen bg-trainer-black">
+      <div className="flex flex-col min-h-screen gym-bg">
         <div className="flex-1 pb-20" />
+        <BottomNav />
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-trainer-black">
+    <div className="flex flex-col min-h-screen gym-bg">
       <OfflineBanner />
       <NotificationToast />
-      <AnimatePresence mode="sync" initial={false}>
-        <motion.main
-          key={pathname}
-          variants={pageVariants}
-          initial="initial"
-          animate="enter"
-          exit="exit"
-          transition={pageTransition}
-          className="flex-1 pb-20 overflow-y-auto"
-        >
-          {children}
-        </motion.main>
-      </AnimatePresence>
+      <main className="flex-1 pb-20 overflow-y-auto">
+        {children}
+      </main>
       <BottomNav />
     </div>
   );

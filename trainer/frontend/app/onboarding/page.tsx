@@ -238,7 +238,7 @@ export default function OnboardingPage() {
   const isLast = step === STEPS.length - 1;
 
   return (
-    <div className="min-h-screen bg-trainer-black flex flex-col">
+    <div className="min-h-screen gym-bg-auth flex flex-col">
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-safe pt-12 pb-4">
         <motion.button

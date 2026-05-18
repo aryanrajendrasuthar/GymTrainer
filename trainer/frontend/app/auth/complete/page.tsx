@@ -69,7 +69,7 @@ export default function AuthCompletePage() {
 
   if (status === "error") {
     return (
-      <div className="min-h-screen bg-trainer-black flex flex-col items-center justify-center px-5 gap-4">
+      <div className="min-h-screen gym-bg flex flex-col items-center justify-center px-5 gap-4">
         <p className="text-white/60 text-center">{errorMsg}</p>
         <button
           onClick={() => router.replace("/signin")}
@@ -82,7 +82,7 @@ export default function AuthCompletePage() {
   }
 
   return (
-    <div className="min-h-screen bg-trainer-black flex flex-col items-center justify-center gap-4">
+    <div className="min-h-screen gym-bg flex flex-col items-center justify-center gap-4">
       <motion.div
         animate={{ rotate: 360 }}
         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
