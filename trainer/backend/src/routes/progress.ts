@@ -138,8 +138,12 @@ progressRouter.post(
     const { data, error } = await supabase
       .from("body_weight_logs")
       .upsert(
-        { user_id: userId, weight_kg: parsed.data.weight_kg },
-        { onConflict: "user_id,logged_at::date" }
+        {
+          user_id: userId,
+          weight_kg: parsed.data.weight_kg,
+          log_date: new Date().toISOString().split("T")[0],
+        },
+        { onConflict: "user_id,log_date" }
       )
       .select()
       .single();

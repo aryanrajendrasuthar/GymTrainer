@@ -39,6 +39,9 @@ const updateProfileSchema = z.object({
   split_id: z.string().optional(),
   equipment: z.array(z.string()).optional(),
   units: z.enum(["kg", "lb"]).optional(),
+  activity_level: z.enum([
+    "sedentary", "light", "moderate", "active", "very-active",
+  ]).optional(),
 });
 
 // ─── POST /api/auth/signup ────────────────────────────────────────────────────
@@ -168,10 +171,14 @@ authRouter.patch(
       return next(createError(parsed.error.errors[0].message, 400, "VALIDATION_ERROR"));
     }
 
+    const { userEmail } = req as AuthenticatedRequest;
+
     const { data, error } = await supabase
       .from("user_profiles")
-      .update(parsed.data)
-      .eq("id", userId)
+      .upsert(
+        { id: userId, email: userEmail, ...parsed.data },
+        { onConflict: "id" }
+      )
       .select()
       .single();
 

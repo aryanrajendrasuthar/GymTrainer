@@ -3,6 +3,7 @@ import { supabase } from "../lib/supabase";
 
 export interface AuthenticatedRequest extends Request {
   userId: string;
+  userEmail: string;
 }
 
 export async function authGuard(
@@ -31,5 +32,6 @@ export async function authGuard(
   }
 
   (req as AuthenticatedRequest).userId = data.user.id;
+  (req as AuthenticatedRequest).userEmail = data.user.email ?? "";
   next();
 }

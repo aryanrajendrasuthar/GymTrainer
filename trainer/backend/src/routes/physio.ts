@@ -17,6 +17,8 @@ const VALID_CONDITIONS = [
   "peroneal-tendon-injury", "rotator-cuff-strain", "shoulder-impingement",
   "piriformis-syndrome", "si-joint-dysfunction", "thoracic-outlet-syndrome",
   "cervicogenic-headache", "whiplash",
+  "cervical-radiculopathy", "knee-effusion",
+  "proximal-hamstring-tendinopathy", "tendinopathy-swelling",
 ] as const;
 
 const VALID_PHASES = ["acute", "subacute", "chronic", "maintenance"] as const;
