@@ -6,10 +6,10 @@ import {
   X, Plus, Trash2, ChevronDown, ChevronUp,
   Save, Search, Check, Moon,
 } from "lucide-react";
-import { allExercises } from "@/app/data/exercises";
+import { allExercises, exerciseMap } from "@/app/data/exercises";
 import { useCustomSplitStore, makeCustomSplitId, buildEmptyDay } from "@/app/store/customSplitStore";
 import { cn } from "@/app/lib/utils";
-import type { SplitDay, Exercise } from "@/app/types";
+import type { SplitDay } from "@/app/types";
 
 const MUSCLE_GROUPS = [
   "chest", "back", "shoulders", "biceps", "triceps",
@@ -46,7 +46,7 @@ function ExercisePicker({
   function toggle(id: string) {
     setSelected((prev) => {
       const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
+      if (next.has(id)) { next.delete(id); } else { next.add(id); }
       return next;
     });
   }
@@ -161,7 +161,6 @@ function DayRow({
   const [showPicker, setShowPicker] = useState(false);
 
   const exerciseNames = useMemo(() => {
-    const { exerciseMap } = require("@/app/data/exercises");
     return (day.exercises ?? []).map((id: string) => exerciseMap[id]?.name ?? id);
   }, [day.exercises]);
 

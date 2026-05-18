@@ -21,7 +21,7 @@ interface PR {
   date: string;
 }
 
-function computeRecentPRs(allLogs: ExerciseLog[], unit: "kg" | "lb"): PR[] {
+function computeRecentPRs(allLogs: ExerciseLog[]): PR[] {
   const bestMap = new Map<string, { e1rm: number; weight: number; reps: number; date: string }>();
 
   // Build all-time best first
@@ -62,7 +62,7 @@ export function RecentPRsCard() {
   const { profile } = useUserStore();
   const unit = (settings.weightUnit ?? profile?.units ?? "kg") as "kg" | "lb";
 
-  const prs = useMemo(() => computeRecentPRs(allExerciseLogs, unit), [allExerciseLogs, unit]);
+  const prs = useMemo(() => computeRecentPRs(allExerciseLogs), [allExerciseLogs]);
 
   if (prs.length === 0) return null;
 

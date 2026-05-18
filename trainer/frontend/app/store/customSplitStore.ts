@@ -2,7 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { WorkoutSplit, SplitDay, FitnessGoal, FitnessLevel } from "@/app/types";
+import type { WorkoutSplit, SplitDay } from "@/app/types";
 
 interface CustomSplitState {
   customSplits: WorkoutSplit[];

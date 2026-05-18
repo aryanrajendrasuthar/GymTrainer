@@ -10,6 +10,7 @@ import { useNotificationStore } from "@/app/store/notificationStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { BottomNav } from "@/app/components/ui/BottomNav";
 import { NotificationToast } from "@/app/components/ui/NotificationToast";
+import { OfflineBanner } from "@/app/components/ui/OfflineBanner";
 import { useDataSync } from "@/app/hooks/useDataSync";
 
 function useNotificationTriggers() {
@@ -145,6 +146,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex flex-col min-h-screen bg-trainer-black">
+      <OfflineBanner />
       <NotificationToast />
       <AnimatePresence mode="wait" initial={false}>
         <motion.main

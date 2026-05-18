@@ -326,7 +326,7 @@ export default function PhysioPage() {
     sessionHistory,
     painHistory,
   } = usePhysioStore();
-  const { unlock, incrementPhysioCount, isUnlocked } = useAchievementStore();
+  const { unlock, incrementPhysioCount } = useAchievementStore();
 
   const injuries = useMemo(() => profile?.injuries ?? [], [profile]);
 

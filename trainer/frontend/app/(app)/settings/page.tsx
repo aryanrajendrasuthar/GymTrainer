@@ -19,9 +19,14 @@ import {
   BellRing,
   Flame,
   RefreshCw,
+  Download,
+  Trophy,
 } from "lucide-react";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
+import { useSessionStore } from "@/app/store/sessionStore";
+import { useProgressStore } from "@/app/store/progressStore";
+import { useAchievementStore } from "@/app/store/achievementStore";
 import { authApi } from "@/app/lib/api";
 import { workoutSplits } from "@/app/data/splits";
 import { calculateNutritionTargets, getCalorieRangeLabel } from "@/app/lib/nutrition";
@@ -287,6 +292,9 @@ function SavedBadge({ show }: { show: boolean }) {
 export default function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useSettingsStore();
   const { profile, signOut, accessToken, updateProfile } = useUserStore();
+  const { recentSessions } = useSessionStore();
+  const { bodyWeightLogs } = useProgressStore();
+  const { unlocked, prCount, totalVolumeKg } = useAchievementStore();
   const router = useRouter();
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -328,6 +336,31 @@ export default function SettingsPage() {
     if (accessToken) authApi.signOut(accessToken).catch(() => {});
     signOut();
     router.replace("/signin");
+  }
+
+  function handleExportData() {
+    const payload = {
+      exportedAt: new Date().toISOString(),
+      profile: profile
+        ? { name: profile.name, email: profile.email, goal: profile.goal, fitnessLevel: profile.fitnessLevel }
+        : null,
+      sessions: recentSessions,
+      bodyWeightLogs,
+      achievements: {
+        unlockedCount: Object.keys(unlocked).length,
+        prCount,
+        totalVolumeKg,
+        unlocked,
+      },
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `trainer-export-${new Date().toISOString().split("T")[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   function handleRecalculateNutrition() {
@@ -864,6 +897,29 @@ export default function SettingsPage() {
                 </div>
               </button>
             )}
+            <button
+              onClick={() => router.push("/achievements")}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left border-b border-white/5"
+            >
+              <Trophy size={15} className="text-yellow-400/70 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white/85">Achievements</p>
+                <p className="text-[11px] text-white/35 mt-0.5">
+                  {Object.keys(unlocked).length} unlocked
+                </p>
+              </div>
+              <ChevronRight size={14} className="text-white/25 shrink-0" />
+            </button>
+            <button
+              onClick={handleExportData}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left border-b border-white/5"
+            >
+              <Download size={15} className="text-trainer-indigo/70 shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white/85">Export Data</p>
+                <p className="text-[11px] text-white/35 mt-0.5">Download your sessions and progress as JSON</p>
+              </div>
+            </button>
             <button
               onClick={() => setShowSignOutConfirm(true)}
               className="flex items-center gap-3 w-full px-4 py-3.5 text-left group"

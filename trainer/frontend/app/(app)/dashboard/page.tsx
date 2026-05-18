@@ -20,6 +20,7 @@ import { RecentPRsCard } from "@/app/components/dashboard/RecentPRsCard";
 import { UpcomingSessionsCard } from "@/app/components/dashboard/UpcomingSessionsCard";
 import { DeloadBanner } from "@/app/components/dashboard/DeloadBanner";
 import { NutritionLogCard } from "@/app/components/dashboard/NutritionLogCard";
+import { InstallBanner } from "@/app/components/ui/InstallBanner";
 import { getSplitById } from "@/app/data/splits";
 import type { WorkoutSession } from "@/app/types";
 
@@ -126,6 +127,9 @@ export default function DashboardPage() {
 
   return (
     <div className="flex flex-col min-h-full pb-6">
+      {/* PWA install banner */}
+      <InstallBanner />
+
       {/* Header */}
       <motion.div
         initial={{ opacity: 0, y: -8 }}

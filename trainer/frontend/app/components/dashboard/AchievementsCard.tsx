@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Trophy, Lock } from "lucide-react";
+import Link from "next/link";
+import { Trophy, Lock, ChevronRight } from "lucide-react";
 import { useAchievementStore, ACHIEVEMENT_DEFS, type AchievementId } from "@/app/store/achievementStore";
 import { cn } from "@/app/lib/utils";
 
@@ -48,9 +49,13 @@ export function AchievementsCard() {
           </div>
           <p className="text-sm font-bold text-white">Achievements</p>
         </div>
-        <span className="text-xs text-white/35 tabular-nums font-medium">
+        <Link
+          href="/achievements"
+          className="flex items-center gap-0.5 text-xs text-trainer-indigo/70 hover:text-trainer-indigo transition-colors"
+        >
           {unlockedCount}/{ORDERED.length}
-        </span>
+          <ChevronRight size={12} />
+        </Link>
       </div>
 
       {/* Horizontal badge scroll */}
