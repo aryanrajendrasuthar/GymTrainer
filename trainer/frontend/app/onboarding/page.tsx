@@ -13,7 +13,9 @@ import { BodyMetricsStep, type BodyMetrics } from "@/app/components/onboarding/B
 import { FitnessLevelStep } from "@/app/components/onboarding/FitnessLevelStep";
 import { EquipmentStep } from "@/app/components/onboarding/EquipmentStep";
 import { SplitStep } from "@/app/components/onboarding/SplitStep";
-import { type Equipment, type FitnessGoal, type FitnessLevel } from "@/app/types";
+import { InjuryCheckStep } from "@/app/components/onboarding/InjuryCheckStep";
+import { type Equipment, type FitnessGoal, type FitnessLevel, type UserInjury } from "@/app/types";
+import { usePhysioStore } from "@/app/store/physioStore";
 import { cn } from "@/app/lib/utils";
 
 const STEPS = [
@@ -41,6 +43,11 @@ const STEPS = [
     id: "split",
     title: "Choose your training split",
     subtitle: "You can always change this later in Settings.",
+  },
+  {
+    id: "injuries",
+    title: "Any injuries or conditions?",
+    subtitle: "We'll build a personalised rehab protocol for each one.",
   },
 ];
 
@@ -83,6 +90,7 @@ export default function OnboardingPage() {
   const router = useRouter();
   const { isAuthenticated, onboardingComplete, updateProfile, setOnboardingComplete, accessToken } =
     useUserStore();
+  const { setInjuries } = usePhysioStore();
 
   const [step, setStep] = useState(0);
   const direction = useRef(1);
@@ -92,6 +100,7 @@ export default function OnboardingPage() {
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(null);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [splitId, setSplitId] = useState<string | null>(null);
+  const [injuries, setInjuriesState] = useState<UserInjury[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -107,6 +116,7 @@ export default function OnboardingPage() {
     if (step === 2) return fitnessLevel !== null;
     if (step === 3) return equipment.length > 0;
     if (step === 4) return splitId !== null;
+    if (step === 5) return true; // injury step is always optional
     return false;
   };
 
@@ -146,6 +156,7 @@ export default function OnboardingPage() {
       fitnessLevel,
       equipment,
       splitId,
+      injuries,
       ...(m
         ? {
             gender: m.gender,
@@ -157,6 +168,8 @@ export default function OnboardingPage() {
         : {}),
       ...(nutritionTargets ? { nutritionTargets } : {}),
     });
+    // Seed physio store with selected injuries
+    if (injuries.length > 0) setInjuries(injuries);
     setOnboardingComplete(true);
 
     if (accessToken) {
@@ -277,6 +290,9 @@ export default function OnboardingPage() {
                 fitnessLevel={fitnessLevel}
                 onChange={setSplitId}
               />
+            )}
+            {step === 5 && (
+              <InjuryCheckStep value={injuries} onChange={setInjuriesState} />
             )}
           </motion.div>
         </AnimatePresence>

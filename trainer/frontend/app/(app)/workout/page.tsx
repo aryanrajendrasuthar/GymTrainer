@@ -11,6 +11,7 @@ import {
   TrendingUp,
   AlertTriangle,
   Scissors,
+  RefreshCw,
 } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { sessionsApi } from "@/app/lib/api";
@@ -23,15 +24,17 @@ import {
 } from "@/app/hooks/useProgressiveOverload";
 import { useExerciseHistory } from "@/app/hooks/useExerciseHistory";
 import { getSplitById } from "@/app/data/splits";
-import { exerciseMap } from "@/app/data/exercises";
+import { exerciseMap, getAlternateExercise } from "@/app/data/exercises";
 import { getWarmupForSession, type SessionTag } from "@/app/data/protocols";
 import { usePendingSessionStore } from "@/app/store/pendingSessionStore";
+import { useAchievementStore, checkSessionAchievements, checkExerciseAchievements } from "@/app/store/achievementStore";
 import { SetLogger } from "@/app/components/workout/SetLogger";
 import { PreviousPerformancePanel } from "@/app/components/workout/PreviousPerformancePanel";
 import { ProgressiveOverloadSuggestion } from "@/app/components/workout/ProgressiveOverloadSuggestion";
 import { NextExerciseButton } from "@/app/components/workout/NextExerciseButton";
 import { SessionComplete } from "@/app/components/workout/SessionComplete";
 import { SplitSessionSheet } from "@/app/components/workout/SplitSessionSheet";
+import { ReadinessCheck, type Readiness } from "@/app/components/workout/ReadinessCheck";
 import { Button } from "@/app/components/ui/Button";
 import { Badge } from "@/app/components/ui/Badge";
 import { type WorkoutSession, type MuscleGroup, type Exercise } from "@/app/types";
@@ -157,6 +160,7 @@ function ExerciseView({
   onIgnoreSuggestion,
   onSetCustomWeight,
   onNext,
+  onSwap,
   isLast,
 }: {
   exercise: Exercise;
@@ -179,6 +183,7 @@ function ExerciseView({
   onIgnoreSuggestion: () => void;
   onSetCustomWeight: (w: number) => void;
   onNext: () => void;
+  onSwap?: () => void;
   isLast: boolean;
 }) {
   const history = useExerciseHistory(exercise.id, allLogs, sessionDates);
@@ -226,8 +231,21 @@ function ExerciseView({
               {exercise.name}
             </h2>
           </div>
-          <div className="w-11 h-11 rounded-[12px] bg-trainer-indigo/15 flex items-center justify-center shrink-0">
-            <Dumbbell size={20} className="text-trainer-indigo" />
+          <div className="flex items-center gap-2">
+            {onSwap && (
+              <motion.button
+                whileTap={{ scale: 0.88 }}
+                onClick={onSwap}
+                className="w-9 h-9 rounded-[10px] bg-white/6 border border-white/10 flex items-center justify-center text-white/40 hover:text-white/70 hover:border-white/20 transition-colors"
+                aria-label="Swap exercise"
+                title="Swap exercise"
+              >
+                <RefreshCw size={15} />
+              </motion.button>
+            )}
+            <div className="w-11 h-11 rounded-[12px] bg-trainer-indigo/15 flex items-center justify-center shrink-0">
+              <Dumbbell size={20} className="text-trainer-indigo" />
+            </div>
           </div>
         </div>
 
@@ -329,6 +347,7 @@ function PreWorkoutView({
   muscleGroups,
   exercises,
   isPendingSession,
+  readiness,
   onBegin,
   onSplit,
 }: {
@@ -336,6 +355,7 @@ function PreWorkoutView({
   muscleGroups: string[];
   exercises: Exercise[];
   isPendingSession: boolean;
+  readiness: import("@/app/components/workout/ReadinessCheck").Readiness | null;
   onBegin: () => void;
   onSplit: () => void;
 }) {
@@ -349,7 +369,14 @@ function PreWorkoutView({
         <p className="text-xs text-trainer-indigo/80 font-semibold uppercase tracking-wider mb-1">
           {isPendingSession ? "Scheduled Session" : "Today's Workout"}
         </p>
-        <h1 className="text-2xl font-bold text-white">{dayName}</h1>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h1 className="text-2xl font-bold text-white">{dayName}</h1>
+          {readiness === "tired" && (
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-trainer-warning/15 text-trainer-warning border border-trainer-warning/25">
+              Low energy — adjust intensity
+            </span>
+          )}
+        </div>
         <div className="flex flex-wrap gap-1.5 mt-3">
           {muscleGroups.map((m) => (
             <span
@@ -458,9 +485,10 @@ function WorkoutPageContent() {
   const dayIndex = dayParam !== null && !isNaN(Number(dayParam)) ? parseInt(dayParam, 10) : 0;
 
   const { profile, accessToken } = useUserStore();
-  const { allExerciseLogs, sessionDates, addCompletedSession } = useSessionStore();
+  const { allExerciseLogs, sessionDates, addCompletedSession, recentSessions, setDraftSession, clearDraftSession } = useSessionStore();
   const { settings } = useSettingsStore();
   const { getById: getPendingById, removeSession: removePendingSession } = usePendingSessionStore();
+  const { unlock, incrementPRCount, addVolume, prCount, totalVolumeKg: achievementVolume } = useAchievementStore();
 
   // If a pending session ID is in the URL, load that session instead
   const pendingSession = pendingParam ? getPendingById(pendingParam) : undefined;
@@ -507,6 +535,7 @@ function WorkoutPageContent() {
     startSession,
     logSet,
     markExerciseComplete,
+    swapExercise,
     finishSession,
     abandonSession,
     totalVolumeKg,
@@ -517,6 +546,9 @@ function WorkoutPageContent() {
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0);
   const [completedSession, setCompletedSession] = useState<WorkoutSession | null>(null);
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
+  const [showReadiness, setShowReadiness] = useState(false);
+  const [readiness, setReadiness] = useState<Readiness | null>(null);
+  const [swapConfirm, setSwapConfirm] = useState<{ oldId: string; newId: string; newName: string } | null>(null);
 
   // ─── Progressive overload ─────────────────────────────────────────────────
 
@@ -625,14 +657,40 @@ function WorkoutPageContent() {
           if (accessToken) {
             sessionsApi.create(accessToken, updated).catch(() => {});
           }
-          // Remove from pending store if this was a scheduled session
-          if (pendingSession) {
-            removePendingSession(pendingSession.id);
-          }
+          if (pendingSession) removePendingSession(pendingSession.id);
+          clearDraftSession();
+
+          // Achievement checks
+          const newSessionCount = recentSessions.length + 1;
+          const uniqueIds = new Set([...allExerciseLogs.map((l) => l.exerciseId), ...activeExerciseIds]);
+          checkExerciseAchievements(uniqueIds.size, unlock);
+          checkSessionAchievements({
+            sessionCount: newSessionCount,
+            streak: 0, // streak is computed in dashboard; here we pass 0 to avoid re-computing
+            newPRCount: personalRecords.length,
+            sessionVolumeKg: updated.totalVolumeKg,
+            sessionDurationMinutes: updated.durationMinutes,
+            sessionHour: new Date().getHours(),
+            weekSessionCount: recentSessions.filter((s) => {
+              const d = new Date(s.date);
+              const now = new Date();
+              const weekStart = new Date(now);
+              weekStart.setDate(now.getDate() - ((now.getDay() + 6) % 7));
+              weekStart.setHours(0, 0, 0, 0);
+              return d >= weekStart;
+            }).length + 1,
+            unlock,
+            incrementPRCount,
+            addVolume,
+            currentPRCount: prCount,
+            currentTotalVolume: achievementVolume,
+          });
+
           router.push("/dashboard");
         }}
         onDiscard={() => {
           abandonSession();
+          clearDraftSession();
           router.push("/dashboard");
         }}
         onRepeat={() => {
@@ -656,13 +714,36 @@ function WorkoutPageContent() {
           muscleGroups={muscleGroups}
           exercises={activeExercises}
           isPendingSession={!!pendingSession}
-          onBegin={() => {
+          readiness={readiness}
+          onBegin={() => setShowReadiness(true)}
+          onSplit={() => setShowSplitSheet(true)}
+        />
+
+        {/* Readiness check sheet */}
+        <ReadinessCheck
+          open={showReadiness}
+          dayName={dayName}
+          onClose={() => setShowReadiness(false)}
+          onSelect={(r) => {
+            setReadiness(r);
+            setShowReadiness(false);
+            if (r === "pain") {
+              router.push("/physio");
+              return;
+            }
+            // Write draft so dashboard can show resume banner
+            setDraftSession({
+              splitDay: dayName,
+              exerciseIds: activeExerciseIds,
+              dayIndex,
+              startedAt: new Date().toISOString(),
+            });
             startSession(dayName, activeExerciseIds);
             setPhase("active");
             setCurrentExerciseIdx(0);
           }}
-          onSplit={() => setShowSplitSheet(true)}
         />
+
         {splitDay && (
           <SplitSessionSheet
             open={showSplitSheet}
@@ -779,8 +860,59 @@ function WorkoutPageContent() {
             onIgnoreSuggestion={() => ignoreSuggestion(currentExercise.id)}
             onSetCustomWeight={(w) => setCustomWeight(currentExercise.id, w)}
             onNext={handleNextExercise}
+            onSwap={() => {
+              const alt = getAlternateExercise(currentExercise.id);
+              if (alt) setSwapConfirm({ oldId: currentExercise.id, newId: alt.id, newName: alt.name });
+            }}
             isLast={isLastExercise}
           />
+        )}
+      </AnimatePresence>
+
+      {/* Swap exercise confirmation */}
+      <AnimatePresence>
+        {swapConfirm && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end"
+          >
+            <motion.div
+              initial={{ y: 80 }}
+              animate={{ y: 0 }}
+              exit={{ y: 80 }}
+              transition={{ type: "spring", stiffness: 400, damping: 30 }}
+              className="w-full bg-trainer-surface border-t border-white/10 rounded-t-[24px] p-6 space-y-4"
+            >
+              <div className="flex justify-center mb-1">
+                <div className="w-8 h-1 rounded-full bg-white/15" />
+              </div>
+              <h3 className="text-base font-bold text-white text-center">Swap Exercise?</h3>
+              <p className="text-sm text-white/45 text-center">
+                Replace with <span className="text-white font-semibold">{swapConfirm.newName}</span>?
+                {"\n"}Sets already logged will be cleared.
+              </p>
+              <div className="flex flex-col gap-2">
+                <Button
+                  fullWidth
+                  onClick={() => {
+                    swapExercise(swapConfirm.oldId, swapConfirm.newId);
+                    const newIds = activeExerciseIds.map((id) =>
+                      id === swapConfirm.oldId ? swapConfirm.newId : id
+                    );
+                    setOverrideExerciseIds(newIds);
+                    setSwapConfirm(null);
+                  }}
+                >
+                  <RefreshCw size={15} /> Swap Exercise
+                </Button>
+                <Button variant="ghost" fullWidth onClick={() => setSwapConfirm(null)}>
+                  Keep Current
+                </Button>
+              </div>
+            </motion.div>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -812,6 +944,7 @@ function WorkoutPageContent() {
                   fullWidth
                   onClick={() => {
                     abandonSession();
+                    clearDraftSession();
                     router.push("/dashboard");
                   }}
                 >

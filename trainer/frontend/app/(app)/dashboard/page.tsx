@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Heart, ChevronRight } from "lucide-react";
+import { Heart, ChevronRight, PlayCircle, X } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { usePhysioStore } from "@/app/store/physioStore";
@@ -14,6 +14,10 @@ import { RecentSessionCard } from "@/app/components/dashboard/RecentSessionCard"
 import { WeeklyPlanSheet } from "@/app/components/dashboard/WeeklyPlanSheet";
 import { DailyCheckinCard } from "@/app/components/dashboard/DailyCheckinCard";
 import { PendingSessionCard } from "@/app/components/dashboard/PendingSessionCard";
+import { AchievementsCard } from "@/app/components/dashboard/AchievementsCard";
+import { MuscleHeatmapCard } from "@/app/components/dashboard/MuscleHeatmapCard";
+import { RecentPRsCard } from "@/app/components/dashboard/RecentPRsCard";
+import { UpcomingSessionsCard } from "@/app/components/dashboard/UpcomingSessionsCard";
 import { getSplitById } from "@/app/data/splits";
 import type { WorkoutSession } from "@/app/types";
 
@@ -25,7 +29,6 @@ function getGreeting(): string {
 }
 
 function getTodayDayIndex(totalDays: number): number {
-  // Mon=0 ... Sun=6, map into split cycle
   const dayOfWeek = (new Date().getDay() + 6) % 7;
   return dayOfWeek % totalDays;
 }
@@ -47,13 +50,10 @@ function calculateStreak(sessions: WorkoutSession[]): number {
 
   const latestMs = uniqueDays[0];
   const diffFromToday = (todayStart.getTime() - latestMs) / MS_PER_DAY;
-
-  // If last session was more than 1 day ago, streak is broken
   if (diffFromToday > 1) return 0;
 
   let streak = 0;
   let expected = latestMs;
-
   for (const dayMs of uniqueDays) {
     if (dayMs === expected) {
       streak++;
@@ -62,7 +62,6 @@ function calculateStreak(sessions: WorkoutSession[]): number {
       break;
     }
   }
-
   return streak;
 }
 
@@ -72,7 +71,6 @@ function getWeekSessionDates(sessions: WorkoutSession[]): string[] {
   const startOfWeek = new Date(today);
   startOfWeek.setDate(today.getDate() - dayOfWeek);
   startOfWeek.setHours(0, 0, 0, 0);
-
   return sessions
     .filter((s) => new Date(s.date) >= startOfWeek)
     .map((s) => s.date);
@@ -80,7 +78,7 @@ function getWeekSessionDates(sessions: WorkoutSession[]): string[] {
 
 export default function DashboardPage() {
   const { profile } = useUserStore();
-  const { recentSessions } = useSessionStore();
+  const { recentSessions, draftSession, clearDraftSession } = useSessionStore();
   const { activeInjuries, todayCompletedSlots } = usePhysioStore();
   const { settings } = useSettingsStore();
 
@@ -95,9 +93,7 @@ export default function DashboardPage() {
   );
 
   const todaySplitDay = split?.days[todayDayIndex] ?? null;
-
   const streak = useMemo(() => calculateStreak(recentSessions), [recentSessions]);
-
   const weekDates = useMemo(() => getWeekSessionDates(recentSessions), [recentSessions]);
 
   const weekSessionCount = useMemo(() => {
@@ -113,10 +109,8 @@ export default function DashboardPage() {
     return activeInjuries.filter((inj) => {
       const completed = todayCompletedSlots[inj.condition] ?? [];
       const currentHour = new Date().getHours();
-      const morningDue = currentHour >= 6;
-      const eveningDue = currentHour >= 17;
-      if (morningDue && !completed.includes("morning")) return true;
-      if (eveningDue && !completed.includes("evening")) return true;
+      if (currentHour >= 6  && !completed.includes("morning")) return true;
+      if (currentHour >= 17 && !completed.includes("evening")) return true;
       return false;
     }).length;
   }, [activeInjuries, todayCompletedSlots]);
@@ -138,6 +132,36 @@ export default function DashboardPage() {
       </motion.div>
 
       <div className="flex flex-col gap-4 px-5">
+        {/* Resume workout banner */}
+        {draftSession && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="flex items-center gap-3 p-4 rounded-[14px] bg-trainer-indigo/10 border border-trainer-indigo/30"
+          >
+            <div className="w-9 h-9 rounded-[10px] bg-trainer-indigo/20 flex items-center justify-center shrink-0">
+              <PlayCircle size={18} className="text-trainer-indigo" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white truncate">Resume: {draftSession.splitDay}</p>
+              <p className="text-xs text-white/40 mt-0.5">Unfinished workout detected</p>
+            </div>
+            <Link
+              href={`/workout?day=${draftSession.dayIndex}`}
+              className="text-xs font-bold text-trainer-indigo px-3 py-1.5 rounded-[8px] bg-trainer-indigo/15 hover:bg-trainer-indigo/25 transition-colors shrink-0"
+            >
+              Resume
+            </Link>
+            <button
+              onClick={() => clearDraftSession()}
+              className="w-7 h-7 rounded-full bg-white/6 flex items-center justify-center text-white/30 hover:text-white/60 transition-colors shrink-0"
+            >
+              <X size={13} />
+            </button>
+          </motion.div>
+        )}
+
         {/* Today's workout */}
         {split && todaySplitDay ? (
           <TodayWorkoutCard
@@ -148,6 +172,9 @@ export default function DashboardPage() {
         ) : (
           <NoProgrammeCard />
         )}
+
+        {/* Upcoming sessions horizontal scroll */}
+        <UpcomingSessionsCard />
 
         {/* Weekly plan */}
         {split && (
@@ -174,6 +201,15 @@ export default function DashboardPage() {
 
         {/* Pending scheduled sessions */}
         <PendingSessionCard />
+
+        {/* Recent PRs horizontal scroll */}
+        <RecentPRsCard />
+
+        {/* Muscle recovery heatmap */}
+        <MuscleHeatmapCard />
+
+        {/* Achievement badges */}
+        <AchievementsCard />
 
         {/* Recent sessions */}
         <RecentSessionCard
@@ -225,9 +261,7 @@ function PhysioReminderBanner({ count }: { count: number }) {
           <p className="text-sm font-semibold text-white">
             {count} physio session{count !== 1 ? "s" : ""} pending
           </p>
-          <p className="text-xs text-white/40 mt-0.5">
-            Tap to complete your rehab exercises
-          </p>
+          <p className="text-xs text-white/40 mt-0.5">Tap to complete your rehab exercises</p>
         </div>
         <ChevronRight className="w-4 h-4 text-white/30" />
       </Link>
