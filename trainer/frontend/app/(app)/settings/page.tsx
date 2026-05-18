@@ -26,6 +26,7 @@ import { authApi } from "@/app/lib/api";
 import { workoutSplits } from "@/app/data/splits";
 import { calculateNutritionTargets, getCalorieRangeLabel } from "@/app/lib/nutrition";
 import { GoalChangeSheet } from "@/app/components/settings/GoalChangeSheet";
+import { ProfileEditSheet } from "@/app/components/settings/ProfileEditSheet";
 import { cn } from "@/app/lib/utils";
 import {
   type OverloadAmount,
@@ -291,6 +292,7 @@ export default function SettingsPage() {
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
   const [showGoalSheet, setShowGoalSheet] = useState(false);
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
   const [pushStatus, setPushStatus] = useState<NotificationPermission | "unsupported">(
     typeof Notification !== "undefined" ? Notification.permission : "unsupported"
@@ -848,10 +850,19 @@ export default function SettingsPage() {
           <SectionHeader icon={User} label="Account" />
           <SettingsCard>
             {profile && (
-              <div className="px-4 py-3.5 border-b border-white/5">
-                <p className="text-sm font-semibold text-white/85 truncate">{profile.name}</p>
-                <p className="text-[11px] text-white/35 mt-0.5 truncate">{profile.email}</p>
-              </div>
+              <button
+                onClick={() => setShowProfileEdit(true)}
+                className="flex items-center gap-3 w-full px-4 py-3.5 text-left border-b border-white/5"
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-white/85 truncate">{profile.name}</p>
+                  <p className="text-[11px] text-white/35 mt-0.5 truncate">{profile.email}</p>
+                </div>
+                <div className="flex items-center gap-1.5 shrink-0">
+                  <span className="text-xs text-trainer-indigo font-semibold">Edit</span>
+                  <ChevronRight size={13} className="text-trainer-indigo/60" />
+                </div>
+              </button>
             )}
             <button
               onClick={() => setShowSignOutConfirm(true)}
@@ -871,6 +882,12 @@ export default function SettingsPage() {
 
       {/* Saved flash */}
       <SavedBadge show={savedFlash} />
+
+      {/* Profile edit sheet */}
+      <ProfileEditSheet
+        open={showProfileEdit}
+        onClose={() => setShowProfileEdit(false)}
+      />
 
       {/* Goal change sheet */}
       <GoalChangeSheet

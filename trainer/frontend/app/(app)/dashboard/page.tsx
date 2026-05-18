@@ -18,6 +18,8 @@ import { AchievementsCard } from "@/app/components/dashboard/AchievementsCard";
 import { MuscleHeatmapCard } from "@/app/components/dashboard/MuscleHeatmapCard";
 import { RecentPRsCard } from "@/app/components/dashboard/RecentPRsCard";
 import { UpcomingSessionsCard } from "@/app/components/dashboard/UpcomingSessionsCard";
+import { DeloadBanner } from "@/app/components/dashboard/DeloadBanner";
+import { NutritionLogCard } from "@/app/components/dashboard/NutritionLogCard";
 import { getSplitById } from "@/app/data/splits";
 import type { WorkoutSession } from "@/app/types";
 
@@ -117,6 +119,10 @@ export default function DashboardPage() {
 
   const firstName = profile?.name?.split(" ")[0] ?? "Athlete";
   const weightUnit = settings.weightUnit ?? profile?.units ?? "kg";
+  const todayExerciseIds = useMemo(
+    () => todaySplitDay?.exercises ?? [],
+    [todaySplitDay]
+  );
 
   return (
     <div className="flex flex-col min-h-full pb-6">
@@ -191,6 +197,9 @@ export default function DashboardPage() {
           <WeekGridCard sessionDates={weekDates} />
         </div>
 
+        {/* Deload recommendation */}
+        <DeloadBanner exerciseIds={todayExerciseIds} />
+
         {/* Physio reminder */}
         {pendingPhysioCount > 0 && (
           <PhysioReminderBanner count={pendingPhysioCount} />
@@ -198,6 +207,9 @@ export default function DashboardPage() {
 
         {/* Daily weight check-in */}
         <DailyCheckinCard />
+
+        {/* Daily nutrition log */}
+        <NutritionLogCard />
 
         {/* Pending scheduled sessions */}
         <PendingSessionCard />

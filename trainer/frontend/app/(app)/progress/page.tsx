@@ -12,6 +12,7 @@ import { VolumeChart, type WeeklyVolumeData } from "@/app/components/progress/Vo
 import { OneRMChart, type OneRMDataPoint } from "@/app/components/progress/OneRMChart";
 import { PRCard, type ExercisePR } from "@/app/components/progress/PRCard";
 import { BodyWeightChart } from "@/app/components/progress/BodyWeightChart";
+import { MuscleVolumeChart } from "@/app/components/progress/MuscleVolumeChart";
 import { exerciseMap } from "@/app/data/exercises";
 import { estimateOneRepMax } from "@/app/lib/progression-engine";
 import { type WorkoutSession, type ExerciseLog } from "@/app/types";
@@ -215,6 +216,7 @@ export default function ProgressPage() {
 
   const [period, setPeriod] = useState<Period>(PERIODS[1]); // default 8W
   const [selectedSection, setSelectedSection] = useState<"volume" | "records" | "body">("volume");
+  const [volumeView, setVolumeView] = useState<"total" | "muscle">("total");
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(null);
   const [weightInput, setWeightInput] = useState("");
@@ -326,10 +328,30 @@ export default function ProgressPage() {
             className="flex flex-col gap-4"
           >
             <div className="bg-trainer-surface border border-white/8 rounded-[16px] p-4">
-              <p className="text-xs text-white/35 uppercase tracking-widest font-semibold mb-4">
-                Weekly Volume ({unit})
-              </p>
-              <VolumeChart data={weeklyVolume} unit={unit} />
+              <div className="flex items-center justify-between mb-4">
+                <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">
+                  {volumeView === "total" ? `Weekly Volume (${unit})` : `By Muscle Group (${unit})`}
+                </p>
+                <div className="flex gap-1 p-0.5 bg-trainer-elevated rounded-[8px]">
+                  {(["total", "muscle"] as const).map((v) => (
+                    <button
+                      key={v}
+                      onClick={() => setVolumeView(v)}
+                      className={cn(
+                        "px-2.5 py-1 rounded-[6px] text-[11px] font-semibold transition-all",
+                        volumeView === v ? "bg-trainer-surface text-white" : "text-white/35 hover:text-white/60"
+                      )}
+                    >
+                      {v === "total" ? "Weekly" : "Muscle"}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              {volumeView === "total" ? (
+                <VolumeChart data={weeklyVolume} unit={unit} />
+              ) : (
+                <MuscleVolumeChart sessions={periodSessions} allLogs={allExerciseLogs} unit={unit} />
+              )}
             </div>
 
             {/* Recent sessions list */}

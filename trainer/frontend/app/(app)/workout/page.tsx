@@ -35,6 +35,7 @@ import { NextExerciseButton } from "@/app/components/workout/NextExerciseButton"
 import { SessionComplete } from "@/app/components/workout/SessionComplete";
 import { SplitSessionSheet } from "@/app/components/workout/SplitSessionSheet";
 import { ReadinessCheck, type Readiness } from "@/app/components/workout/ReadinessCheck";
+import { RestTimer } from "@/app/components/workout/RestTimer";
 import { Button } from "@/app/components/ui/Button";
 import { Badge } from "@/app/components/ui/Badge";
 import { type WorkoutSession, type MuscleGroup, type Exercise } from "@/app/types";
@@ -549,6 +550,8 @@ function WorkoutPageContent() {
   const [showReadiness, setShowReadiness] = useState(false);
   const [readiness, setReadiness] = useState<Readiness | null>(null);
   const [swapConfirm, setSwapConfirm] = useState<{ oldId: string; newId: string; newName: string } | null>(null);
+  const [showRestTimer, setShowRestTimer] = useState(false);
+  const [restTimerSeconds, setRestTimerSeconds] = useState(90);
 
   // ─── Progressive overload ─────────────────────────────────────────────────
 
@@ -669,7 +672,7 @@ function WorkoutPageContent() {
           const allSessionsWithNew = [updated, ...recentSessions];
           const MS = 86400000;
           const todayMs = (() => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); })();
-          const uniqueDayMs = [...new Set(allSessionsWithNew.map(s => { const d = new Date(s.date); d.setHours(0,0,0,0); return d.getTime(); }))].sort((a,b) => b-a);
+          const uniqueDayMs = Array.from(new Set(allSessionsWithNew.map(s => { const d = new Date(s.date); d.setHours(0,0,0,0); return d.getTime(); }))).sort((a,b) => b-a);
           let computedStreak = 0;
           if (uniqueDayMs.length && (todayMs - uniqueDayMs[0]) / MS <= 1) {
             let expected = uniqueDayMs[0];
@@ -798,6 +801,18 @@ function WorkoutPageContent() {
     (s) => s.exerciseId === currentExercise?.id
   );
 
+  function getRestSeconds(): number {
+    const rest = settings.defaultRest ?? "standard";
+    if (rest === "short") return 60;
+    if (rest === "long") return 180;
+    if (rest === "goal-based") {
+      if (goal === "strength") return 180;
+      if (goal === "fat-loss") return 60;
+      return currentExercise?.movementType === "compound" ? 120 : 60;
+    }
+    return currentExercise?.movementType === "compound" ? 90 : 60;
+  }
+
   const handleSetDone = (set: Omit<import("@/app/types").SetLog, "loggedAt">) => {
     if (!currentExercise) return;
     logSet(currentExercise.id, {
@@ -808,6 +823,11 @@ function WorkoutPageContent() {
       rpe: set.rpe,
       notes: set.notes,
     });
+    const logged = (activeExerciseState?.sets.length ?? 0) + 1;
+    if (logged < targetSets) {
+      setRestTimerSeconds(getRestSeconds());
+      setShowRestTimer(true);
+    }
   };
 
   const handleNextExercise = () => {
@@ -929,6 +949,13 @@ function WorkoutPageContent() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Rest timer */}
+      <RestTimer
+        open={showRestTimer}
+        seconds={restTimerSeconds}
+        onClose={() => setShowRestTimer(false)}
+      />
 
       {/* Abandon confirmation */}
       <AnimatePresence>
