@@ -17,9 +17,20 @@ const PORT = process.env.PORT ?? 4000;
 // ─── Security & Parsing ───────────────────────────────────────────────────────
 
 app.use(helmet());
+const allowedOrigins = (process.env.FRONTEND_URL ?? "http://localhost:3000")
+  .split(",")
+  .map((o) => o.trim());
+
 app.use(
   cors({
-    origin: process.env.FRONTEND_URL ?? "http://localhost:3000",
+    origin: (origin, callback) => {
+      // allow server-to-server requests (no origin) and listed origins
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: origin ${origin} not allowed`));
+      }
+    },
     credentials: true,
   })
 );
