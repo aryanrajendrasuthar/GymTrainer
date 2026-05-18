@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { usePhysioStore } from "@/app/store/physioStore";
+import { useAchievementStore } from "@/app/store/achievementStore";
 import { physioApi } from "@/app/lib/api";
 import { buildPhysioSession, assessPhaseGate } from "@/app/lib/physio-engine";
 import { Button } from "@/app/components/ui/Button";
@@ -318,6 +319,7 @@ export default function PhysioPage() {
     getLatestPain,
     sessionHistory,
   } = usePhysioStore();
+  const { unlock, incrementPhysioCount, isUnlocked } = useAchievementStore();
 
   const injuries = useMemo(() => profile?.injuries ?? [], [profile]);
 
@@ -377,6 +379,12 @@ export default function PhysioPage() {
       completedAt: now,
     });
     markSlotComplete(selectedInjury.condition, selectedSlot);
+
+    // Achievement triggers
+    incrementPhysioCount();
+    unlock("first_physio");
+    const newCount = sessionHistory.filter((s) => s.condition === selectedInjury.condition).length + 1;
+    if (newCount >= 7) unlock("physio_7");
 
     if (accessToken) {
       physioApi.logPain(accessToken, selectedInjury.condition, painAfter).catch(() => {});

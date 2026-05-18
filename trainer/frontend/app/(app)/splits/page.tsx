@@ -11,8 +11,13 @@ import {
   Target,
   ChevronDown,
   ChevronUp,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
+import { useAchievementStore } from "@/app/store/achievementStore";
+import { useCustomSplitStore } from "@/app/store/customSplitStore";
+import { CustomRoutineBuilder } from "@/app/components/splits/CustomRoutineBuilder";
 import { authApi } from "@/app/lib/api";
 import { workoutSplits } from "@/app/data/splits";
 import { exerciseMap } from "@/app/data/exercises";
@@ -264,13 +269,19 @@ function SplitCard({
 export default function SplitsPage() {
   const router = useRouter();
   const { profile, updateProfile, accessToken } = useUserStore();
+  const { unlock } = useAchievementStore();
+  const { customSplits, removeCustomSplit } = useCustomSplitStore();
   const [saving, setSaving] = useState<string | null>(null);
+  const [showBuilder, setShowBuilder] = useState(false);
   const weekLabel = getWeekLabel();
+
+  const allSplits = [...workoutSplits, ...customSplits];
 
   async function handleSelect(splitId: string) {
     if (saving || splitId === profile?.splitId) return;
     setSaving(splitId);
     updateProfile({ splitId });
+    unlock("split_change");
     if (accessToken) {
       authApi.updateProfile(accessToken, { split_id: splitId }).catch(() => {});
     }
@@ -292,12 +303,50 @@ export default function SplitsPage() {
         <div className="flex-1">
           <h1 className="text-base font-bold text-white">Training Splits</h1>
           <p className="text-xs text-white/35 mt-0.5">
-            {workoutSplits.length} splits · {weekLabel} active
+            {allSplits.length} splits · {weekLabel} active
           </p>
         </div>
+        <button
+          onClick={() => setShowBuilder(true)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-[10px] bg-trainer-indigo/15 border border-trainer-indigo/30 text-trainer-indigo text-xs font-bold hover:bg-trainer-indigo/25 transition-colors"
+        >
+          <Plus size={13} /> Build
+        </button>
       </div>
 
       <div className="flex flex-col gap-4 px-4 py-4">
+        {/* Custom splits section */}
+        {customSplits.length > 0 && (
+          <>
+            <p className="text-[10px] text-white/30 font-semibold uppercase tracking-widest -mb-2">
+              My Routines
+            </p>
+            {customSplits.map((split) => (
+              <div key={split.id} className="relative">
+                <SplitCard
+                  split={split}
+                  isCurrent={profile?.splitId === split.id}
+                  onSelect={handleSelect}
+                  weekLabel={weekLabel}
+                />
+                <button
+                  onClick={() => {
+                    if (profile?.splitId === split.id) updateProfile({ splitId: workoutSplits[0]?.id ?? "" });
+                    removeCustomSplit(split.id);
+                  }}
+                  className="absolute top-3 right-14 w-7 h-7 rounded-full bg-trainer-danger/15 flex items-center justify-center text-trainer-danger/70 hover:text-trainer-danger transition-colors"
+                  aria-label="Delete custom routine"
+                >
+                  <Trash2 size={12} />
+                </button>
+              </div>
+            ))}
+            <p className="text-[10px] text-white/30 font-semibold uppercase tracking-widest -mb-2 mt-2">
+              Preset Splits
+            </p>
+          </>
+        )}
+
         {workoutSplits.map((split) => (
           <SplitCard
             key={split.id}
@@ -308,6 +357,12 @@ export default function SplitsPage() {
           />
         ))}
       </div>
+
+      <CustomRoutineBuilder
+        open={showBuilder}
+        onClose={() => setShowBuilder(false)}
+        onSaved={(id) => handleSelect(id)}
+      />
 
       {saving && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center pointer-events-none">

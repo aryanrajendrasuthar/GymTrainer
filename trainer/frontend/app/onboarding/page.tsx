@@ -14,8 +14,11 @@ import { FitnessLevelStep } from "@/app/components/onboarding/FitnessLevelStep";
 import { EquipmentStep } from "@/app/components/onboarding/EquipmentStep";
 import { SplitStep } from "@/app/components/onboarding/SplitStep";
 import { InjuryCheckStep } from "@/app/components/onboarding/InjuryCheckStep";
+import { UnitsStep } from "@/app/components/onboarding/UnitsStep";
+import { NotificationsStep, type NotificationPrefs } from "@/app/components/onboarding/NotificationsStep";
 import { type Equipment, type FitnessGoal, type FitnessLevel, type UserInjury } from "@/app/types";
 import { usePhysioStore } from "@/app/store/physioStore";
+import { useSettingsStore } from "@/app/store/settingsStore";
 import { cn } from "@/app/lib/utils";
 
 const STEPS = [
@@ -48,6 +51,16 @@ const STEPS = [
     id: "injuries",
     title: "Any injuries or conditions?",
     subtitle: "We'll build a personalised rehab protocol for each one.",
+  },
+  {
+    id: "units",
+    title: "Which weight unit do you prefer?",
+    subtitle: "You can change this anytime in Settings.",
+  },
+  {
+    id: "notifications",
+    title: "Stay on track",
+    subtitle: "Choose which reminders to enable.",
   },
 ];
 
@@ -91,6 +104,7 @@ export default function OnboardingPage() {
   const { isAuthenticated, onboardingComplete, updateProfile, setOnboardingComplete, accessToken } =
     useUserStore();
   const { setInjuries } = usePhysioStore();
+  const { updateSettings } = useSettingsStore();
 
   const [step, setStep] = useState(0);
   const direction = useRef(1);
@@ -101,6 +115,12 @@ export default function OnboardingPage() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [splitId, setSplitId] = useState<string | null>(null);
   const [injuries, setInjuriesState] = useState<UserInjury[]>([]);
+  const [weightUnit, setWeightUnit] = useState<"kg" | "lb" | null>(null);
+  const [notifPrefs, setNotifPrefs] = useState<NotificationPrefs>({
+    workoutReminders: true,
+    physioReminders: true,
+    streakWarning: true,
+  });
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -116,7 +136,9 @@ export default function OnboardingPage() {
     if (step === 2) return fitnessLevel !== null;
     if (step === 3) return equipment.length > 0;
     if (step === 4) return splitId !== null;
-    if (step === 5) return true; // injury step is always optional
+    if (step === 5) return true; // injuries — optional
+    if (step === 6) return weightUnit !== null;
+    if (step === 7) return true; // notifications — always proceed
     return false;
   };
 
@@ -167,8 +189,23 @@ export default function OnboardingPage() {
           }
         : {}),
       ...(nutritionTargets ? { nutritionTargets } : {}),
+      ...(weightUnit ? { units: weightUnit } : {}),
     });
-    // Seed physio store with selected injuries
+    // Persist unit + notification prefs chosen during onboarding
+    updateSettings({
+      ...(weightUnit ? { weightUnit } : {}),
+      notifications: {
+        workoutReminders: notifPrefs.workoutReminders,
+        workoutReminderTime: "07:00",
+        workoutReminderDays: [1, 2, 3, 4, 5],
+        physioMorning: notifPrefs.physioReminders,
+        physioMorningTime: "08:00",
+        physioEvening: notifPrefs.physioReminders,
+        physioEveningTime: "20:00",
+        streakWarning: notifPrefs.streakWarning,
+        progressiveOverloadMilestone: true,
+      },
+    });
     if (injuries.length > 0) setInjuries(injuries);
     setOnboardingComplete(true);
 
@@ -293,6 +330,12 @@ export default function OnboardingPage() {
             )}
             {step === 5 && (
               <InjuryCheckStep value={injuries} onChange={setInjuriesState} />
+            )}
+            {step === 6 && (
+              <UnitsStep value={weightUnit} onChange={setWeightUnit} />
+            )}
+            {step === 7 && (
+              <NotificationsStep value={notifPrefs} onChange={setNotifPrefs} />
             )}
           </motion.div>
         </AnimatePresence>

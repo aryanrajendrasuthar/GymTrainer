@@ -664,9 +664,23 @@ function WorkoutPageContent() {
           const newSessionCount = recentSessions.length + 1;
           const uniqueIds = new Set([...allExerciseLogs.map((l) => l.exerciseId), ...activeExerciseIds]);
           checkExerciseAchievements(uniqueIds.size, unlock);
+
+          // Compute streak from sessions including the one just saved
+          const allSessionsWithNew = [updated, ...recentSessions];
+          const MS = 86400000;
+          const todayMs = (() => { const d = new Date(); d.setHours(0,0,0,0); return d.getTime(); })();
+          const uniqueDayMs = [...new Set(allSessionsWithNew.map(s => { const d = new Date(s.date); d.setHours(0,0,0,0); return d.getTime(); }))].sort((a,b) => b-a);
+          let computedStreak = 0;
+          if (uniqueDayMs.length && (todayMs - uniqueDayMs[0]) / MS <= 1) {
+            let expected = uniqueDayMs[0];
+            for (const ms of uniqueDayMs) {
+              if (ms === expected) { computedStreak++; expected -= MS; } else break;
+            }
+          }
+
           checkSessionAchievements({
             sessionCount: newSessionCount,
-            streak: 0, // streak is computed in dashboard; here we pass 0 to avoid re-computing
+            streak: computedStreak,
             newPRCount: personalRecords.length,
             sessionVolumeKg: updated.totalVolumeKg,
             sessionDurationMinutes: updated.durationMinutes,
