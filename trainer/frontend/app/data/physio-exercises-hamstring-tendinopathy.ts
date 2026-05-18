@@ -1,0 +1,266 @@
+import { type PhysioExercise } from "@/app/types";
+
+export const hamstringTendinopathyExercises: PhysioExercise[] = [
+  // ─── Proximal Hamstring Tendinopathy (PHT) ────────────────────────────────────
+  // Sacrum/ischial tuberosity pain at a point — worsens after sitting, long walks,
+  // or after a period of inactivity. Classic for the exact complaint described.
+
+  {
+    id: "isometric-hip-extension-pht",
+    name: "Isometric Hip Extension Bridge (PHT Early Loading)",
+    condition: "proximal-hamstring-tendinopathy",
+    phase: ["acute", "subacute"],
+    sessionType: "morning",
+    instructions: [
+      "Lie on your back with knees bent, feet flat, hip-width apart.",
+      "Drive both heels firmly into the floor and lift the hips upward until the body forms a straight line from knees to shoulders.",
+      "Hold the bridge position for 45 seconds at moderate effort.",
+      "Lower slowly. Rest 2 minutes. Perform 4 holds.",
+      "Isometric loading at this force level reduces tendon pain rapidly — often within 5–10 minutes of completing the set.",
+    ],
+    sets: 4,
+    holdTime: 45,
+    reps: 1,
+    breathingCues: [
+      "Breathe normally and steadily throughout the 45-second hold.",
+      "Do not hold the breath — the load should be sustainable without breath-holding.",
+    ],
+    dos: [
+      "This is first-line treatment for PHT — isometrics reduce tendon pain and maintain tendon load capacity.",
+      "Perform this BEFORE any sitting or walking on high-symptom days to pre-empty the tendon.",
+      "The effort level should be 5–6 out of 10 — noticeable but not maximal.",
+    ],
+    donts: [
+      "Do not perform bilateral bridge if compression at the ischial tuberosity (hip fully flexed) causes pain — the hip should be in neutral extension.",
+      "Avoid crossing the legs or using a pillow under the hips (this changes the load angle).",
+      "Do not rush to progress to heavy eccentric loading — isometrics must be comfortable first.",
+    ],
+    painLevelMax: 3,
+    redFlags: [
+      "Neurological symptoms (numbness, tingling into the leg) suggesting sciatic involvement",
+      "Night pain (suggest a tumour screen — rare but important)",
+      "Acute onset without a provocative event in a person over 55 (rule out avulsion fracture)",
+    ],
+    primaryMuscles: ["hamstrings-biceps-femoris", "gluteus-maximus"],
+    rehabilitationMuscles: [
+      "hamstrings-biceps-femoris",
+      "hamstrings-semimembranosus",
+      "hamstrings-semitendinosus",
+      "gluteus-maximus",
+    ],
+    affectedArea: ["hamstrings-biceps-femoris"],
+    youtubeId: "OsGUFh1Dpv8",
+    progressionExercise: "single-leg-bridge-pht",
+  },
+
+  {
+    id: "single-leg-bridge-pht",
+    name: "Single-Leg Glute Bridge (PHT Progressive Loading)",
+    condition: "proximal-hamstring-tendinopathy",
+    phase: ["subacute", "chronic"],
+    sessionType: "both",
+    instructions: [
+      "Lie on your back with both knees bent. Extend one leg straight.",
+      "Drive through the heel of the bent-knee leg to lift the hips.",
+      "Hold at the top for 2 seconds, emphasising hamstring and glute tension.",
+      "Lower slowly over 3 seconds. Perform 12 reps per side, 3 sets.",
+      "This applies greater load to the proximal hamstring than bilateral bridge.",
+    ],
+    reps: 12,
+    sets: 3,
+    holdTime: 2,
+    breathingCues: [
+      "Exhale as you drive the hip up.",
+      "Inhale at the top and exhale on the 3-second lower.",
+    ],
+    dos: [
+      "Keep the pelvis level — do not allow the non-supported side to drop.",
+      "The drive must come from the heel and posterior chain — avoid compensating with the lumbar erectors.",
+      "Progress to foot-elevated single-leg bridge once 12 reps are comfortable.",
+    ],
+    donts: [
+      "Do not perform if the single-leg version causes sharp ischial tuberosity pain that does not settle within 24 hours.",
+      "Avoid bringing the working knee closer to the chest — this loads the proximal tendon in a compressed position.",
+    ],
+    painLevelMax: 4,
+    redFlags: [
+      "Persistent pain lasting more than 24 hours after the exercise",
+      "New onset of sciatic-pattern pain",
+    ],
+    primaryMuscles: ["gluteus-maximus", "hamstrings-biceps-femoris"],
+    rehabilitationMuscles: [
+      "gluteus-maximus",
+      "hamstrings-biceps-femoris",
+      "hamstrings-semimembranosus",
+    ],
+    affectedArea: ["hamstrings-biceps-femoris"],
+    youtubeId: "AvhFWfTSiHY",
+    progressionExercise: "nordic-hamstring-pht",
+  },
+
+  {
+    id: "nordic-hamstring-pht",
+    name: "Nordic Hamstring Curl (PHT Eccentric Tendon Loading)",
+    condition: "proximal-hamstring-tendinopathy",
+    phase: ["chronic", "maintenance"],
+    sessionType: "both",
+    instructions: [
+      "Kneel on a mat with a partner holding your ankles, or feet anchored under a heavy sofa/bed.",
+      "Cross the arms over the chest. Slowly lower the body toward the floor, resisting with the hamstrings.",
+      "Fall controlled to the floor. Place hands down to catch yourself at the end range.",
+      "Press back to kneeling using the hands and then re-engage the hamstrings to complete the rep.",
+      "Begin with 3–5 reps and build over weeks to 3 sets of 10–12. This is an advanced progression.",
+    ],
+    reps: 6,
+    sets: 3,
+    breathingCues: [
+      "Exhale slowly during the eccentric lowering phase.",
+      "Inhale to reset at the kneeling start position.",
+    ],
+    dos: [
+      "This is a high-load eccentric exercise — introduce slowly (3 reps per set, twice per week, for the first 2 weeks).",
+      "Eccentric loading remodels tendon collagen and is the most evidence-based loading strategy for PHT.",
+      "Expect mild tendon soreness 24–48 hours after the first sessions — this is normal tendon adaptation.",
+    ],
+    donts: [
+      "Do not perform without completing isometric and isotonic progressions first.",
+      "Avoid if ischial swelling is still present.",
+      "Do not perform more than 3 times per week — tendon collagen remodelling requires 48+ hour recovery.",
+    ],
+    painLevelMax: 4,
+    redFlags: [
+      "Acute proximal hamstring avulsion (sudden complete tear with ecchymosis tracking down the back of the thigh — urgent surgical referral)",
+    ],
+    primaryMuscles: ["hamstrings-biceps-femoris", "hamstrings-semimembranosus", "hamstrings-semitendinosus"],
+    rehabilitationMuscles: [
+      "hamstrings-biceps-femoris",
+      "hamstrings-semimembranosus",
+      "hamstrings-semitendinosus",
+    ],
+    affectedArea: ["hamstrings-biceps-femoris"],
+    youtubeId: "d7lLyFcjFAI",
+  },
+
+  {
+    id: "standing-hip-hinge-pht",
+    name: "Standing Hip Hinge (Romanian Deadlift Pattern — Bodyweight PHT)",
+    condition: "proximal-hamstring-tendinopathy",
+    phase: ["subacute", "chronic", "maintenance"],
+    sessionType: "both",
+    instructions: [
+      "Stand with feet hip-width apart, hands on the front of the thighs.",
+      "Hinge forward at the hips — push the hips backward while keeping the spine completely neutral.",
+      "Slide the hands down the thighs toward the knees as you hinge, maintaining full back engagement.",
+      "Stop when you feel tension in the hamstrings (usually 45–60 degrees of trunk inclination).",
+      "Drive the hips forward to return upright. Perform 12–15 reps, 3 sets.",
+    ],
+    reps: 12,
+    sets: 3,
+    breathingCues: [
+      "Inhale before hinging. Exhale through the hip extension (return to standing).",
+      "Maintain a braced core throughout — do not release tension at any point.",
+    ],
+    dos: [
+      "This is the foundational movement pattern for PHT — hip extension under load strengthens the proximal hamstring.",
+      "Keep the chin tucked slightly — do not look up aggressively during the hinge.",
+      "Progress by adding a light backpack or holding a book as resistance once bodyweight is comfortable.",
+    ],
+    donts: [
+      "Do not bend the knees significantly — this reduces hamstring load at the proximal attachment.",
+      "Avoid rounding the lower back — the L4-L5 spine must be protected simultaneously.",
+      "Do not hinge past the point where you can maintain a neutral spine.",
+    ],
+    painLevelMax: 3,
+    redFlags: [
+      "Lower limb neurological symptoms",
+      "Pain referral to the popliteal fossa (back of knee) during the hinge — possible distal hamstring involvement",
+    ],
+    primaryMuscles: ["hamstrings-biceps-femoris", "gluteus-maximus", "erector-spinae-lower"],
+    rehabilitationMuscles: [
+      "hamstrings-biceps-femoris",
+      "gluteus-maximus",
+      "erector-spinae-lower",
+    ],
+    affectedArea: ["hamstrings-biceps-femoris", "erector-spinae-lower"],
+    youtubeId: "ip4IOs4dp_s",
+    progressionExercise: "single-leg-bridge-pht",
+  },
+
+  {
+    id: "seated-sciatic-floss-pht",
+    name: "Neural Flossing — Seated (Sciatic Nerve — PHT Differentiation)",
+    condition: "proximal-hamstring-tendinopathy",
+    phase: ["subacute", "chronic"],
+    sessionType: "both",
+    instructions: [
+      "Sit on the edge of a chair with both feet flat on the floor.",
+      "Slump the thoracic spine and tuck the chin slightly.",
+      "Slowly extend the knee of the affected side while simultaneously dorsiflexing the ankle.",
+      "Immediately reverse — flex the knee and plantarflex — in a smooth oscillation.",
+      "Perform 15 oscillations per leg, 2 sets. This differentiates nerve involvement from pure tendon pain.",
+    ],
+    reps: 15,
+    sets: 2,
+    breathingCues: [
+      "Breathe rhythmically in time with the movement.",
+      "Never hold the breath.",
+    ],
+    dos: [
+      "If this reproduces ischial/sacral pain, sciatic nerve sensitisation may be contributing — inform your physiotherapist.",
+      "If this is pain-free but the bridge exercises reproduce pain, it is more purely tendinopathic.",
+      "Gentle neural flossing can coexist with tendinopathy treatment safely.",
+    ],
+    donts: [
+      "Do not push into sharp or electric pain.",
+      "Avoid static holds in the extended knee position.",
+    ],
+    painLevelMax: 3,
+    redFlags: [
+      "Electric, shooting, or burning pain reproduced with this test — suggests significant neural sensitisation",
+    ],
+    primaryMuscles: ["hamstrings-biceps-femoris"],
+    rehabilitationMuscles: ["hamstrings-biceps-femoris", "erector-spinae-lower"],
+    affectedArea: ["hamstrings-biceps-femoris"],
+    youtubeId: "1QL6Iy0GFUU",
+  },
+
+  {
+    id: "ischial-offloading-sitting-pht",
+    name: "Ischial Tuberosity Offloading (Sitting Modification)",
+    condition: "proximal-hamstring-tendinopathy",
+    phase: ["acute", "subacute", "chronic"],
+    sessionType: "both",
+    instructions: [
+      "Use a wedge cushion or rolled towel positioned under the sitting bones (ischial tuberosities), not the coccyx.",
+      "Tilt forward on the wedge so the weight sits on the mid-thigh rather than directly on the ischial tuberosities.",
+      "Maintain this modified sitting position throughout the workday.",
+      "Avoid crossing the legs — this increases tensile load on the proximal hamstring.",
+      "Stand and move for 2 minutes every 30–45 minutes of sitting.",
+    ],
+    duration: "Sustained posture modification during sitting",
+    sets: 1,
+    reps: 1,
+    breathingCues: [
+      "Breathe normally with a relaxed posture.",
+    ],
+    dos: [
+      "This is the most important immediate management for PHT — reducing compression at the proximal hamstring reduces pain that day.",
+      "A wedge cushion is inexpensive and highly effective.",
+      "Stand to perform tasks where possible (standing desk if available).",
+    ],
+    donts: [
+      "Do not sit in bucket seats (cars, soft sofas) that force deep hip flexion — this maximal compresses the proximal hamstring attachment.",
+      "Avoid leg crossing while seated.",
+      "Do not ignore this modification — PHT that continues to be loaded in compression heals extremely slowly.",
+    ],
+    painLevelMax: 2,
+    redFlags: [
+      "Pain that does not reduce at all with positional modification (consider cortisone injection discussion with doctor)",
+    ],
+    primaryMuscles: ["hamstrings-biceps-femoris", "gluteus-maximus"],
+    rehabilitationMuscles: ["hamstrings-biceps-femoris"],
+    affectedArea: ["hamstrings-biceps-femoris"],
+    youtubeId: "B1lfGiMf7hc",
+    progressionExercise: "isometric-hip-extension-pht",
+  },
+];

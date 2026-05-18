@@ -127,6 +127,7 @@ export interface Exercise {
 export type PhysioCondition =
   | "adhesive-capsulitis"
   | "cervical-strain"
+  | "cervical-radiculopathy"
   | "thoracic-kyphosis"
   | "scapular-winging"
   | "scapular-dyskinesia"
@@ -134,6 +135,7 @@ export type PhysioCondition =
   | "l5-s1-disc-herniation"
   | "coccydynia"
   | "patellofemoral-pain-syndrome"
+  | "knee-effusion"
   | "it-band-syndrome"
   | "achilles-tendinopathy"
   | "plantar-fasciitis"
@@ -142,9 +144,11 @@ export type PhysioCondition =
   | "shoulder-impingement"
   | "piriformis-syndrome"
   | "si-joint-dysfunction"
+  | "proximal-hamstring-tendinopathy"
   | "thoracic-outlet-syndrome"
   | "cervicogenic-headache"
-  | "whiplash";
+  | "whiplash"
+  | "tendinopathy-swelling";
 
 export type PhysioPhase = "acute" | "subacute" | "chronic" | "maintenance";
 
@@ -184,6 +188,23 @@ export type FitnessGoal =
 
 export type FitnessLevel = "beginner" | "intermediate" | "advanced";
 
+export type ActivityLevel =
+  | "sedentary"
+  | "light"
+  | "moderate"
+  | "active"
+  | "very-active";
+
+export interface NutritionTargets {
+  tdee: number;
+  maintenanceCalories: number;
+  dailyCalories: number;
+  proteinG: number;
+  carbsG: number;
+  fatG: number;
+  deficitOrSurplus: number;
+}
+
 export interface UserInjury {
   condition: PhysioCondition;
   bodyRegion: string;
@@ -208,6 +229,8 @@ export interface UserProfile {
   equipment: Equipment[];
   injuries: UserInjury[];
   units: "kg" | "lb";
+  activityLevel?: ActivityLevel;
+  nutritionTargets?: NutritionTargets;
   createdAt: string;
   updatedAt: string;
 }
@@ -319,6 +342,7 @@ export interface SplitDay {
   muscleGroups: string[];
   isRestDay: boolean;
   exercises?: string[];
+  exercisesAlt?: string[];
 }
 
 export interface WorkoutSplit {

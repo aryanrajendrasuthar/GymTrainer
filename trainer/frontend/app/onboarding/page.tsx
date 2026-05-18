@@ -6,8 +6,10 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { authApi } from "@/app/lib/api";
+import { calculateNutritionTargets } from "@/app/lib/nutrition";
 import { Button } from "@/app/components/ui/Button";
 import { GoalStep } from "@/app/components/onboarding/GoalStep";
+import { BodyMetricsStep, type BodyMetrics } from "@/app/components/onboarding/BodyMetricsStep";
 import { FitnessLevelStep } from "@/app/components/onboarding/FitnessLevelStep";
 import { EquipmentStep } from "@/app/components/onboarding/EquipmentStep";
 import { SplitStep } from "@/app/components/onboarding/SplitStep";
@@ -19,6 +21,11 @@ const STEPS = [
     id: "goal",
     title: "What's your main goal?",
     subtitle: "Your training will be tailored around this.",
+  },
+  {
+    id: "metrics",
+    title: "Your body stats",
+    subtitle: "Used to calculate your personalised calorie and macro targets.",
   },
   {
     id: "level",
@@ -54,6 +61,24 @@ const slideVariants = {
   }),
 };
 
+const METRICS_DEFAULTS: Partial<BodyMetrics> = {
+  gender: undefined,
+  age: 25,
+  heightCm: 170,
+  weightKg: 70,
+  activityLevel: undefined,
+};
+
+function metricsComplete(m: Partial<BodyMetrics>): m is BodyMetrics {
+  return (
+    !!m.gender &&
+    !!m.activityLevel &&
+    (m.age ?? 0) > 0 &&
+    (m.heightCm ?? 0) > 0 &&
+    (m.weightKg ?? 0) > 0
+  );
+}
+
 export default function OnboardingPage() {
   const router = useRouter();
   const { isAuthenticated, onboardingComplete, updateProfile, setOnboardingComplete, accessToken } =
@@ -63,6 +88,7 @@ export default function OnboardingPage() {
   const direction = useRef(1);
 
   const [goal, setGoal] = useState<FitnessGoal | null>(null);
+  const [metrics, setMetrics] = useState<Partial<BodyMetrics>>(METRICS_DEFAULTS);
   const [fitnessLevel, setFitnessLevel] = useState<FitnessLevel | null>(null);
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [splitId, setSplitId] = useState<string | null>(null);
@@ -77,15 +103,15 @@ export default function OnboardingPage() {
 
   const canProceed = () => {
     if (step === 0) return goal !== null;
-    if (step === 1) return fitnessLevel !== null;
-    if (step === 2) return equipment.length > 0;
-    if (step === 3) return splitId !== null;
+    if (step === 1) return metricsComplete(metrics);
+    if (step === 2) return fitnessLevel !== null;
+    if (step === 3) return equipment.length > 0;
+    if (step === 4) return splitId !== null;
     return false;
   };
 
   const handleNext = () => {
     if (!canProceed()) return;
-
     if (step < STEPS.length - 1) {
       direction.current = 1;
       setStep((s) => s + 1);
@@ -102,7 +128,35 @@ export default function OnboardingPage() {
 
   const handleComplete = () => {
     if (!goal || !fitnessLevel || !splitId) return;
-    updateProfile({ goal, fitnessLevel, equipment, splitId });
+    const m = metricsComplete(metrics) ? metrics : null;
+
+    const nutritionTargets = m
+      ? calculateNutritionTargets(
+          m.weightKg,
+          m.heightCm,
+          m.age,
+          m.gender,
+          m.activityLevel,
+          goal
+        )
+      : undefined;
+
+    updateProfile({
+      goal,
+      fitnessLevel,
+      equipment,
+      splitId,
+      ...(m
+        ? {
+            gender: m.gender,
+            age: m.age,
+            heightCm: m.heightCm,
+            weightKg: m.weightKg,
+            activityLevel: m.activityLevel,
+          }
+        : {}),
+      ...(nutritionTargets ? { nutritionTargets } : {}),
+    });
     setOnboardingComplete(true);
 
     if (accessToken) {
@@ -112,6 +166,15 @@ export default function OnboardingPage() {
           fitness_level: fitnessLevel,
           equipment,
           split_id: splitId,
+          ...(m
+            ? {
+                gender: m.gender,
+                age: m.age,
+                height_cm: m.heightCm,
+                weight_kg: m.weightKg,
+                activity_level: m.activityLevel,
+              }
+            : {}),
         })
         .catch(() => {});
     }
@@ -199,12 +262,15 @@ export default function OnboardingPage() {
           >
             {step === 0 && <GoalStep value={goal} onChange={setGoal} />}
             {step === 1 && (
-              <FitnessLevelStep value={fitnessLevel} onChange={setFitnessLevel} />
+              <BodyMetricsStep value={metrics} onChange={setMetrics} />
             )}
             {step === 2 && (
+              <FitnessLevelStep value={fitnessLevel} onChange={setFitnessLevel} />
+            )}
+            {step === 3 && (
               <EquipmentStep value={equipment} onChange={setEquipment} />
             )}
-            {step === 3 && goal && fitnessLevel && (
+            {step === 4 && goal && fitnessLevel && (
               <SplitStep
                 value={splitId}
                 goal={goal}
@@ -241,4 +307,3 @@ export default function OnboardingPage() {
     </div>
   );
 }
-

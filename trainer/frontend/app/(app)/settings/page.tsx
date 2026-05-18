@@ -14,11 +14,18 @@ import {
   LogOut,
   Check,
   RotateCcw,
+  BookOpen,
+  TrendingUp,
+  BellRing,
+  Flame,
+  RefreshCw,
 } from "lucide-react";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
 import { authApi } from "@/app/lib/api";
 import { workoutSplits } from "@/app/data/splits";
+import { calculateNutritionTargets, getCalorieRangeLabel } from "@/app/lib/nutrition";
+import { GoalChangeSheet } from "@/app/components/settings/GoalChangeSheet";
 import { cn } from "@/app/lib/utils";
 import {
   type OverloadAmount,
@@ -137,6 +144,16 @@ function TimeInput({
     />
   );
 }
+
+const GOAL_LABELS: Record<string, string> = {
+  "muscle-gain": "Build Muscle & Size",
+  "fat-loss": "Lose Fat",
+  recomp: "Body Recomposition",
+  strength: "Get Stronger",
+  "greek-god": "Greek God Physique",
+  calisthenics: "Calisthenics & Skills",
+  "general-fitness": "General Fitness",
+};
 
 const DAY_LABELS = ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"];
 
@@ -268,12 +285,16 @@ function SavedBadge({ show }: { show: boolean }) {
 
 export default function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useSettingsStore();
-  const { profile, signOut, accessToken } = useUserStore();
+  const { profile, signOut, accessToken, updateProfile } = useUserStore();
   const router = useRouter();
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [showGoalSheet, setShowGoalSheet] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
+  const [pushStatus, setPushStatus] = useState<NotificationPermission | "unsupported">(
+    typeof Notification !== "undefined" ? Notification.permission : "unsupported"
+  );
 
   const currentSplit = workoutSplits.find((s) => s.id === profile?.splitId);
 
@@ -305,6 +326,26 @@ export default function SettingsPage() {
     if (accessToken) authApi.signOut(accessToken).catch(() => {});
     signOut();
     router.replace("/signin");
+  }
+
+  function handleRecalculateNutrition() {
+    if (!profile?.weightKg || !profile?.heightCm || !profile?.age || !profile?.gender || !profile?.activityLevel || !profile?.goal) return;
+    const targets = calculateNutritionTargets(
+      profile.weightKg,
+      profile.heightCm,
+      profile.age,
+      profile.gender,
+      profile.activityLevel,
+      profile.goal
+    );
+    updateProfile({ nutritionTargets: targets });
+    flashSaved();
+  }
+
+  async function handleRequestPush() {
+    if (typeof Notification === "undefined") return;
+    const perm = await Notification.requestPermission();
+    setPushStatus(perm);
   }
 
   return (
@@ -417,9 +458,26 @@ export default function SettingsPage() {
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }}>
           <SectionHeader icon={Zap} label="Programme" />
           <SettingsCard>
+            {/* Goal */}
             <button
-              onClick={() => router.push("/onboarding")}
-              className="flex items-center gap-3 w-full px-4 py-3.5 text-left"
+              onClick={() => setShowGoalSheet(true)}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left border-b border-white/5"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white/85">Current Goal</p>
+                <p className="text-[11px] text-white/35 mt-0.5 truncate">
+                  {profile?.goal ? GOAL_LABELS[profile.goal] : "Not set"}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0">
+                <span className="text-xs text-trainer-indigo font-semibold">Change</span>
+                <ChevronRight size={13} className="text-trainer-indigo/60" />
+              </div>
+            </button>
+            {/* Split */}
+            <button
+              onClick={() => router.push("/splits")}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left border-b border-white/5"
             >
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white/85">Current Split</p>
@@ -431,6 +489,128 @@ export default function SettingsPage() {
                 <span className="text-xs text-trainer-indigo font-semibold">Change</span>
                 <ChevronRight size={13} className="text-trainer-indigo/60" />
               </div>
+            </button>
+            <button
+              onClick={() => router.push("/progress")}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white/85">Progress & Analytics</p>
+                <p className="text-[11px] text-white/35 mt-0.5">Charts, PRs, and body weight</p>
+              </div>
+              <TrendingUp size={15} className="text-white/25 shrink-0" />
+            </button>
+          </SettingsCard>
+        </motion.div>
+
+        {/* ── Nutrition ── */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.10 }}>
+          <SectionHeader icon={Flame} label="Nutrition Targets" />
+          {profile?.nutritionTargets ? (
+            <div className="flex flex-col gap-3">
+              {/* Calorie overview */}
+              <SettingsCard>
+                {(() => {
+                  const nt = profile.nutritionTargets!;
+                  const rangeInfo = getCalorieRangeLabel(profile.goal);
+                  const isDeficit = nt.deficitOrSurplus < 0;
+                  const isSurplus = nt.deficitOrSurplus > 0;
+                  return (
+                    <>
+                      <div className="px-4 py-4 border-b border-white/5">
+                        <div className="flex items-end justify-between mb-1">
+                          <p className="text-xs font-semibold text-white/35 uppercase tracking-widest">
+                            Daily Calories
+                          </p>
+                          <span className={cn("text-[11px] font-semibold", rangeInfo.color)}>
+                            {rangeInfo.label}
+                          </span>
+                        </div>
+                        <p className="text-3xl font-black text-white tabular-nums">
+                          {nt.dailyCalories.toLocaleString()}
+                          <span className="text-base font-normal text-white/35 ml-1">kcal</span>
+                        </p>
+                        <p className="text-[11px] text-white/35 mt-1">
+                          Maintenance (TDEE):{" "}
+                          <span className="text-white/55 font-semibold">
+                            {nt.maintenanceCalories.toLocaleString()} kcal
+                          </span>
+                          {" · "}
+                          <span className={cn("font-semibold", isDeficit ? "text-amber-400" : isSurplus ? "text-emerald-400" : "text-white/55")}>
+                            {isDeficit ? "" : "+"}{nt.deficitOrSurplus} kcal
+                          </span>
+                        </p>
+                      </div>
+                      {/* Macros */}
+                      <div className="grid grid-cols-3 divide-x divide-white/5">
+                        {[
+                          { label: "Protein", value: nt.proteinG, unit: "g", color: "text-sky-400" },
+                          { label: "Carbs", value: nt.carbsG, unit: "g", color: "text-amber-400" },
+                          { label: "Fat", value: nt.fatG, unit: "g", color: "text-rose-400" },
+                        ].map(({ label, value, unit, color }) => (
+                          <div key={label} className="px-3 py-3 text-center">
+                            <p className={cn("text-xl font-bold tabular-nums", color)}>
+                              {value}
+                              <span className="text-xs font-normal text-white/30 ml-0.5">{unit}</span>
+                            </p>
+                            <p className="text-[10px] text-white/30 mt-0.5">{label}</p>
+                          </div>
+                        ))}
+                      </div>
+                    </>
+                  );
+                })()}
+              </SettingsCard>
+              {/* Recalculate */}
+              <button
+                onClick={handleRecalculateNutrition}
+                disabled={!profile?.activityLevel}
+                className="flex items-center gap-2 px-4 py-2.5 rounded-[12px] bg-trainer-surface border border-white/8 text-xs text-white/40 hover:text-white/70 hover:border-white/20 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <RefreshCw size={12} />
+                Recalculate from current weight & goal
+              </button>
+            </div>
+          ) : (
+            <SettingsCard>
+              <div className="px-4 py-4">
+                <p className="text-sm font-semibold text-white/60 mb-1">
+                  No targets calculated yet
+                </p>
+                <p className="text-[11px] text-white/35 leading-relaxed mb-3">
+                  Complete your body metrics (age, height, weight, activity level) to get personalised calorie and macro targets.
+                </p>
+                <p className="text-[11px] text-white/25">
+                  If you created your account before this update, you can re-do onboarding or edit your profile — coming soon.
+                </p>
+              </div>
+            </SettingsCard>
+          )}
+        </motion.div>
+
+        {/* ── Explore ── */}
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.09 }}>
+          <SectionHeader icon={BookOpen} label="Explore" />
+          <SettingsCard>
+            <button
+              onClick={() => router.push("/exercises")}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left border-b border-white/5"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white/85">Exercise Library</p>
+                <p className="text-[11px] text-white/35 mt-0.5">Browse all exercises by muscle or category</p>
+              </div>
+              <ChevronRight size={15} className="text-white/25 shrink-0" />
+            </button>
+            <button
+              onClick={() => router.push("/splits")}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left"
+            >
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white/85">Training Splits</p>
+                <p className="text-[11px] text-white/35 mt-0.5">View and switch between splits</p>
+              </div>
+              <ChevronRight size={15} className="text-white/25 shrink-0" />
             </button>
           </SettingsCard>
         </motion.div>
@@ -621,12 +801,44 @@ export default function SettingsPage() {
             <SettingsRow
               label="Overload Milestones"
               description="Celebrate new personal bests and consistent progression."
-              last
             >
               <Toggle
                 value={settings.notifications.progressiveOverloadMilestone}
                 onChange={(v) => patchNotif("progressiveOverloadMilestone", v)}
               />
+            </SettingsRow>
+
+            {/* Push notifications */}
+            <SettingsRow
+              label="Push Notifications"
+              description={
+                pushStatus === "granted"
+                  ? "Push notifications are enabled."
+                  : pushStatus === "denied"
+                  ? "Blocked in browser settings. Re-enable from site permissions."
+                  : pushStatus === "unsupported"
+                  ? "Not supported on this browser."
+                  : "Enable to receive alerts even when the app is closed."
+              }
+              last
+            >
+              {pushStatus === "granted" ? (
+                <div className="flex items-center gap-1.5">
+                  <BellRing size={14} className="text-trainer-success" />
+                  <span className="text-xs font-semibold text-trainer-success">On</span>
+                </div>
+              ) : pushStatus === "denied" ? (
+                <span className="text-xs text-trainer-danger/70 font-semibold">Blocked</span>
+              ) : pushStatus === "unsupported" ? (
+                <span className="text-xs text-white/25 font-semibold">N/A</span>
+              ) : (
+                <button
+                  onClick={handleRequestPush}
+                  className="px-3 py-1.5 rounded-[8px] bg-trainer-indigo/15 border border-trainer-indigo/25 text-xs font-bold text-trainer-indigo hover:bg-trainer-indigo/25 transition-colors"
+                >
+                  Enable
+                </button>
+              )}
             </SettingsRow>
           </SettingsCard>
         </motion.div>
@@ -659,6 +871,12 @@ export default function SettingsPage() {
 
       {/* Saved flash */}
       <SavedBadge show={savedFlash} />
+
+      {/* Goal change sheet */}
+      <GoalChangeSheet
+        open={showGoalSheet}
+        onClose={() => setShowGoalSheet(false)}
+      />
 
       {/* Reset confirm */}
       <ConfirmSheet

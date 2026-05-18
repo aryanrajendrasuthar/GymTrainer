@@ -71,6 +71,7 @@ interface RawProfile {
   split_id: string | null;
   equipment: string[] | null;
   units: "kg" | "lb" | null;
+  activity_level: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -91,6 +92,7 @@ function mapProfile(raw: RawProfile): UserProfile {
     equipment: ((raw.equipment ?? []) as Equipment[]),
     injuries: [],
     units: raw.units ?? "kg",
+    activityLevel: (raw.activity_level as import("@/app/types").ActivityLevel) ?? undefined,
     createdAt: raw.created_at,
     updatedAt: raw.updated_at,
   };
@@ -136,6 +138,7 @@ export const authApi = {
       split_id?: string;
       equipment?: string[];
       units?: "kg" | "lb";
+      activity_level?: string;
     }
   ) =>
     apiFetch<RawProfile>("/api/auth/profile", {

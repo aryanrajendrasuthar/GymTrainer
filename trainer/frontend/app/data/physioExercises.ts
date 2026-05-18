@@ -5,6 +5,10 @@ import { thoracicPhysioExercises } from "./physio-exercises-thoracic";
 import { lumbarPhysioExercises } from "./physio-exercises-lumbar";
 import { hipPhysioExercises } from "./physio-exercises-hip";
 import { lowerLimbPhysioExercises } from "./physio-exercises-lower-limb";
+import { cervicalRadiculopathyExercises } from "./physio-exercises-cervical-radiculopathy";
+import { kneeEffusionExercises } from "./physio-exercises-knee-effusion";
+import { hamstringTendinopathyExercises } from "./physio-exercises-hamstring-tendinopathy";
+import { swellingPhysioExercises } from "./physio-exercises-swelling";
 
 export const allPhysioExercises: PhysioExercise[] = [
   ...shoulderPhysioExercises,
@@ -13,6 +17,10 @@ export const allPhysioExercises: PhysioExercise[] = [
   ...lumbarPhysioExercises,
   ...hipPhysioExercises,
   ...lowerLimbPhysioExercises,
+  ...cervicalRadiculopathyExercises,
+  ...kneeEffusionExercises,
+  ...hamstringTendinopathyExercises,
+  ...swellingPhysioExercises,
 ];
 
 export const physioExerciseMap: Record<string, PhysioExercise> = Object.fromEntries(
@@ -80,4 +88,8 @@ export {
   lumbarPhysioExercises,
   hipPhysioExercises,
   lowerLimbPhysioExercises,
+  cervicalRadiculopathyExercises,
+  kneeEffusionExercises,
+  hamstringTendinopathyExercises,
+  swellingPhysioExercises,
 };

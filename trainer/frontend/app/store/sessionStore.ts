@@ -5,11 +5,19 @@ import { persist } from "zustand/middleware";
 import { type WorkoutSession, type ExerciseLog } from "@/app/types";
 import { type ActiveSession } from "@/app/hooks/useSession";
 
+export interface DraftSession {
+  splitDay: string;
+  exerciseIds: string[];
+  dayIndex: number;
+  startedAt: string;
+}
+
 interface SessionState {
   activeSession: ActiveSession | null;
   recentSessions: WorkoutSession[];
   allExerciseLogs: ExerciseLog[];
   sessionDates: Record<string, string>;
+  draftSession: DraftSession | null;
 
   startSession: (splitDay: string, exerciseIds: string[]) => void;
   endSession: () => void;
@@ -17,6 +25,8 @@ interface SessionState {
   setRecentSessions: (sessions: WorkoutSession[]) => void;
   setAllExerciseLogs: (logs: ExerciseLog[]) => void;
   appendExerciseLogs: (logs: ExerciseLog[]) => void;
+  setDraftSession: (draft: DraftSession) => void;
+  clearDraftSession: () => void;
 }
 
 export const useSessionStore = create<SessionState>()(
@@ -26,6 +36,7 @@ export const useSessionStore = create<SessionState>()(
   recentSessions: [],
   allExerciseLogs: [],
   sessionDates: {},
+  draftSession: null,
 
   startSession: (splitDay, exerciseIds) =>
     set({
@@ -69,6 +80,9 @@ export const useSessionStore = create<SessionState>()(
     set((state) => ({
       allExerciseLogs: [...state.allExerciseLogs, ...logs],
     })),
+
+  setDraftSession: (draft) => set({ draftSession: draft }),
+  clearDraftSession: () => set({ draftSession: null }),
     }),
     {
       name: "trainer-sessions",
@@ -76,6 +90,7 @@ export const useSessionStore = create<SessionState>()(
         recentSessions: state.recentSessions,
         allExerciseLogs: state.allExerciseLogs,
         sessionDates: state.sessionDates,
+        draftSession: state.draftSession,
       }),
     }
   )

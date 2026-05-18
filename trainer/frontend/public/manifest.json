@@ -2,18 +2,27 @@
   "name": "Trainer",
   "short_name": "Trainer",
   "description": "Premium personal fitness and physiotherapy app",
-  "start_url": "/",
+  "start_url": "/dashboard",
+  "scope": "/",
   "display": "standalone",
   "background_color": "#0A0A0F",
   "theme_color": "#0A0A0F",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "icons": [
     {
       "src": "/icon.svg",
       "sizes": "any",
       "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
     }
   ],
-  "categories": ["health", "fitness", "sports"]
+  "categories": ["health", "fitness", "sports"],
+  "lang": "en",
+  "dir": "ltr"
 }

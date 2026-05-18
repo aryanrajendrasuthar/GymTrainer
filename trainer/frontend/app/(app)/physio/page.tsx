@@ -52,6 +52,10 @@ const CONDITION_NAMES: Record<PhysioCondition, string> = {
   "thoracic-outlet-syndrome": "Thoracic Outlet Syndrome",
   "cervicogenic-headache": "Cervicogenic Headache",
   whiplash: "Whiplash",
+  "cervical-radiculopathy": "Cervical Radiculopathy",
+  "knee-effusion": "Knee Effusion (Swollen Knee)",
+  "proximal-hamstring-tendinopathy": "Proximal Hamstring Tendinopathy",
+  "tendinopathy-swelling": "Tendinopathy & Soft-Tissue Swelling",
 };
 
 const PHASE_STYLE: Record<PhysioPhase, { label: string; className: string }> = {

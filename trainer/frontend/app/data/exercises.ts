@@ -4,6 +4,7 @@ import { backExercises } from "./exercises-back";
 import { legsGlutesExercises } from "./exercises-legs-glutes";
 import { shouldersAndArmsExercises } from "./exercises-shoulders-arms";
 import { coreExercises } from "./exercises-core";
+import { homeMobilityExercises } from "./exercises-home-mobility";
 
 export const allExercises: Exercise[] = [
   ...chestExercises,
@@ -11,6 +12,7 @@ export const allExercises: Exercise[] = [
   ...legsGlutesExercises,
   ...shouldersAndArmsExercises,
   ...coreExercises,
+  ...homeMobilityExercises,
 ];
 
 export const exerciseMap: Record<string, Exercise> = Object.fromEntries(
@@ -73,4 +75,5 @@ export {
   legsGlutesExercises,
   shouldersAndArmsExercises,
   coreExercises,
+  homeMobilityExercises,
 };

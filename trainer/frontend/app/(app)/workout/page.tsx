@@ -10,6 +10,7 @@ import {
   Timer,
   TrendingUp,
   AlertTriangle,
+  Scissors,
 } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { sessionsApi } from "@/app/lib/api";
@@ -24,11 +25,13 @@ import { useExerciseHistory } from "@/app/hooks/useExerciseHistory";
 import { getSplitById } from "@/app/data/splits";
 import { exerciseMap } from "@/app/data/exercises";
 import { getWarmupForSession, type SessionTag } from "@/app/data/protocols";
+import { usePendingSessionStore } from "@/app/store/pendingSessionStore";
 import { SetLogger } from "@/app/components/workout/SetLogger";
 import { PreviousPerformancePanel } from "@/app/components/workout/PreviousPerformancePanel";
 import { ProgressiveOverloadSuggestion } from "@/app/components/workout/ProgressiveOverloadSuggestion";
 import { NextExerciseButton } from "@/app/components/workout/NextExerciseButton";
 import { SessionComplete } from "@/app/components/workout/SessionComplete";
+import { SplitSessionSheet } from "@/app/components/workout/SplitSessionSheet";
 import { Button } from "@/app/components/ui/Button";
 import { Badge } from "@/app/components/ui/Badge";
 import { type WorkoutSession, type MuscleGroup, type Exercise } from "@/app/types";
@@ -325,12 +328,16 @@ function PreWorkoutView({
   dayName,
   muscleGroups,
   exercises,
+  isPendingSession,
   onBegin,
+  onSplit,
 }: {
   dayName: string;
   muscleGroups: string[];
   exercises: Exercise[];
+  isPendingSession: boolean;
   onBegin: () => void;
+  onSplit: () => void;
 }) {
   const sessionTag = muscleGroupsToSessionTag(muscleGroups);
   const warmup = getWarmupForSession(sessionTag);
@@ -340,7 +347,7 @@ function PreWorkoutView({
       {/* Header */}
       <div className="px-5 pt-14 pb-6">
         <p className="text-xs text-trainer-indigo/80 font-semibold uppercase tracking-wider mb-1">
-          Today&apos;s Workout
+          {isPendingSession ? "Scheduled Session" : "Today's Workout"}
         </p>
         <h1 className="text-2xl font-bold text-white">{dayName}</h1>
         <div className="flex flex-wrap gap-1.5 mt-3">
@@ -356,7 +363,7 @@ function PreWorkoutView({
       </div>
 
       {/* Warmup protocol */}
-      {warmup && (
+      {warmup && !isPendingSession && (
         <div className="mx-5 mb-5 bg-trainer-elevated border border-white/8 rounded-[14px] p-4">
           <div className="flex items-center justify-between mb-3">
             <p className="text-xs text-trainer-warning/80 font-semibold uppercase tracking-widest">
@@ -425,11 +432,17 @@ function PreWorkoutView({
       </div>
 
       {/* CTA */}
-      <div className="px-5 pb-10 border-t border-white/6 pt-4">
+      <div className="px-5 pb-10 border-t border-white/6 pt-4 space-y-2.5">
         <Button fullWidth size="lg" onClick={onBegin}>
           <Dumbbell size={18} />
           Begin Workout
         </Button>
+        {!isPendingSession && (
+          <Button variant="secondary" fullWidth onClick={onSplit}>
+            <Scissors size={16} />
+            Split Session
+          </Button>
+        )}
       </div>
     </div>
   );
@@ -441,11 +454,16 @@ function WorkoutPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const dayParam = searchParams.get("day");
+  const pendingParam = searchParams.get("pending");
   const dayIndex = dayParam !== null && !isNaN(Number(dayParam)) ? parseInt(dayParam, 10) : 0;
 
   const { profile, accessToken } = useUserStore();
   const { allExerciseLogs, sessionDates, addCompletedSession } = useSessionStore();
   const { settings } = useSettingsStore();
+  const { getById: getPendingById, removeSession: removePendingSession } = usePendingSessionStore();
+
+  // If a pending session ID is in the URL, load that session instead
+  const pendingSession = pendingParam ? getPendingById(pendingParam) : undefined;
 
   const split = useMemo(
     () => (profile?.splitId ? getSplitById(profile.splitId) : null),
@@ -454,14 +472,29 @@ function WorkoutPageContent() {
 
   const splitDay = split?.days[dayIndex % (split?.days.length ?? 1)] ?? null;
 
-  const exerciseIds = useMemo(
-    () => splitDay?.exercises ?? [],
-    [splitDay]
-  );
+  // Exercise IDs: from pending session or from split day
+  const exerciseIds = useMemo(() => {
+    if (pendingSession) {
+      return pendingSession.exercises
+        .filter((e) => e.type === "workout")
+        .map((e) => e.id);
+    }
+    return splitDay?.exercises ?? [];
+  }, [pendingSession, splitDay]);
 
   const exercises = useMemo(
     () => exerciseIds.map((id) => exerciseMap[id]).filter(Boolean),
     [exerciseIds]
+  );
+
+  // Override exercise list after user confirms the split sheet
+  const [overrideExerciseIds, setOverrideExerciseIds] = useState<string[] | null>(null);
+  const [showSplitSheet, setShowSplitSheet] = useState(false);
+
+  const activeExerciseIds = overrideExerciseIds ?? exerciseIds;
+  const activeExercises = useMemo(
+    () => activeExerciseIds.map((id) => exerciseMap[id]).filter(Boolean),
+    [activeExerciseIds]
   );
 
   const goal = profile?.goal ?? "muscle-gain";
@@ -498,7 +531,7 @@ function WorkoutPageContent() {
     setCustomWeight,
     deloadSignal,
   } = useProgressiveOverload(
-    exerciseIds,
+    activeExerciseIds,
     allExerciseLogs,
     goal,
     overloadAmount
@@ -532,7 +565,8 @@ function WorkoutPageContent() {
 
   // ─── Guards ────────────────────────────────────────────────────────────────
 
-  if (!profile || !split || !splitDay) {
+  // For pending sessions, skip the split/rest-day guards
+  if (!pendingSession && (!profile || !split || !splitDay)) {
     return (
       <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4">
         <AlertTriangle className="text-trainer-warning" size={40} />
@@ -546,7 +580,7 @@ function WorkoutPageContent() {
     );
   }
 
-  if (splitDay.isRestDay) {
+  if (!pendingSession && splitDay?.isRestDay) {
     return (
       <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4 text-center">
         <p className="text-4xl">😴</p>
@@ -560,7 +594,7 @@ function WorkoutPageContent() {
     );
   }
 
-  if (!exercises.length) {
+  if (!activeExercises.length) {
     return (
       <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4 text-center">
         <AlertTriangle className="text-trainer-warning" size={40} />
@@ -572,10 +606,13 @@ function WorkoutPageContent() {
     );
   }
 
+  const dayName = pendingSession?.dayName ?? splitDay?.dayName ?? "Workout";
+  const muscleGroups = splitDay?.muscleGroups ?? [];
+
   // ─── Session complete view ─────────────────────────────────────────────────
 
   if (phase === "complete" && completedSession) {
-    const musclesTrained = collectMusclesTrained(exercises);
+    const musclesTrained = collectMusclesTrained(activeExercises);
     return (
       <SessionComplete
         session={completedSession}
@@ -588,11 +625,22 @@ function WorkoutPageContent() {
           if (accessToken) {
             sessionsApi.create(accessToken, updated).catch(() => {});
           }
+          // Remove from pending store if this was a scheduled session
+          if (pendingSession) {
+            removePendingSession(pendingSession.id);
+          }
           router.push("/dashboard");
         }}
         onDiscard={() => {
           abandonSession();
           router.push("/dashboard");
+        }}
+        onRepeat={() => {
+          // Reset back to pre phase with the same exercises
+          abandonSession();
+          setPhase("pre");
+          setCurrentExerciseIdx(0);
+          setCompletedSession(null);
         }}
       />
     );
@@ -602,22 +650,37 @@ function WorkoutPageContent() {
 
   if (phase === "pre") {
     return (
-      <PreWorkoutView
-        dayName={splitDay.dayName}
-        muscleGroups={splitDay.muscleGroups}
-        exercises={exercises}
-        onBegin={() => {
-          startSession(splitDay.dayName, exerciseIds);
-          setPhase("active");
-          setCurrentExerciseIdx(0);
-        }}
-      />
+      <>
+        <PreWorkoutView
+          dayName={dayName}
+          muscleGroups={muscleGroups}
+          exercises={activeExercises}
+          isPendingSession={!!pendingSession}
+          onBegin={() => {
+            startSession(dayName, activeExerciseIds);
+            setPhase("active");
+            setCurrentExerciseIdx(0);
+          }}
+          onSplit={() => setShowSplitSheet(true)}
+        />
+        {splitDay && (
+          <SplitSessionSheet
+            open={showSplitSheet}
+            dayName={dayName}
+            exercises={exercises}
+            onClose={() => setShowSplitSheet(false)}
+            onConfirm={(nowIds) => {
+              setOverrideExerciseIds(nowIds.length > 0 ? nowIds : null);
+            }}
+          />
+        )}
+      </>
     );
   }
 
   // ─── Active workout view ────────────────────────────────────────────────────
 
-  const currentExercise = exercises[currentExerciseIdx];
+  const currentExercise = activeExercises[currentExerciseIdx];
   const goalKeyMap: Record<import("@/app/types").FitnessGoal, keyof typeof currentExercise.repRanges> = {
     "muscle-gain": "muscleGain",
     "fat-loss": "fatLoss",
@@ -631,7 +694,7 @@ function WorkoutPageContent() {
   const targetSets = repRange?.sets ?? 3;
   const targetRepsMin = repRange?.repsMin ?? 8;
   const targetRepsMax = repRange?.repsMax ?? 12;
-  const isLastExercise = currentExerciseIdx === exercises.length - 1;
+  const isLastExercise = currentExerciseIdx === activeExercises.length - 1;
 
   const activeExerciseState = session?.exercises[currentExerciseIdx];
   const completedSets = activeExerciseState?.sets ?? [];
@@ -671,7 +734,7 @@ function WorkoutPageContent() {
       <WorkoutHeader
         elapsed={elapsedSeconds}
         current={currentExerciseIdx + 1}
-        total={exercises.length}
+        total={activeExercises.length}
         volumeKg={totalVolumeKg}
         unit={unit}
         onAbandon={() => setShowAbandonConfirm(true)}
@@ -698,7 +761,7 @@ function WorkoutPageContent() {
             key={currentExercise.id}
             exercise={currentExercise}
             exerciseIndex={currentExerciseIdx}
-            totalExercises={exercises.length}
+            totalExercises={activeExercises.length}
             completedSets={completedSets}
             targetSets={targetSets}
             targetRepsMin={targetRepsMin}

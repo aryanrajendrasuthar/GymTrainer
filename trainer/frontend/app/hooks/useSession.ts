@@ -38,6 +38,7 @@ export interface UseSessionReturn {
   editSet: (exerciseId: string, setNumber: number, updated: Partial<ActiveSet>) => void;
   deleteSet: (exerciseId: string, setNumber: number) => void;
   markExerciseComplete: (exerciseId: string) => void;
+  swapExercise: (oldId: string, newId: string) => void;
   finishSession: (notes?: string) => WorkoutSession | null;
   abandonSession: () => void;
   totalVolumeKg: number;
@@ -144,6 +145,20 @@ export function useSession(): UseSessionReturn {
     });
   }, []);
 
+  const swapExercise = useCallback((oldId: string, newId: string) => {
+    setSession((prev) => {
+      if (!prev) return prev;
+      return {
+        ...prev,
+        exercises: prev.exercises.map((ex) =>
+          ex.exerciseId === oldId
+            ? { exerciseId: newId, sets: [], isComplete: false }
+            : ex
+        ),
+      };
+    });
+  }, []);
+
   const markExerciseComplete = useCallback((exerciseId: string) => {
     setSession((prev) => {
       if (!prev) return prev;
@@ -226,6 +241,7 @@ export function useSession(): UseSessionReturn {
     editSet,
     deleteSet,
     markExerciseComplete,
+    swapExercise,
     finishSession,
     abandonSession,
     totalVolumeKg: Math.round(totalVolumeKg * 10) / 10,

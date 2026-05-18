@@ -23,6 +23,64 @@ interface SetLoggerProps {
 
 const WEIGHT_STEPS = [1.25, 2.5, 5] as const;
 
+// ─── Completed set row ────────────────────────────────────────────────────────
+
+function CompletedSetRow({
+  setNumber,
+  repsCompleted,
+  weightUsed,
+  unit,
+  rpe,
+}: {
+  setNumber: number;
+  repsCompleted: number;
+  weightUsed: number;
+  unit: string;
+  rpe?: number;
+}) {
+  return (
+    <motion.div
+      layout
+      initial={{ opacity: 0, scale: 0.88, y: -4 }}
+      animate={{ opacity: 1, scale: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 500, damping: 30 }}
+      className="relative flex items-center justify-between py-2.5 px-3 bg-trainer-success/8 border border-trainer-success/20 rounded-[10px] overflow-hidden"
+    >
+      {/* Burst ring — fires once on mount */}
+      <motion.div
+        className="absolute inset-0 rounded-[10px] border-2 border-trainer-success pointer-events-none"
+        initial={{ opacity: 0.9, scale: 0.8 }}
+        animate={{ opacity: 0, scale: 1.15 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+      />
+
+      <div className="flex items-center gap-2.5">
+        <motion.div
+          className="w-6 h-6 rounded-full bg-trainer-success/20 flex items-center justify-center"
+          initial={{ scale: 0, rotate: -90 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 600, damping: 20, delay: 0.05 }}
+        >
+          <Check size={13} className="text-trainer-success" />
+        </motion.div>
+        <span className="text-sm font-medium text-white/70">Set {setNumber}</span>
+      </div>
+
+      <motion.span
+        className="text-sm font-semibold text-white tabular-nums"
+        initial={{ opacity: 0, x: 8 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ delay: 0.08 }}
+      >
+        {repsCompleted} × {weightUsed}{unit}
+        {rpe && <span className="text-white/40 font-normal ml-1.5">RPE {rpe}</span>}
+      </motion.span>
+    </motion.div>
+  );
+}
+
+// ─── Main SetLogger ────────────────────────────────────────────────────────────
+
 export function SetLogger({
   setNumber,
   targetRepsMin,
@@ -41,6 +99,7 @@ export function SetLogger({
   const [notes, setNotes] = useState("");
   const [showNotes, setShowNotes] = useState(false);
   const [weightStep] = useState<number>(2.5);
+  const [btnPressed, setBtnPressed] = useState(false);
 
   const adjustWeight = useCallback(
     (delta: number) => setWeight((w) => Math.max(0, Math.round((w + delta) * 4) / 4)),
@@ -53,41 +112,47 @@ export function SetLogger({
 
   const handleDone = useCallback(() => {
     if (typeof navigator !== "undefined" && navigator.vibrate) {
-      navigator.vibrate(30);
+      navigator.vibrate(40);
     }
-    onSetDone({ setNumber, repsCompleted: reps, weightUsed: weight, weightUnit: unit, rpe, notes: notes || undefined });
+    setBtnPressed(true);
+    setTimeout(() => setBtnPressed(false), 300);
+    onSetDone({
+      setNumber,
+      repsCompleted: reps,
+      weightUsed: weight,
+      weightUnit: unit,
+      rpe,
+      notes: notes || undefined,
+    });
   }, [setNumber, reps, weight, unit, rpe, notes, onSetDone]);
 
   if (isCompleted && completedLog) {
     return (
-      <motion.div
-        initial={{ opacity: 0, x: -8 }}
-        animate={{ opacity: 1, x: 0 }}
-        className="flex items-center justify-between py-2.5 px-3 bg-trainer-success/8 border border-trainer-success/20 rounded-[10px]"
-      >
-        <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-trainer-success/20 flex items-center justify-center">
-            <Check size={13} className="text-trainer-success" />
-          </div>
-          <span className="text-sm font-medium text-white/70">Set {setNumber}</span>
-        </div>
-        <span className="text-sm font-semibold text-white tabular-nums">
-          {completedLog.repsCompleted} × {completedLog.weightUsed}{unit}
-          {completedLog.rpe && <span className="text-white/40 font-normal ml-1.5">RPE {completedLog.rpe}</span>}
-        </span>
-      </motion.div>
+      <CompletedSetRow
+        setNumber={setNumber}
+        repsCompleted={completedLog.repsCompleted}
+        weightUsed={completedLog.weightUsed}
+        unit={unit}
+        rpe={completedLog.rpe}
+      />
     );
   }
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 4 }}
+      initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
       className="bg-trainer-elevated border border-trainer-indigo/20 rounded-[12px] p-4 space-y-4"
     >
       {/* Set header */}
       <div className="flex items-center justify-between">
-        <span className="text-sm font-semibold text-trainer-indigo">Set {setNumber}</span>
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 rounded-full bg-trainer-indigo/20 flex items-center justify-center">
+            <span className="text-[10px] font-bold text-trainer-indigo">{setNumber}</span>
+          </div>
+          <span className="text-sm font-semibold text-trainer-indigo">Set {setNumber}</span>
+        </div>
         <span className="text-xs text-white/40">
           Target: {targetRepsMin}–{targetRepsMax} reps
         </span>
@@ -97,13 +162,14 @@ export function SetLogger({
       <div>
         <label className="text-xs text-white/40 mb-2 block">Weight ({unit})</label>
         <div className="flex items-center gap-3">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.88 }}
             onClick={() => adjustWeight(-weightStep)}
-            className="w-11 h-11 rounded-[10px] bg-trainer-surface border border-white/10 flex items-center justify-center hover:border-trainer-indigo/40 transition-colors active:scale-95"
+            className="w-11 h-11 rounded-[10px] bg-trainer-surface border border-white/10 flex items-center justify-center hover:border-trainer-indigo/40 transition-colors"
             aria-label={`Decrease weight by ${weightStep}${unit}`}
           >
             <Minus size={16} className="text-white/60" />
-          </button>
+          </motion.button>
 
           <input
             type="number"
@@ -115,31 +181,33 @@ export function SetLogger({
             className={cn(
               "flex-1 text-center text-2xl font-bold tabular-nums",
               "bg-transparent border-b-2 border-white/20 focus:border-trainer-indigo",
-              "outline-none text-white pb-1 transition-colors",
-              "text-[16px] md:text-2xl"
+              "outline-none text-white pb-1 transition-colors"
             )}
             style={{ fontSize: "clamp(16px, 5vw, 28px)" }}
             aria-label={`Weight in ${unit}`}
           />
 
-          <button
+          <motion.button
+            whileTap={{ scale: 0.88 }}
             onClick={() => adjustWeight(weightStep)}
-            className="w-11 h-11 rounded-[10px] bg-trainer-surface border border-white/10 flex items-center justify-center hover:border-trainer-indigo/40 transition-colors active:scale-95"
+            className="w-11 h-11 rounded-[10px] bg-trainer-surface border border-white/10 flex items-center justify-center hover:border-trainer-indigo/40 transition-colors"
             aria-label={`Increase weight by ${weightStep}${unit}`}
           >
             <Plus size={16} className="text-white/60" />
-          </button>
+          </motion.button>
         </div>
+
         {/* Quick increment buttons */}
         <div className="flex gap-2 mt-2 justify-center">
           {WEIGHT_STEPS.map((step) => (
-            <button
+            <motion.button
               key={step}
+              whileTap={{ scale: 0.9 }}
               onClick={() => adjustWeight(step)}
               className="px-2.5 py-1 rounded-full text-[10px] bg-trainer-surface border border-white/10 text-white/40 hover:text-trainer-indigo hover:border-trainer-indigo/30 transition-colors"
             >
               +{step}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
@@ -148,13 +216,14 @@ export function SetLogger({
       <div>
         <label className="text-xs text-white/40 mb-2 block">Reps</label>
         <div className="flex items-center gap-3">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.88 }}
             onClick={() => adjustReps(-1)}
-            className="w-11 h-11 rounded-[10px] bg-trainer-surface border border-white/10 flex items-center justify-center hover:border-trainer-indigo/40 transition-colors active:scale-95"
+            className="w-11 h-11 rounded-[10px] bg-trainer-surface border border-white/10 flex items-center justify-center hover:border-trainer-indigo/40 transition-colors"
             aria-label="Decrease reps"
           >
             <Minus size={16} className="text-white/60" />
-          </button>
+          </motion.button>
 
           <input
             type="number"
@@ -170,13 +239,14 @@ export function SetLogger({
             aria-label="Reps completed"
           />
 
-          <button
+          <motion.button
+            whileTap={{ scale: 0.88 }}
             onClick={() => adjustReps(1)}
-            className="w-11 h-11 rounded-[10px] bg-trainer-surface border border-white/10 flex items-center justify-center hover:border-trainer-indigo/40 transition-colors active:scale-95"
+            className="w-11 h-11 rounded-[10px] bg-trainer-surface border border-white/10 flex items-center justify-center hover:border-trainer-indigo/40 transition-colors"
             aria-label="Increase reps"
           >
             <Plus size={16} className="text-white/60" />
-          </button>
+          </motion.button>
         </div>
       </div>
 
@@ -186,8 +256,9 @@ export function SetLogger({
           <label className="text-xs text-white/40 mb-2 block">RPE (optional)</label>
           <div className="flex gap-1.5 flex-wrap">
             {[6, 7, 7.5, 8, 8.5, 9, 9.5, 10].map((r) => (
-              <button
+              <motion.button
                 key={r}
+                whileTap={{ scale: 0.9 }}
                 onClick={() => setRpe(rpe === r ? undefined : r)}
                 className={cn(
                   "w-9 h-9 rounded-[8px] text-xs font-medium transition-all",
@@ -197,7 +268,7 @@ export function SetLogger({
                 )}
               >
                 {r}
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
@@ -231,17 +302,27 @@ export function SetLogger({
         )}
       </AnimatePresence>
 
-      {/* Mark done button */}
-      <Button
-        variant="primary"
-        fullWidth
-        size="lg"
-        onClick={handleDone}
-        className="mt-1"
+      {/* Mark done button with press animation */}
+      <motion.div
+        animate={btnPressed ? { scale: [1, 0.95, 1.02, 1] } : {}}
+        transition={{ duration: 0.25, ease: "easeOut" }}
       >
-        <Check size={18} />
-        Mark Set Done
-      </Button>
+        <Button
+          variant="primary"
+          fullWidth
+          size="lg"
+          onClick={handleDone}
+          className="mt-1 shadow-lg shadow-trainer-indigo/25"
+        >
+          <motion.span
+            animate={btnPressed ? { scale: [1, 1.3, 1] } : {}}
+            transition={{ duration: 0.25 }}
+          >
+            <Check size={18} />
+          </motion.span>
+          Mark Set Done
+        </Button>
+      </motion.div>
 
       {/* Rest suggestion */}
       {restSuggestion && (

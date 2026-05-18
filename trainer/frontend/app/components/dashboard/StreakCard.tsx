@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Flame, Calendar } from "lucide-react";
+import { useCountUp } from "@/app/hooks/useCountUp";
 import { cn } from "@/app/lib/utils";
 
 interface StreakCardProps {
@@ -12,50 +13,60 @@ interface StreakCardProps {
 
 export function StreakCard({ streak, weekSessionCount, totalSessions }: StreakCardProps) {
   const streakIsActive = streak > 0;
+  const animatedStreak = useCountUp(streak, 700, 200);
+  const animatedTotal = useCountUp(totalSessions, 800, 350);
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.1 }}
-      className="rounded-[16px] bg-trainer-surface border border-white/8 p-4 flex-1"
+      transition={{ duration: 0.5, delay: 0.1, ease: [0.25, 0.46, 0.45, 0.94] }}
+      className="rounded-[16px] bg-trainer-surface border border-white/8 p-4 flex-1 relative overflow-hidden"
     >
-      {/* Streak */}
-      <div className="flex items-center gap-2 mb-3">
-        <div
+      {/* Warm ambient glow when streak is active */}
+      {streakIsActive && (
+        <motion.div
+          className="absolute -top-4 -left-4 w-20 h-20 rounded-full bg-trainer-warning/15 blur-xl pointer-events-none"
+          animate={{ opacity: [0.6, 1, 0.6], scale: [0.9, 1.1, 0.9] }}
+          transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
+        />
+      )}
+
+      {/* Header */}
+      <div className="flex items-center gap-2 mb-3 relative">
+        <motion.div
           className={cn(
             "w-8 h-8 rounded-[10px] flex items-center justify-center",
-            streakIsActive
-              ? "bg-trainer-warning/15"
-              : "bg-white/6"
+            streakIsActive ? "bg-trainer-warning/15" : "bg-white/6"
           )}
+          animate={streakIsActive ? { scale: [1, 1.12, 1] } : {}}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut", repeatDelay: 0.5 }}
         >
           <Flame
-            className={cn(
-              "w-4 h-4",
-              streakIsActive ? "text-trainer-warning" : "text-white/25"
-            )}
+            className={cn("w-4 h-4", streakIsActive ? "text-trainer-warning" : "text-white/25")}
           />
-        </div>
+        </motion.div>
         <span className="text-xs font-semibold text-white/40 uppercase tracking-wider">
           Streak
         </span>
       </div>
 
-      <div className="mb-3">
+      {/* Streak number */}
+      <div className="mb-3 relative">
         <span
           className={cn(
             "text-3xl font-black tabular-nums",
             streakIsActive ? "text-trainer-warning" : "text-white/25"
           )}
         >
-          {streak}
+          {animatedStreak}
         </span>
         <span className="text-sm text-white/40 ml-1.5">
           {streak === 1 ? "day" : "days"}
         </span>
       </div>
 
+      {/* Bottom stats */}
       <div className="pt-3 border-t border-white/6 flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
           <span className="text-[11px] text-white/35">This week</span>
@@ -65,14 +76,16 @@ export function StreakCard({ streak, weekSessionCount, totalSessions }: StreakCa
         </div>
         <div className="flex items-center justify-between">
           <span className="text-[11px] text-white/35">All time</span>
-          <span className="text-[11px] font-semibold text-white/60">
-            {totalSessions}
+          <span className="text-[11px] font-semibold text-white/60 tabular-nums">
+            {animatedTotal}
           </span>
         </div>
       </div>
     </motion.div>
   );
 }
+
+// ─── WeekGridCard ─────────────────────────────────────────────────────────────
 
 interface WeekGridCardProps {
   sessionDates: string[];
@@ -100,7 +113,7 @@ export function WeekGridCard({ sessionDates }: WeekGridCardProps) {
     <motion.div
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.15 }}
+      transition={{ duration: 0.5, delay: 0.15, ease: [0.25, 0.46, 0.45, 0.94] }}
       className="rounded-[16px] bg-trainer-surface border border-white/8 p-4 flex-1"
     >
       <div className="flex items-center gap-2 mb-3">
@@ -122,11 +135,14 @@ export function WeekGridCard({ sessionDates }: WeekGridCardProps) {
 
           return (
             <div key={i} className="flex flex-col items-center gap-1.5 flex-1">
-              <div
+              <motion.div
+                initial={{ scaleY: 0, originY: 1 }}
+                animate={{ scaleY: 1 }}
+                transition={{ delay: 0.3 + i * 0.06, duration: 0.35, ease: "easeOut" }}
                 className={cn(
-                  "w-full aspect-square rounded-[6px] max-w-[28px] transition-all duration-200",
+                  "w-full aspect-square rounded-[6px] max-w-[28px]",
                   isTrained
-                    ? "bg-trainer-indigo"
+                    ? "bg-trainer-indigo shadow-sm shadow-trainer-indigo/40"
                     : isToday
                     ? "bg-trainer-indigo/20 border border-trainer-indigo/40"
                     : isFuture

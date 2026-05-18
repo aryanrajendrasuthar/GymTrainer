@@ -11,6 +11,9 @@ import { useSettingsStore } from "@/app/store/settingsStore";
 import { TodayWorkoutCard } from "@/app/components/dashboard/TodayWorkoutCard";
 import { StreakCard, WeekGridCard } from "@/app/components/dashboard/StreakCard";
 import { RecentSessionCard } from "@/app/components/dashboard/RecentSessionCard";
+import { WeeklyPlanSheet } from "@/app/components/dashboard/WeeklyPlanSheet";
+import { DailyCheckinCard } from "@/app/components/dashboard/DailyCheckinCard";
+import { PendingSessionCard } from "@/app/components/dashboard/PendingSessionCard";
 import { getSplitById } from "@/app/data/splits";
 import type { WorkoutSession } from "@/app/types";
 
@@ -146,6 +149,11 @@ export default function DashboardPage() {
           <NoProgrammeCard />
         )}
 
+        {/* Weekly plan */}
+        {split && (
+          <WeeklyPlanSheet split={split} todayDayIndex={todayDayIndex} />
+        )}
+
         {/* Streak + Week grid */}
         <div className="flex gap-3">
           <StreakCard
@@ -160,6 +168,12 @@ export default function DashboardPage() {
         {pendingPhysioCount > 0 && (
           <PhysioReminderBanner count={pendingPhysioCount} />
         )}
+
+        {/* Daily weight check-in */}
+        <DailyCheckinCard />
+
+        {/* Pending scheduled sessions */}
+        <PendingSessionCard />
 
         {/* Recent sessions */}
         <RecentSessionCard

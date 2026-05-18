@@ -31,6 +31,10 @@ const CONDITION_NAMES: Record<PhysioCondition, string> = {
   "thoracic-outlet-syndrome": "Thoracic Outlet Syndrome",
   "cervicogenic-headache": "Cervicogenic Headache",
   whiplash: "Whiplash",
+  "cervical-radiculopathy": "Cervical Radiculopathy",
+  "knee-effusion": "Knee Effusion (Swollen Knee)",
+  "proximal-hamstring-tendinopathy": "Proximal Hamstring Tendinopathy",
+  "tendinopathy-swelling": "Tendinopathy & Soft-Tissue Swelling",
 };
 
 const CONDITION_REGION: Record<PhysioCondition, string> = {
@@ -54,6 +58,10 @@ const CONDITION_REGION: Record<PhysioCondition, string> = {
   "achilles-tendinopathy": "Ankle",
   "plantar-fasciitis": "Foot",
   "peroneal-tendon-injury": "Ankle / Foot",
+  "cervical-radiculopathy": "Neck / Arm",
+  "knee-effusion": "Knee",
+  "proximal-hamstring-tendinopathy": "Hamstring / Ischium",
+  "tendinopathy-swelling": "Any Region",
 };
 
 const GROUPS: { label: string; conditions: PhysioCondition[] }[] = [
@@ -67,6 +75,7 @@ const GROUPS: { label: string; conditions: PhysioCondition[] }[] = [
       "scapular-dyskinesia",
       "thoracic-outlet-syndrome",
       "cervical-strain",
+      "cervical-radiculopathy",
       "cervicogenic-headache",
       "whiplash",
     ],
@@ -81,15 +90,28 @@ const GROUPS: { label: string; conditions: PhysioCondition[] }[] = [
     ],
   },
   {
-    label: "Hip, Knee & Lower Limb",
+    label: "Hip, Hamstring & Glute",
     conditions: [
       "piriformis-syndrome",
       "si-joint-dysfunction",
+      "proximal-hamstring-tendinopathy",
+    ],
+  },
+  {
+    label: "Knee, Ankle & Foot",
+    conditions: [
       "patellofemoral-pain-syndrome",
+      "knee-effusion",
       "it-band-syndrome",
       "achilles-tendinopathy",
       "plantar-fasciitis",
       "peroneal-tendon-injury",
+    ],
+  },
+  {
+    label: "General Soft-Tissue",
+    conditions: [
+      "tendinopathy-swelling",
     ],
   },
 ];

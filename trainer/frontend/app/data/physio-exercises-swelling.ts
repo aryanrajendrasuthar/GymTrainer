@@ -1,0 +1,248 @@
+import { type PhysioExercise } from "@/app/types";
+
+export const swellingPhysioExercises: PhysioExercise[] = [
+  // ─── Tendinopathy & Soft-Tissue Swelling Management ──────────────────────────
+  // Covers swollen muscles, tendons, ligaments — PRICE protocol integration,
+  // isometric pain-relief loading, lymphatic drainage movement, joint decompression.
+
+  {
+    id: "isometric-pain-relief-swelling",
+    name: "Isometric Contraction for Tendon Pain Relief",
+    condition: "tendinopathy-swelling",
+    phase: ["acute", "subacute"],
+    sessionType: "both",
+    instructions: [
+      "Identify the swollen tendon or muscle. Place the affected body part in a comfortable mid-range position — not stretched.",
+      "Gently contract the muscle attached to the affected tendon at approximately 60–70% effort against an immovable object (a wall, your own hand, a door frame).",
+      "Hold the contraction for 45 seconds.",
+      "Rest 2 minutes. Perform 4 holds.",
+      "Isometric contractions at this intensity reduce cortical pain inhibition and provide 20–45 minutes of pain relief.",
+    ],
+    sets: 4,
+    holdTime: 45,
+    reps: 1,
+    breathingCues: [
+      "Breathe normally throughout the hold.",
+      "Do not hold the breath — the contraction should be sustainable.",
+    ],
+    dos: [
+      "This technique works for any tendon: patellar tendon (lean into a wall at 30° knee bend), Achilles (standing calf press into the floor), shoulder (press arm sideways into a wall).",
+      "Use immediately before activities that would normally be provocative to reduce pain window.",
+      "Perform on the affected side only.",
+    ],
+    donts: [
+      "Do not apply over a recently ruptured tendon.",
+      "Avoid if the contraction itself causes a sharp or tearing pain — reduce load to 30–40% effort.",
+      "Do not mistake the temporary pain relief for healing — the underlying tendon still requires progressive loading rehabilitation.",
+    ],
+    painLevelMax: 4,
+    redFlags: [
+      "Pain that increases significantly immediately during the isometric and does not settle",
+      "A visible or palpable gap in the tendon (complete rupture — emergency referral)",
+    ],
+    primaryMuscles: ["erector-spinae-lower"],
+    rehabilitationMuscles: ["erector-spinae-lower"],
+    affectedArea: ["erector-spinae-lower"],
+    youtubeId: "4XhB3VhFQkA",
+    progressionExercise: "isotonic-loading-swelling",
+  },
+
+  {
+    id: "elevation-joint-decompression-swelling",
+    name: "Elevation & Active Pump (Swollen Joint/Soft Tissue)",
+    condition: "tendinopathy-swelling",
+    phase: ["acute", "subacute"],
+    sessionType: "both",
+    instructions: [
+      "Elevate the swollen limb above the level of the heart (legs on pillows, arm on a raised surface).",
+      "While elevated, gently pump the joints distal to the swelling: ankle pumps for leg swelling, wrist flexion-extension for arm/elbow swelling.",
+      "Perform 30 pumps every 2 hours while awake.",
+      "Combine with compression garment or elastic bandage for maximal lymphatic effect.",
+      "This uses the distal muscle pump to drive venous and lymphatic return.",
+    ],
+    reps: 30,
+    sets: 1,
+    breathingCues: [
+      "Breathe normally and rhythmically throughout.",
+    ],
+    dos: [
+      "Elevation must be above heart level to work — a knee on the sofa seat is not sufficient.",
+      "The distal pump (ankle or wrist) is the key mechanism — not just resting elevated.",
+      "Apply ice after active pumping for 15–20 minutes to reduce metabolic swelling.",
+    ],
+    donts: [
+      "Do not leave the limb hanging down — gravitational pooling worsens oedema.",
+      "Avoid heat in the first 48–72 hours of acute swelling — it increases vascular permeability.",
+      "Do not apply ice directly on skin — use a cloth between ice and skin.",
+    ],
+    painLevelMax: 2,
+    redFlags: [
+      "Swelling that is hot, red, and associated with fever (septic joint/cellulitis — urgent medical care)",
+      "Unilateral leg swelling with calf tenderness (DVT screening needed)",
+    ],
+    primaryMuscles: ["gastrocnemius", "soleus"],
+    rehabilitationMuscles: ["gastrocnemius", "soleus"],
+    affectedArea: ["gastrocnemius"],
+    youtubeId: "1Bi4Cjd7q8w",
+    progressionExercise: "isometric-pain-relief-swelling",
+  },
+
+  {
+    id: "isotonic-loading-swelling",
+    name: "Isotonic Progressive Loading (Tendon Remodelling Phase)",
+    condition: "tendinopathy-swelling",
+    phase: ["subacute", "chronic"],
+    sessionType: "both",
+    instructions: [
+      "Begin with the isometric version of the exercise (see: Isometric Contraction for Tendon Pain Relief).",
+      "Once isometrics are pain-free (pain ≤3/10), progress to slow isotonic loading: 3 seconds concentric, 3 seconds eccentric.",
+      "Use a load that is challenging but keeps pain below 4/10.",
+      "Perform 4 sets of 8–15 reps, with 2–3 minutes rest between sets.",
+      "Apply to the specific tendon: calf raises for Achilles, wrist extension for lateral elbow, glute bridges for hamstring/glute tendons.",
+    ],
+    reps: 12,
+    sets: 4,
+    breathingCues: [
+      "Inhale during the eccentric (lengthening) phase.",
+      "Exhale during the concentric (shortening) phase.",
+    ],
+    dos: [
+      "Monitor pain response 24 hours after: ≤3/10 pain that settles within 24 hours = safe to continue and load slightly more.",
+      "This slow loading phase drives collagen synthesis in the tendon — it is the most effective conservative tendinopathy treatment.",
+      "Perform on alternate days — tendons require 48+ hours to remodel between loading sessions.",
+    ],
+    donts: [
+      "Do not train through pain >5/10 — this is sensitising rather than rehabilitating the tendon.",
+      "Avoid loading in a stretched position (e.g., full range calf stretch + load) in the subacute phase — compressive load worsens healing.",
+      "Never rush to heavy load — tendons heal slowly (12–26 weeks of progressive loading).",
+    ],
+    painLevelMax: 4,
+    redFlags: [
+      "Pain that consistently exceeds 5/10 during loading and does not settle within 24 hours",
+      "Recurrent complete ruptures",
+    ],
+    primaryMuscles: ["erector-spinae-lower"],
+    rehabilitationMuscles: ["erector-spinae-lower", "gluteus-maximus"],
+    affectedArea: ["erector-spinae-lower"],
+    youtubeId: "JVvCH1nJ3ic",
+  },
+
+  {
+    id: "contrast-therapy-swelling",
+    name: "Contrast Therapy (Hot/Cold Cycling for Subacute Swelling)",
+    condition: "tendinopathy-swelling",
+    phase: ["subacute", "chronic"],
+    sessionType: "evening",
+    instructions: [
+      "Prepare two containers: one with comfortably warm water (38–40°C / ~100°F) and one with cold water with ice (10–15°C / 50–60°F).",
+      "Submerge the affected area in warm water for 3 minutes.",
+      "Transfer immediately to cold water for 1 minute.",
+      "Repeat the cycle 3–4 times, always ending with cold.",
+      "The vascular pumping action (vasodilation then vasoconstriction) drives metabolite clearance from swollen soft tissue.",
+    ],
+    duration: "3 min warm + 1 min cold × 4 cycles = 16 minutes",
+    sets: 4,
+    reps: 1,
+    holdTime: 180,
+    breathingCues: [
+      "Breathe normally throughout.",
+      "The cold immersion may provoke an initial gasp — breathe slowly through it.",
+    ],
+    dos: [
+      "Use for subacute (not acute) swelling — acute swelling requires cold only.",
+      "Effective for muscle soreness, joint stiffness, and subacute tendon swelling.",
+      "Can be adapted as a simple warm compress followed by ice pack if full immersion is not possible.",
+    ],
+    donts: [
+      "Do not use in the first 24–48 hours of acute injury — heat worsens acute inflammatory swelling.",
+      "Avoid if there is impaired circulation or sensory loss in the affected area.",
+      "Do not use on open wounds or over areas with skin breakdown.",
+    ],
+    painLevelMax: 2,
+    redFlags: [
+      "Sudden increase in swelling or skin colour change during the therapy",
+    ],
+    primaryMuscles: ["gastrocnemius"],
+    rehabilitationMuscles: ["gastrocnemius"],
+    affectedArea: ["gastrocnemius"],
+    youtubeId: "oHJvtqwGFsw",
+  },
+
+  {
+    id: "self-lymphatic-drainage-swelling",
+    name: "Self-Applied Lymphatic Drainage Technique",
+    condition: "tendinopathy-swelling",
+    phase: ["acute", "subacute", "chronic"],
+    sessionType: "morning",
+    instructions: [
+      "Lie with the affected limb elevated. Use the pads of the fingers (not the palm).",
+      "Begin proximal to the swelling (near the nearest lymph node cluster — groin for leg, armpit for arm).",
+      "Apply extremely light, circular skin-stretching strokes moving from distal (swollen area) toward proximal (lymph nodes). Pressure should be barely perceptible — like moving the skin over the underlying tissue.",
+      "Work for 5–10 minutes, maintaining the direction toward the lymph nodes.",
+      "End by gently pumping the lymph node cluster (groin or armpit) with 5 gentle circular compressions.",
+    ],
+    duration: "5–10 minutes",
+    sets: 1,
+    reps: 1,
+    breathingCues: [
+      "Deep diaphragmatic breathing during lymphatic drainage increases central lymphatic flow significantly.",
+      "Breathe deeply and slowly throughout the session.",
+    ],
+    dos: [
+      "The pressure must be extremely light — the lymphatic capillaries are in the skin, not deep muscle.",
+      "Always move strokes toward the lymph nodes, never away from them.",
+      "Combine with elevation for maximum effect.",
+    ],
+    donts: [
+      "Do not apply firm, deep massage — this is NOT a sports massage. Deep pressure bypasses the lymphatic system.",
+      "Avoid over areas of infection, tumours, or blood clots.",
+      "Do not massage directly over an acute open injury.",
+    ],
+    painLevelMax: 1,
+    redFlags: [
+      "Swelling that is unilateral and firm, progressive, and not related to injury (possible lymphoma — medical assessment required)",
+    ],
+    primaryMuscles: ["gastrocnemius"],
+    rehabilitationMuscles: ["gastrocnemius"],
+    affectedArea: ["gastrocnemius"],
+    youtubeId: "nHCuIABQ35c",
+  },
+
+  {
+    id: "joint-range-of-motion-swelling",
+    name: "Gentle Range of Motion Circles (Joint Swelling Maintenance)",
+    condition: "tendinopathy-swelling",
+    phase: ["acute", "subacute", "chronic"],
+    sessionType: "both",
+    instructions: [
+      "For the swollen joint, gently perform full available range of motion circles (or forward-back/up-down if circular is not possible).",
+      "Move very slowly through the available range — stopping before any sharp end-point pain.",
+      "Perform 10–15 circles or repetitions per session.",
+      "Gravity-distraction (hanging the arm for shoulder, or sitting with leg hanging free for knee) can be combined.",
+      "Synovial fluid distribution prevents cartilage dehydration and maintains joint health during immobilisation.",
+    ],
+    reps: 15,
+    sets: 2,
+    breathingCues: [
+      "Breathe normally. The movement should be effortless — not forced.",
+    ],
+    dos: [
+      "Perform within pain-free or mild discomfort range only.",
+      "Use gravity to assist distraction — this reduces joint compression while maintaining movement.",
+      "Combine with post-movement ice (15–20 mins) to manage any reactive swelling.",
+    ],
+    donts: [
+      "Do not force range past the point where pain increases significantly.",
+      "Avoid rapid or bouncing movements.",
+      "Do not skip this step — complete joint immobilisation causes capsular fibrosis rapidly.",
+    ],
+    painLevelMax: 3,
+    redFlags: [
+      "Marked increase in warmth, redness, and swelling after the exercise (inflammatory flare — rest and reassess)",
+    ],
+    primaryMuscles: ["tibialis-anterior", "peroneals"],
+    rehabilitationMuscles: ["tibialis-anterior", "gastrocnemius"],
+    affectedArea: ["gastrocnemius"],
+    youtubeId: "1Bi4Cjd7q8w",
+  },
+];
