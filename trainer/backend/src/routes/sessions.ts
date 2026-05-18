@@ -89,7 +89,7 @@ sessionsRouter.post(
 
     const parsed = createSessionSchema.safeParse(req.body);
     if (!parsed.success) {
-      return next(createError(parsed.data?.toString() ?? parsed.error.errors[0].message, 400, "VALIDATION_ERROR"));
+      return next(createError(parsed.error.errors[0].message, 400, "VALIDATION_ERROR"));
     }
 
     const { exercise_logs, ...sessionData } = parsed.data;

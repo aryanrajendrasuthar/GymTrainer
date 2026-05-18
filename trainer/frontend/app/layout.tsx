@@ -39,6 +39,19 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "Trainer",
   },
+  openGraph: {
+    type: "website",
+    siteName: "Trainer",
+    title: "Trainer — Your Personal Fitness & Physiotherapy App",
+    description:
+      "Premium cross-platform fitness and physiotherapy app. Intelligent workout logging, progressive overload tracking, and evidence-based physiotherapy protocols.",
+  },
+  twitter: {
+    card: "summary",
+    title: "Trainer — Your Personal Fitness & Physiotherapy App",
+    description:
+      "Premium cross-platform fitness and physiotherapy app. Intelligent workout logging, progressive overload tracking, and evidence-based physiotherapy protocols.",
+  },
 };
 
 export default function RootLayout({

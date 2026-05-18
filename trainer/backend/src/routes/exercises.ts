@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { authGuard } from "../middleware/authGuard";
 import { createError } from "../middleware/errorHandler";
-import { allExercises, searchExercises, getExercisesByCategory, getExercisesByMuscle } from "../../data/exercises";
+import { allExercises, searchExercises, getExercisesByCategory, getExercisesByMuscle } from "../data/exercises";
 
 export const exercisesRouter = Router();
 exercisesRouter.use(authGuard);

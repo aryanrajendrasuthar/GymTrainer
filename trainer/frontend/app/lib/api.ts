@@ -143,6 +143,18 @@ export const authApi = {
       method: "PATCH",
       body: data,
     }).then(mapProfile),
+
+  signOut: (token: string) =>
+    apiFetch<{ message: string }>("/api/auth/signout", {
+      token,
+      method: "POST",
+    }),
+
+  refresh: (refreshToken: string) =>
+    apiFetch<{ accessToken: string; refreshToken: string; expiresAt: number }>(
+      "/api/auth/refresh",
+      { method: "POST", body: { refreshToken } }
+    ),
 };
 
 // ─── Sessions API ─────────────────────────────────────────────────────────────
@@ -172,6 +184,62 @@ export const sessionsApi = {
           })),
         })),
       },
+    }),
+};
+
+// ─── Physio API ───────────────────────────────────────────────────────────────
+
+export const physioApi = {
+  addInjury: (
+    token: string,
+    data: {
+      condition: string;
+      body_region: string;
+      severity: "mild" | "moderate" | "severe";
+      phase: string;
+      onset_date: string;
+    }
+  ) =>
+    apiFetch<{ id: string }>("/api/physio/injuries", {
+      token,
+      method: "POST",
+      body: data,
+    }),
+
+  updateInjury: (
+    token: string,
+    id: string,
+    data: { phase?: string; severity?: "mild" | "moderate" | "severe" }
+  ) =>
+    apiFetch<unknown>(`/api/physio/injuries/${id}`, {
+      token,
+      method: "PATCH",
+      body: data,
+    }),
+
+  logSession: (
+    token: string,
+    data: {
+      condition: string;
+      phase: string;
+      slot: "morning" | "evening";
+      pain_before: number;
+      pain_after: number;
+      exercise_logs: { exercise_id: string }[];
+      completed_at: string;
+    }
+  ) =>
+    apiFetch<unknown>("/api/physio/sessions", {
+      token,
+      method: "POST",
+      body: data,
+    }),
+
+  logPain: (token: string, condition: string, level: number) =>
+    apiFetch<unknown>("/api/physio/pain-log", {
+      token,
+      method: "POST",
+      body: { condition, pain_level: level },
     }),
 };
 

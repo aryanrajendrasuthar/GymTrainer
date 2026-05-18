@@ -29,10 +29,10 @@ export default function SignInPage() {
     setError(null);
 
     try {
-      const { accessToken } = await authApi.signIn(email, password);
+      const { accessToken, refreshToken, expiresAt } = await authApi.signIn(email, password);
       const profile = await authApi.getProfile(accessToken);
 
-      setAuth(accessToken, profile);
+      setAuth(accessToken, profile, refreshToken, expiresAt);
 
       if (profile.splitId) {
         setOnboardingComplete(true);

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
+import { authApi } from "@/app/lib/api";
 import { workoutSplits } from "@/app/data/splits";
 import { cn } from "@/app/lib/utils";
 import {
@@ -267,7 +268,7 @@ function SavedBadge({ show }: { show: boolean }) {
 
 export default function SettingsPage() {
   const { settings, updateSettings, resetSettings } = useSettingsStore();
-  const { profile, signOut } = useUserStore();
+  const { profile, signOut, accessToken } = useUserStore();
   const router = useRouter();
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
@@ -301,6 +302,7 @@ export default function SettingsPage() {
   }
 
   function handleSignOut() {
+    if (accessToken) authApi.signOut(accessToken).catch(() => {});
     signOut();
     router.replace("/signin");
   }

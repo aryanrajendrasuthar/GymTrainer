@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Check } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
+import { physioApi } from "@/app/lib/api";
 import { type PhysioCondition, type PhysioPhase } from "@/app/types";
 import { cn } from "@/app/lib/utils";
 
@@ -108,7 +109,7 @@ interface AddInjurySheetProps {
 }
 
 export function AddInjurySheet({ open, onClose }: AddInjurySheetProps) {
-  const { addInjury, profile } = useUserStore();
+  const { addInjury, updateInjury, profile, accessToken } = useUserStore();
 
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<PhysioCondition | null>(null);
@@ -130,13 +131,28 @@ export function AddInjurySheet({ open, onClose }: AddInjurySheetProps) {
 
   function handleAdd() {
     if (!selected) return;
+    const onsetDate = new Date().toISOString().split("T")[0];
     addInjury({
       condition: selected,
       bodyRegion: CONDITION_REGION[selected],
       severity,
       phase,
-      onsetDate: new Date().toISOString().split("T")[0],
+      onsetDate,
     });
+    if (accessToken) {
+      physioApi
+        .addInjury(accessToken, {
+          condition: selected,
+          body_region: CONDITION_REGION[selected],
+          severity,
+          phase,
+          onset_date: onsetDate,
+        })
+        .then((res) => {
+          if (res?.id) updateInjury(selected, { backendId: res.id });
+        })
+        .catch(() => {});
+    }
     handleClose();
   }
 

@@ -33,6 +33,7 @@ import { Button } from "@/app/components/ui/Button";
 import { Badge } from "@/app/components/ui/Badge";
 import { type WorkoutSession, type MuscleGroup, type Exercise } from "@/app/types";
 import { cn, formatVolume } from "@/app/lib/utils";
+import { estimateOneRepMax } from "@/app/lib/progression-engine";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 
@@ -310,7 +311,7 @@ function ExerciseView({
           <NextExerciseButton
             onClick={onNext}
             isLast={isLast}
-            label={`Next: ${isLast ? "" : ""}`}
+            label="Next Exercise"
           />
         </div>
       )}
@@ -503,6 +504,32 @@ function WorkoutPageContent() {
     overloadAmount
   );
 
+  // ─── Personal records detection ──────────────────────────────────────────
+
+  const personalRecords = useMemo(() => {
+    if (!completedSession?.exercisesCompleted?.length) return [];
+    return completedSession.exercisesCompleted.flatMap((log) => {
+      if (!log.sets.length) return [];
+      const bestCurrentSet = log.sets.reduce((best, s) =>
+        estimateOneRepMax(s.weightUsed, s.repsCompleted) >
+        estimateOneRepMax(best.weightUsed, best.repsCompleted)
+          ? s : best
+      );
+      if (bestCurrentSet.weightUsed === 0) return [];
+      const currentE1RM = estimateOneRepMax(bestCurrentSet.weightUsed, bestCurrentSet.repsCompleted);
+      const prevSets = allExerciseLogs
+        .filter((l) => l.exerciseId === log.exerciseId)
+        .flatMap((l) => l.sets);
+      const prevBest1RM = prevSets.length
+        ? Math.max(0, ...prevSets.map((s) => estimateOneRepMax(s.weightUsed, s.repsCompleted)))
+        : 0;
+      if (currentE1RM <= prevBest1RM) return [];
+      const exercise = exerciseMap[log.exerciseId];
+      if (!exercise) return [];
+      return [{ exerciseName: exercise.name, weightKg: bestCurrentSet.weightUsed, reps: bestCurrentSet.repsCompleted, unit }];
+    });
+  }, [completedSession, allExerciseLogs, unit]);
+
   // ─── Guards ────────────────────────────────────────────────────────────────
 
   if (!profile || !split || !splitDay) {
@@ -553,7 +580,7 @@ function WorkoutPageContent() {
       <SessionComplete
         session={completedSession}
         musclesTrained={musclesTrained}
-        personalRecords={[]}
+        personalRecords={personalRecords}
         unit={unit}
         onSave={(notes) => {
           const updated = { ...completedSession, sessionNotes: notes };

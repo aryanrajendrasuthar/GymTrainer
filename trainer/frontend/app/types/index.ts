@@ -190,6 +190,7 @@ export interface UserInjury {
   severity: "mild" | "moderate" | "severe";
   onsetDate: string;
   phase: PhysioPhase;
+  backendId?: string;
 }
 
 export interface UserProfile {

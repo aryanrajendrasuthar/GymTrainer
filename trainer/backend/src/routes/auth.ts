@@ -20,6 +20,10 @@ const signInSchema = z.object({
   password: z.string().min(1),
 });
 
+const refreshSchema = z.object({
+  refreshToken: z.string().min(1),
+});
+
 const updateProfileSchema = z.object({
   name: z.string().min(1).max(80).optional(),
   age: z.number().int().min(10).max(120).optional(),
@@ -89,6 +93,33 @@ authRouter.post(
         id: data.user?.id,
         email: data.user?.email,
       },
+    });
+  }
+);
+
+// ─── POST /api/auth/refresh ───────────────────────────────────────────────────
+
+authRouter.post(
+  "/refresh",
+  authRateLimiter,
+  async (req: Request, res: Response, next: NextFunction) => {
+    const parsed = refreshSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return next(createError("Refresh token required.", 400, "VALIDATION_ERROR"));
+    }
+
+    const { data, error } = await supabase.auth.refreshSession({
+      refresh_token: parsed.data.refreshToken,
+    });
+
+    if (error || !data.session) {
+      return next(createError("Session expired. Please sign in again.", 401, "SESSION_EXPIRED"));
+    }
+
+    res.json({
+      accessToken: data.session.access_token,
+      refreshToken: data.session.refresh_token,
+      expiresAt: data.session.expires_at,
     });
   }
 );

@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { usePhysioStore } from "@/app/store/physioStore";
+import { physioApi } from "@/app/lib/api";
 import { buildPhysioSession, assessPhaseGate } from "@/app/lib/physio-engine";
 import { Button } from "@/app/components/ui/Button";
 import { AddInjurySheet } from "@/app/components/physio/AddInjurySheet";
@@ -304,7 +305,7 @@ function ExerciseRow({
 type PhysioView = "list" | "pre" | "active" | "post";
 
 export default function PhysioPage() {
-  const { profile, updateInjury } = useUserStore();
+  const { profile, updateInjury, accessToken } = useUserStore();
   const {
     todayCompletedSlots,
     addSession,
@@ -347,6 +348,9 @@ export default function PhysioPage() {
 
   const handleBeginSession = () => {
     logPain(selectedInjury!.condition, painBefore);
+    if (accessToken) {
+      physioApi.logPain(accessToken, selectedInjury!.condition, painBefore).catch(() => {});
+    }
     setView("active");
   };
 
@@ -369,6 +373,20 @@ export default function PhysioPage() {
       completedAt: now,
     });
     markSlotComplete(selectedInjury.condition, selectedSlot);
+
+    if (accessToken) {
+      physioApi.logPain(accessToken, selectedInjury.condition, painAfter).catch(() => {});
+      physioApi.logSession(accessToken, {
+        condition: selectedInjury.condition,
+        phase: selectedInjury.phase,
+        slot: selectedSlot,
+        pain_before: painBefore,
+        pain_after: painAfter,
+        exercise_logs: session.exercises.map((se) => ({ exercise_id: se.exercise.id })),
+        completed_at: now,
+      }).catch(() => {});
+    }
+
     setView("list");
     setSession(null);
     setSelectedInjury(null);
@@ -659,9 +677,14 @@ export default function PhysioPage() {
                       to {PHASE_STYLE[gate.suggestedPhase].label} phase. {gate.reason}
                     </p>
                     <button
-                      onClick={() =>
-                        updateInjury(injury.condition, { phase: gate.suggestedPhase! })
-                      }
+                      onClick={() => {
+                        updateInjury(injury.condition, { phase: gate.suggestedPhase! });
+                        if (accessToken && injury.backendId) {
+                          physioApi
+                            .updateInjury(accessToken, injury.backendId, { phase: gate.suggestedPhase! })
+                            .catch(() => {});
+                        }
+                      }}
                       className="mt-2 text-xs font-bold text-trainer-success bg-trainer-success/15 border border-trainer-success/30 px-3 py-1.5 rounded-full hover:bg-trainer-success/25 transition-colors"
                     >
                       Advance to {PHASE_STYLE[gate.suggestedPhase].label} →
