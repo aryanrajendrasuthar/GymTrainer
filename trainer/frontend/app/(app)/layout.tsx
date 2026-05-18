@@ -10,6 +10,7 @@ import { useNotificationStore } from "@/app/store/notificationStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { BottomNav } from "@/app/components/ui/BottomNav";
 import { NotificationToast } from "@/app/components/ui/NotificationToast";
+import { useDataSync } from "@/app/hooks/useDataSync";
 
 function useNotificationTriggers() {
   const { isAuthenticated, profile } = useUserStore();
@@ -124,6 +125,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { resetDailySlots } = usePhysioStore();
 
   useNotificationTriggers();
+  useDataSync();
 
   useEffect(() => {
     if (!isAuthenticated) { router.replace("/signin"); return; }

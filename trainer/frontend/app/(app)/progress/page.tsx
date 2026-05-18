@@ -2,12 +2,12 @@
 
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, Dumbbell, TrendingUp, X, ChevronRight } from "lucide-react";
+import { Clock, Dumbbell, TrendingUp, X, ChevronRight, Trash2, Share2 } from "lucide-react";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
 import { useProgressStore } from "@/app/store/progressStore";
-import { progressApi } from "@/app/lib/api";
+import { progressApi, sessionsApi } from "@/app/lib/api";
 import { VolumeChart, type WeeklyVolumeData } from "@/app/components/progress/VolumeChart";
 import { OneRMChart, type OneRMDataPoint } from "@/app/components/progress/OneRMChart";
 import { PRCard, type ExercisePR } from "@/app/components/progress/PRCard";
@@ -208,7 +208,7 @@ function SummaryStats({
 // ─── Page ───────────────────────────────────────────────────────────────────────
 
 export default function ProgressPage() {
-  const { recentSessions, allExerciseLogs, sessionDates } = useSessionStore();
+  const { recentSessions, allExerciseLogs, sessionDates, deleteSession } = useSessionStore();
   const { settings } = useSettingsStore();
   const { profile, accessToken } = useUserStore();
 
@@ -219,9 +219,40 @@ export default function ProgressPage() {
   const [volumeView, setVolumeView] = useState<"total" | "muscle">("total");
   const [selectedExerciseId, setSelectedExerciseId] = useState<string | null>(null);
   const [selectedSession, setSelectedSession] = useState<WorkoutSession | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState(false);
   const [weightInput, setWeightInput] = useState("");
 
+  // Reset delete confirm whenever a different session is opened
+  const openSession = (s: WorkoutSession | null) => { setSelectedSession(s); setDeleteConfirm(false); };
+
   const unit = (settings.weightUnit ?? profile?.units ?? "kg") as "kg" | "lb";
+
+  function handleDeleteSession(session: WorkoutSession) {
+    deleteSession(session.id);
+    if (accessToken) sessionsApi.delete(accessToken, session.id).catch(() => {});
+    setSelectedSession(null);
+    setDeleteConfirm(false);
+  }
+
+  async function handleShareSession(session: WorkoutSession) {
+    const text = [
+      `Workout: ${session.splitDay}`,
+      `Date: ${new Date(session.date).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}`,
+      `Exercises: ${session.exercisesCompleted.length}`,
+      `Volume: ${formatVolume(session.totalVolumeKg, unit)}`,
+      `Duration: ${session.durationMinutes}m`,
+    ].join("\n");
+
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title: `Workout — ${session.splitDay}`, text });
+        return;
+      } catch {
+        // fall through to clipboard
+      }
+    }
+    navigator.clipboard?.writeText(text).catch(() => {});
+  }
 
   function handleLogWeight() {
     const val = parseFloat(weightInput);
@@ -371,7 +402,7 @@ export default function ProgressPage() {
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: i * 0.04 }}
-                      onClick={() => setSelectedSession(session)}
+                      onClick={() => openSession(session)}
                       className="flex items-center gap-3 py-3 first:pt-0 last:pb-0 w-full text-left"
                     >
                       <div className="w-8 h-8 rounded-[8px] bg-trainer-indigo/12 flex items-center justify-center shrink-0">
@@ -544,7 +575,7 @@ export default function ProgressPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setSelectedSession(null)}
+              onClick={() => openSession(null)}
               className="fixed inset-0 bg-black/60 z-40"
             />
             <motion.div
@@ -566,12 +597,37 @@ export default function ProgressPage() {
                     })}
                   </p>
                 </div>
-                <button
-                  onClick={() => setSelectedSession(null)}
-                  className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
-                >
-                  <X size={15} />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => handleShareSession(selectedSession)}
+                    className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+                    aria-label="Share session"
+                  >
+                    <Share2 size={14} />
+                  </button>
+                  {!deleteConfirm ? (
+                    <button
+                      onClick={() => setDeleteConfirm(true)}
+                      className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-trainer-danger transition-colors"
+                      aria-label="Delete session"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  ) : (
+                    <button
+                      onClick={() => handleDeleteSession(selectedSession)}
+                      className="flex items-center gap-1.5 px-3 h-8 rounded-full bg-trainer-danger/15 border border-trainer-danger/30 text-trainer-danger text-xs font-bold transition-colors hover:bg-trainer-danger/25"
+                    >
+                      Confirm delete
+                    </button>
+                  )}
+                  <button
+                    onClick={() => { setSelectedSession(null); setDeleteConfirm(false); }}
+                    className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+                  >
+                    <X size={15} />
+                  </button>
+                </div>
               </div>
 
               {/* Session stats */}
@@ -604,11 +660,21 @@ export default function ProgressPage() {
                   <div className="flex flex-col gap-4">
                     {selectedSession.exercisesCompleted.map((log) => {
                       const ex = exerciseMap[log.exerciseId];
+                      const bestE1RM = log.sets.length > 0
+                        ? Math.max(...log.sets.map((s) => estimateOneRepMax(s.weightUsed, s.repsCompleted)))
+                        : null;
                       return (
                         <div key={log.id ?? log.exerciseId}>
-                          <p className="text-sm font-semibold text-white/80 capitalize mb-2">
-                            {ex?.name?.replace(/-/g, " ") ?? log.exerciseId}
-                          </p>
+                          <div className="flex items-baseline justify-between mb-2">
+                            <p className="text-sm font-semibold text-white/80 capitalize">
+                              {ex?.name?.replace(/-/g, " ") ?? log.exerciseId}
+                            </p>
+                            {bestE1RM !== null && bestE1RM > 0 && (
+                              <span className="text-[10px] text-trainer-indigo/60 tabular-nums ml-2 shrink-0">
+                                e1RM {Math.round(bestE1RM * 10) / 10}{unit}
+                              </span>
+                            )}
+                          </div>
                           <div className="flex flex-col gap-1.5">
                             {log.sets.map((s) => (
                               <div

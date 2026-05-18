@@ -387,6 +387,39 @@ export interface ProgressionSuggestion {
   increaseAmountKg: number;
 }
 
+// ─── Raw API response types (snake_case from backend) ─────────────────────
+
+export interface RawSetLog {
+  set_number: number;
+  reps_completed: number;
+  weight_used: number;
+  weight_unit: "kg" | "lb";
+  rpe?: number;
+  notes?: string;
+  logged_at: string;
+}
+
+export interface RawExerciseLog {
+  id: string;
+  user_id: string;
+  session_id: string;
+  exercise_id: string;
+  logged_at: string;
+  set_logs?: RawSetLog[];
+}
+
+export interface RawSession {
+  id: string;
+  user_id: string;
+  date: string;
+  split_day: string;
+  total_volume_kg: number;
+  duration_minutes: number;
+  session_notes?: string;
+  completed_at?: string;
+  is_partial: boolean;
+}
+
 // ─── Protocol Types ────────────────────────────────────────────────────────
 
 export interface WarmupExercise {

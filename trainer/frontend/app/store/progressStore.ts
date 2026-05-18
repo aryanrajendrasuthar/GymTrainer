@@ -11,6 +11,7 @@ export interface BodyWeightEntry {
 interface ProgressState {
   bodyWeightLogs: BodyWeightEntry[];
   addWeightLog: (weightKg: number) => void;
+  setWeightLogs: (logs: BodyWeightEntry[]) => void;
 }
 
 export const useProgressStore = create<ProgressState>()(
@@ -27,6 +28,17 @@ export const useProgressStore = create<ProgressState>()(
           };
         });
       },
+
+      setWeightLogs: (logs) =>
+        set((state) => {
+          const remoteByDate = new Map(logs.map((l) => [l.date, l.weightKg]));
+          const localOnly = state.bodyWeightLogs.filter((l) => !remoteByDate.has(l.date));
+          const merged = [
+            ...logs,
+            ...localOnly,
+          ].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 365);
+          return { bodyWeightLogs: merged };
+        }),
     }),
     { name: "trainer-progress" }
   )

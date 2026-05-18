@@ -22,6 +22,7 @@ import { physioApi } from "@/app/lib/api";
 import { buildPhysioSession, assessPhaseGate } from "@/app/lib/physio-engine";
 import { Button } from "@/app/components/ui/Button";
 import { AddInjurySheet } from "@/app/components/physio/AddInjurySheet";
+import { PainTrendChart } from "@/app/components/physio/PainTrendChart";
 import {
   type PhysioCondition,
   type PhysioPhase,
@@ -130,11 +131,13 @@ function ConditionCard({
   completedSlots,
   onStartSlot,
   latestPain,
+  painHistory,
 }: {
   injury: UserInjury;
   completedSlots: ("morning" | "evening")[];
   onStartSlot: (slot: "morning" | "evening") => void;
   latestPain: number | null;
+  painHistory: { condition: PhysioCondition; level: number; loggedAt: string }[];
 }) {
   const phase = PHASE_STYLE[injury.phase];
   const severity = SEVERITY_STYLE[injury.severity];
@@ -175,6 +178,9 @@ function ConditionCard({
           </span>
         </div>
       )}
+
+      {/* Pain trend chart */}
+      <PainTrendChart condition={injury.condition} painHistory={painHistory} className="mb-3" />
 
       {/* Session slot buttons */}
       <div className="grid grid-cols-2 gap-2">
@@ -318,6 +324,7 @@ export default function PhysioPage() {
     logPain,
     getLatestPain,
     sessionHistory,
+    painHistory,
   } = usePhysioStore();
   const { unlock, incrementPhysioCount, isUnlocked } = useAchievementStore();
 
@@ -673,6 +680,7 @@ export default function PhysioPage() {
                 completedSlots={slots}
                 onStartSlot={(slot) => handleStartSlot(injury, slot)}
                 latestPain={latestPain}
+                painHistory={painHistory}
               />
 
               {/* Phase gate banner */}

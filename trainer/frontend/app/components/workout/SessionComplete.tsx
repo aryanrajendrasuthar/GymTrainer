@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Clock, Dumbbell, BarChart3, Star, Save, X, Zap } from "lucide-react";
+import { Trophy, Clock, Dumbbell, BarChart3, Star, Save, X, Zap, Share2 } from "lucide-react";
 import { Button } from "@/app/components/ui/Button";
 import { Textarea } from "@/app/components/ui/Input";
 import { MuscleActivationDiagram } from "@/app/components/ui/MuscleActivationDiagram";
@@ -74,6 +74,7 @@ export function SessionComplete({
   const [notes, setNotes] = useState(session.sessionNotes || "");
   const [discardConfirm, setDiscardConfirm] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [shared, setShared] = useState(false);
   const hasPR = personalRecords.length > 0;
 
   // Fire confetti after mount when there are PRs
@@ -83,6 +84,30 @@ export function SessionComplete({
       return () => clearTimeout(t);
     }
   }, [hasPR]);
+
+  async function handleShare() {
+    const splitDay = session.splitDay ?? "Workout";
+    const text = [
+      `${splitDay} complete!`,
+      `${exerciseCount} exercises · ${totalSets} sets`,
+      formatVolume(volumeKg, unit) + " volume",
+      session.durationMinutes ? `${Math.floor(session.durationMinutes / 60)}h ${session.durationMinutes % 60}m` : "",
+      personalRecords.length > 0 ? `${personalRecords.length} PR${personalRecords.length !== 1 ? "s" : ""}!` : "",
+    ].filter(Boolean).join(" · ");
+
+    if (typeof navigator !== "undefined" && "share" in navigator) {
+      try {
+        await navigator.share({ title: splitDay, text });
+        setShared(true);
+        return;
+      } catch {
+        // fall through
+      }
+    }
+    navigator.clipboard?.writeText(text).catch(() => {});
+    setShared(true);
+    setTimeout(() => setShared(false), 2000);
+  }
 
   const durationFormatted = session.durationMinutes
     ? `${Math.floor(session.durationMinutes / 60)}h ${session.durationMinutes % 60}m`
@@ -265,6 +290,16 @@ export function SessionComplete({
           <Button variant="primary" fullWidth size="lg" onClick={() => onSave(notes)}>
             <Save size={18} />
             Save Workout
+          </Button>
+
+          <Button
+            variant="secondary"
+            fullWidth
+            onClick={handleShare}
+            className="border-white/15 text-white/60"
+          >
+            <Share2 size={16} />
+            {shared ? "Copied!" : "Share Session"}
           </Button>
 
           {onRepeat && (

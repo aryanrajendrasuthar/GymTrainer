@@ -135,13 +135,15 @@ progressRouter.post(
       return next(createError(parsed.error.errors[0].message, 400, "VALIDATION_ERROR"));
     }
 
+    const today = new Date().toISOString().split("T")[0];
     const { data, error } = await supabase
       .from("body_weight_logs")
       .upsert(
         {
           user_id: userId,
           weight_kg: parsed.data.weight_kg,
-          log_date: new Date().toISOString().split("T")[0],
+          log_date: today,
+          logged_at: new Date().toISOString(),
         },
         { onConflict: "user_id,log_date" }
       )

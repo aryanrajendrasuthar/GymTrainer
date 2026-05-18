@@ -163,6 +163,21 @@ export const authApi = {
 // ─── Sessions API ─────────────────────────────────────────────────────────────
 
 export const sessionsApi = {
+  list: (token: string, limit = 50) =>
+    apiFetch<{ sessions: import("@/app/types").RawSession[]; total: number }>(
+      `/api/sessions?limit=${limit}`,
+      { token }
+    ),
+
+  get: (token: string, id: string) =>
+    apiFetch<import("@/app/types").RawSession & { exercise_logs: import("@/app/types").RawExerciseLog[] }>(
+      `/api/sessions/${id}`,
+      { token }
+    ),
+
+  delete: (token: string, id: string) =>
+    apiFetch<void>(`/api/sessions/${id}`, { token, method: "DELETE" }),
+
   // Fire-and-forget durability sync. Local Zustand store is the source of truth.
   create: (token: string, session: WorkoutSession) =>
     apiFetch<unknown>("/api/sessions", {
@@ -244,11 +259,20 @@ export const physioApi = {
       method: "POST",
       body: { condition, pain_level: level },
     }),
+
+  getInjuries: (token: string) =>
+    apiFetch<{ injuries: Record<string, unknown>[] }>("/api/physio/injuries", { token }),
 };
 
 // ─── Progress API ─────────────────────────────────────────────────────────────
 
 export const progressApi = {
+  getWeightLogs: (token: string, limit = 90) =>
+    apiFetch<{ logs: { weight_kg: number; logged_at: string }[] }>(
+      `/api/progress/weight?limit=${limit}`,
+      { token }
+    ),
+
   getVolume: (token: string, days = 84) =>
     apiFetch<{ volume: { date: string; total_volume_kg: number; split_day: string }[] }>(
       `/api/progress/volume?days=${days}`,

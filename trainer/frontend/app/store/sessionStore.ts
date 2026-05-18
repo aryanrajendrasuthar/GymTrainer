@@ -25,6 +25,7 @@ interface SessionState {
   setRecentSessions: (sessions: WorkoutSession[]) => void;
   setAllExerciseLogs: (logs: ExerciseLog[]) => void;
   appendExerciseLogs: (logs: ExerciseLog[]) => void;
+  deleteSession: (sessionId: string) => void;
   setDraftSession: (draft: DraftSession) => void;
   clearDraftSession: () => void;
 }
@@ -80,6 +81,19 @@ export const useSessionStore = create<SessionState>()(
     set((state) => ({
       allExerciseLogs: [...state.allExerciseLogs, ...logs],
     })),
+
+  deleteSession: (sessionId) =>
+    set((state) => {
+      const session = state.recentSessions.find((s) => s.id === sessionId);
+      const logIds = new Set(session?.exercisesCompleted.map((l) => l.id) ?? []);
+      const dates = { ...state.sessionDates };
+      delete dates[sessionId];
+      return {
+        recentSessions: state.recentSessions.filter((s) => s.id !== sessionId),
+        allExerciseLogs: state.allExerciseLogs.filter((l) => !logIds.has(l.id)),
+        sessionDates: dates,
+      };
+    }),
 
   setDraftSession: (draft) => set({ draftSession: draft }),
   clearDraftSession: () => set({ draftSession: null }),
