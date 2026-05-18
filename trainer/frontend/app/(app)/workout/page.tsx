@@ -34,7 +34,6 @@ import { ProgressiveOverloadSuggestion } from "@/app/components/workout/Progress
 import { NextExerciseButton } from "@/app/components/workout/NextExerciseButton";
 import { SessionComplete } from "@/app/components/workout/SessionComplete";
 import { SplitSessionSheet } from "@/app/components/workout/SplitSessionSheet";
-import { ReadinessCheck, type Readiness } from "@/app/components/workout/ReadinessCheck";
 import { RestTimer } from "@/app/components/workout/RestTimer";
 import { Button } from "@/app/components/ui/Button";
 import { Badge } from "@/app/components/ui/Badge";
@@ -348,7 +347,6 @@ function PreWorkoutView({
   muscleGroups,
   exercises,
   isPendingSession,
-  readiness,
   onBegin,
   onSplit,
 }: {
@@ -356,7 +354,6 @@ function PreWorkoutView({
   muscleGroups: string[];
   exercises: Exercise[];
   isPendingSession: boolean;
-  readiness: import("@/app/components/workout/ReadinessCheck").Readiness | null;
   onBegin: () => void;
   onSplit: () => void;
 }) {
@@ -372,11 +369,6 @@ function PreWorkoutView({
         </p>
         <div className="flex items-center gap-2 flex-wrap">
           <h1 className="text-2xl font-bold text-white">{dayName}</h1>
-          {readiness === "tired" && (
-            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-trainer-warning/15 text-trainer-warning border border-trainer-warning/25">
-              Low energy — adjust intensity
-            </span>
-          )}
         </div>
         <div className="flex flex-wrap gap-1.5 mt-3">
           {muscleGroups.map((m) => (
@@ -547,8 +539,6 @@ function WorkoutPageContent() {
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0);
   const [completedSession, setCompletedSession] = useState<WorkoutSession | null>(null);
   const [showAbandonConfirm, setShowAbandonConfirm] = useState(false);
-  const [showReadiness, setShowReadiness] = useState(false);
-  const [readiness, setReadiness] = useState<Readiness | null>(null);
   const [swapConfirm, setSwapConfirm] = useState<{ oldId: string; newId: string; newName: string } | null>(null);
   const [showRestTimer, setShowRestTimer] = useState(false);
   const [restTimerSeconds, setRestTimerSeconds] = useState(90);
@@ -598,53 +588,7 @@ function WorkoutPageContent() {
     });
   }, [completedSession, allExerciseLogs, unit]);
 
-  // ─── Guards ────────────────────────────────────────────────────────────────
-
-  // For pending sessions, skip the split/rest-day guards
-  if (!pendingSession && (!profile || !split || !splitDay)) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4">
-        <AlertTriangle className="text-trainer-warning" size={40} />
-        <p className="text-white/60 text-center">
-          No training programme found.
-          <br />
-          Set one up in Settings.
-        </p>
-        <Button onClick={() => router.push("/settings")}>Go to Settings</Button>
-      </div>
-    );
-  }
-
-  if (!pendingSession && splitDay?.isRestDay) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4 text-center">
-        <p className="text-4xl">😴</p>
-        <h2 className="text-xl font-bold text-white">Rest Day</h2>
-        <p className="text-white/45 text-sm">Recovery is training. Sleep, eat, repeat.</p>
-        <Button variant="secondary" onClick={() => router.push("/dashboard")}>
-          <ChevronLeft size={16} />
-          Back to Dashboard
-        </Button>
-      </div>
-    );
-  }
-
-  if (!activeExercises.length) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4 text-center">
-        <AlertTriangle className="text-trainer-warning" size={40} />
-        <p className="text-white/60">No exercises found for this day.</p>
-        <Button variant="secondary" onClick={() => router.push("/dashboard")}>
-          Back to Dashboard
-        </Button>
-      </div>
-    );
-  }
-
-  const dayName = pendingSession?.dayName ?? splitDay?.dayName ?? "Workout";
-  const muscleGroups = splitDay?.muscleGroups ?? [];
-
-  // ─── Session complete view ─────────────────────────────────────────────────
+  // ─── Session complete view (before guards — must always render after finish) ─
 
   if (phase === "complete" && completedSession) {
     const musclesTrained = collectMusclesTrained(activeExercises);
@@ -721,6 +665,51 @@ function WorkoutPageContent() {
     );
   }
 
+  // ─── Guards ────────────────────────────────────────────────────────────────
+
+  if (!pendingSession && (!profile || !split || !splitDay)) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4">
+        <AlertTriangle className="text-trainer-warning" size={40} />
+        <p className="text-white/60 text-center">
+          No training programme found.
+          <br />
+          Set one up in Settings.
+        </p>
+        <Button onClick={() => router.push("/settings")}>Go to Settings</Button>
+      </div>
+    );
+  }
+
+  if (!pendingSession && splitDay?.isRestDay) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4 text-center">
+        <p className="text-4xl">😴</p>
+        <h2 className="text-xl font-bold text-white">Rest Day</h2>
+        <p className="text-white/45 text-sm">Recovery is training. Sleep, eat, repeat.</p>
+        <Button variant="secondary" onClick={() => router.push("/dashboard")}>
+          <ChevronLeft size={16} />
+          Back to Dashboard
+        </Button>
+      </div>
+    );
+  }
+
+  if (!activeExercises.length) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-full px-5 gap-4 text-center">
+        <AlertTriangle className="text-trainer-warning" size={40} />
+        <p className="text-white/60">No exercises found for this day.</p>
+        <Button variant="secondary" onClick={() => router.push("/dashboard")}>
+          Back to Dashboard
+        </Button>
+      </div>
+    );
+  }
+
+  const dayName = pendingSession?.dayName ?? splitDay?.dayName ?? "Workout";
+  const muscleGroups = splitDay?.muscleGroups ?? [];
+
   // ─── Pre-workout view ──────────────────────────────────────────────────────
 
   if (phase === "pre") {
@@ -731,24 +720,7 @@ function WorkoutPageContent() {
           muscleGroups={muscleGroups}
           exercises={activeExercises}
           isPendingSession={!!pendingSession}
-          readiness={readiness}
-          onBegin={() => setShowReadiness(true)}
-          onSplit={() => setShowSplitSheet(true)}
-        />
-
-        {/* Readiness check sheet */}
-        <ReadinessCheck
-          open={showReadiness}
-          dayName={dayName}
-          onClose={() => setShowReadiness(false)}
-          onSelect={(r) => {
-            setReadiness(r);
-            setShowReadiness(false);
-            if (r === "pain") {
-              router.push("/physio");
-              return;
-            }
-            // Write draft so dashboard can show resume banner
+          onBegin={() => {
             setDraftSession({
               splitDay: dayName,
               exerciseIds: activeExerciseIds,
@@ -759,6 +731,7 @@ function WorkoutPageContent() {
             setPhase("active");
             setCurrentExerciseIdx(0);
           }}
+          onSplit={() => setShowSplitSheet(true)}
         />
 
         {splitDay && (

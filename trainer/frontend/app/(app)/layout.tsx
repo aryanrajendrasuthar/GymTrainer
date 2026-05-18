@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useUserStore } from "@/app/store/userStore";
@@ -124,14 +124,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { isAuthenticated, onboardingComplete } = useUserStore();
   const { resetDailySlots } = usePhysioStore();
+  const [mounted, setMounted] = useState(false);
 
   useNotificationTriggers();
   useDataSync();
 
   useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
     if (!isAuthenticated) { router.replace("/signin"); return; }
     if (!onboardingComplete) { router.replace("/onboarding"); return; }
-  }, [isAuthenticated, onboardingComplete, router]);
+  }, [mounted, isAuthenticated, onboardingComplete, router]);
 
   // Reset daily physio slots at midnight
   useEffect(() => {
@@ -142,13 +148,19 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     return () => clearTimeout(t);
   }, [resetDailySlots]);
 
-  if (!isAuthenticated || !onboardingComplete) return null;
+  if (!mounted || !isAuthenticated || !onboardingComplete) {
+    return (
+      <div className="flex flex-col min-h-screen bg-trainer-black">
+        <div className="flex-1 pb-20" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col min-h-screen bg-trainer-black">
       <OfflineBanner />
       <NotificationToast />
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="sync" initial={false}>
         <motion.main
           key={pathname}
           variants={pageVariants}

@@ -208,7 +208,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "pelvic-tilt-supine-knee",
-    name: "Pelvic Tilt — Supine (Lumbopelvic Control for Knee Rehab)",
+    name: "Pelvic Tilt - Supine",
     condition: "knee-effusion",
     phase: ["acute", "subacute"],
     sessionType: "both",
@@ -249,7 +249,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "hip-adduction-squeeze-isometric-knee",
-    name: "Hip Adduction Isometric Squeeze (VMO Co-Activation)",
+    name: "Hip Adduction Isometric Squeeze",
     condition: "knee-effusion",
     phase: ["acute", "subacute"],
     sessionType: "both",
@@ -290,7 +290,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "glute-bridge-knee-effusion",
-    name: "Glute Bridge (Posterior Chain Activation — Swollen Knee)",
+    name: "Bridge - Bridging",
     condition: "knee-effusion",
     phase: ["subacute", "chronic"],
     sessionType: "both",
@@ -332,7 +332,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "short-arc-quad-knee",
-    name: "Short Arc Quad (SAQ) — Terminal Knee Extension",
+    name: "Short Arc Quads",
     condition: "knee-effusion",
     phase: ["acute", "subacute"],
     sessionType: "both",
@@ -374,7 +374,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "slr-external-rotation-knee",
-    name: "Straight Leg Raise — External Rotation (Hip Rotator Activation)",
+    name: "SLR - External Rotation",
     condition: "knee-effusion",
     phase: ["subacute", "chronic"],
     sessionType: "both",
@@ -414,7 +414,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "hip-adduction-sidelying-knee",
-    name: "Side-Lying Hip Adduction (Inner Thigh and VMO Co-Activation)",
+    name: "Hip Adduction - Side Lying",
     condition: "knee-effusion",
     phase: ["subacute", "chronic"],
     sessionType: "both",
@@ -454,7 +454,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "long-arc-quad-knee",
-    name: "Long Arc Quad (LAQ) — Full Knee Extension Strengthening",
+    name: "Long Arc Quads",
     condition: "knee-effusion",
     phase: ["subacute", "chronic"],
     sessionType: "both",
@@ -495,7 +495,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "calf-stretch-towel-knee",
-    name: "Calf Stretch with Towel — Gastrocnemius (Supine)",
+    name: "Calf Stretch - Towel",
     condition: "knee-effusion",
     phase: ["subacute", "chronic"],
     sessionType: "both",
@@ -536,7 +536,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "heel-toe-raises-standing-knee",
-    name: "Heel and Toe Raises — Standing (Calf and Tibialis Pump)",
+    name: "Heel & Toe Raises",
     condition: "knee-effusion",
     phase: ["chronic", "maintenance"],
     sessionType: "both",
@@ -576,7 +576,7 @@ export const kneeEffusionExercises: PhysioExercise[] = [
 
   {
     id: "clamshell-band-knee",
-    name: "Supine Hip Abduction / Clamshell with Band (Glute Med Activation)",
+    name: "Clamshell with Band",
     condition: "knee-effusion",
     phase: ["subacute", "chronic"],
     sessionType: "both",
