@@ -294,6 +294,199 @@ export const lowerLimbPhysioExercises: PhysioExercise[] = [
     youtubeId: "9O_c68JJJAs",
   },
 
+  {
+    id: "hip-abduction-standing-pfps",
+    name: "Standing Hip Abduction (Gluteus Medius — PFPS Stability)",
+    condition: "patellofemoral-pain-syndrome",
+    phase: ["subacute", "chronic", "maintenance"],
+    sessionType: "both",
+    instructions: [
+      "Stand beside a wall or chair, holding it lightly for balance. Use a resistance band looped around the ankles for added challenge.",
+      "Keep the stance leg slightly bent. Lift the outer leg sideways to approximately 30–40 degrees.",
+      "Hold 5 seconds at the top, then lower slowly.",
+      "Perform 10 reps, 2 sets per side.",
+      "Hip abductor weakness causes medial knee collapse (dynamic valgus) — the primary mechanism of PFPS pain.",
+    ],
+    reps: 10,
+    sets: 2,
+    holdTime: 5,
+    breathingCues: [
+      "Exhale as you lift the leg.",
+      "Inhale on the controlled lowering phase.",
+    ],
+    dos: [
+      "Keep the trunk upright — do not lean away from the lifting leg.",
+      "Feel the effort in the outer hip of the lifting leg.",
+      "Progress to resistance band above the ankles once bodyweight is easy.",
+    ],
+    donts: [
+      "Do not hike the hip to gain extra range.",
+      "Avoid internal rotation or forward flexion of the lifted leg.",
+      "Do not perform too quickly — slow controlled movement is the training stimulus.",
+    ],
+    painLevelMax: 2,
+    redFlags: [
+      "Lateral hip pain suggesting greater trochanteric bursitis",
+    ],
+    primaryMuscles: ["gluteus-medius", "gluteus-minimus"],
+    rehabilitationMuscles: [
+      "gluteus-medius",
+      "gluteus-minimus",
+      "quadriceps-vastus-medialis",
+    ],
+    affectedArea: [
+      "quadriceps-vastus-medialis",
+      "gluteus-medius",
+    ],
+    youtubeId: "Y_lXVLV6TYw",
+    progressionExercise: "step-down-eccentric-pfps",
+  },
+
+  {
+    id: "hip-extension-standing-pfps",
+    name: "Standing Hip Extension (Gluteus Maximus for Knee Offloading)",
+    condition: "patellofemoral-pain-syndrome",
+    phase: ["subacute", "chronic", "maintenance"],
+    sessionType: "both",
+    instructions: [
+      "Stand facing a wall or chair, holding it lightly for balance.",
+      "Keep the stance leg slightly bent. Brace the core gently.",
+      "Lift the affected leg backward (hip extension) — keep the knee straight.",
+      "Hold at the top for 5 seconds, then lower slowly.",
+      "Perform 10 reps, 2 sets per side.",
+    ],
+    reps: 10,
+    sets: 2,
+    holdTime: 5,
+    breathingCues: [
+      "Exhale as you extend the leg backward.",
+      "Inhale on the controlled return.",
+    ],
+    dos: [
+      "Focus on squeezing the gluteus maximus at the top, not hyperextending the lower back.",
+      "Keep the trunk upright — do not lean forward to compensate.",
+      "Progress with an ankle weight or resistance band.",
+    ],
+    donts: [
+      "Do not arch the lower back to gain hip extension range.",
+      "Avoid bending the knee during the lift.",
+      "Do not swing the leg — controlled movement is key.",
+    ],
+    painLevelMax: 2,
+    redFlags: [
+      "Lower back pain during standing hip extension (suggests lumbar extension sensitivity)",
+    ],
+    primaryMuscles: ["gluteus-maximus", "hamstrings-biceps-femoris"],
+    rehabilitationMuscles: [
+      "gluteus-maximus",
+      "hamstrings-biceps-femoris",
+      "quadriceps-vastus-medialis",
+    ],
+    affectedArea: [
+      "quadriceps-vastus-medialis",
+      "gluteus-maximus",
+    ],
+    youtubeId: "E6ksBaU9TKQ",
+    progressionExercise: "single-leg-deadlift-piriformis",
+  },
+
+  {
+    id: "hip-flexion-standing-pfps",
+    name: "Standing Hip Flexion — Straight Leg Raise (Quad and Core)",
+    condition: "patellofemoral-pain-syndrome",
+    phase: ["subacute", "chronic"],
+    sessionType: "both",
+    instructions: [
+      "Stand facing a wall or chair, holding it lightly for balance.",
+      "Brace the core gently. Keep the lifting leg straight (extended knee).",
+      "Tighten the quadriceps of the lifting leg, then raise it forward to approximately hip height.",
+      "Hold for 5 seconds, then lower slowly.",
+      "Perform 10 reps, 2 sets per side.",
+      "This is the standing equivalent of the straight-leg raise — loads the hip flexors and quad in functional upright posture.",
+    ],
+    reps: 10,
+    sets: 2,
+    holdTime: 5,
+    breathingCues: [
+      "Exhale as you lift the leg.",
+      "Inhale at the top, exhale on the lowering phase.",
+    ],
+    dos: [
+      "Always tighten the quad before lifting — do not raise a relaxed leg.",
+      "Keep the trunk upright — do not lean backward to compensate.",
+      "Progress to ankle weight once 10 reps are easy.",
+    ],
+    donts: [
+      "Do not let the knee bend during the lift.",
+      "Avoid excessive trunk backward lean.",
+      "Do not raise the leg above hip height.",
+    ],
+    painLevelMax: 2,
+    redFlags: [
+      "Anterior knee pain during hip flexion loading in standing",
+    ],
+    primaryMuscles: ["hip-flexors", "quadriceps-rectus-femoris"],
+    rehabilitationMuscles: [
+      "hip-flexors",
+      "quadriceps-rectus-femoris",
+      "quadriceps-vastus-medialis",
+    ],
+    affectedArea: [
+      "quadriceps-vastus-medialis",
+      "hip-flexors",
+    ],
+    youtubeId: "NhiLCnhYGGM",
+    progressionExercise: "step-down-eccentric-pfps",
+  },
+
+  {
+    id: "standing-marching-pfps",
+    name: "Standing Marching — Hip Flexion (Dynamic Lumbopelvic Stability)",
+    condition: "patellofemoral-pain-syndrome",
+    phase: ["chronic", "maintenance"],
+    sessionType: "both",
+    instructions: [
+      "Stand tall with feet hip-width apart, holding a wall or rail lightly for balance.",
+      "Brace the core gently and slowly lift one knee to hip height — maintain an upright torso.",
+      "Hold at the top for 1 second, lower, and immediately lift the other knee.",
+      "Perform 10 alternating reps per leg, 1 set.",
+      "Marching in standing trains lumbopelvic stability under alternating loads — a key functional progression for PFPS.",
+    ],
+    reps: 10,
+    sets: 1,
+    holdTime: 1,
+    breathingCues: [
+      "Breathe rhythmically in time with the marching — exhale as each knee lifts.",
+    ],
+    dos: [
+      "Maintain a completely neutral pelvis — no lateral tilt as the leg rises.",
+      "Progress to unsupported marching (no wall) once balance is stable.",
+      "Combine with arm swing for a functional gait-pattern challenge.",
+    ],
+    donts: [
+      "Do not lean back to gain hip flexion range.",
+      "Avoid if standing posture itself is limited by knee pain.",
+      "Do not perform too quickly — lose the postural control requirement.",
+    ],
+    painLevelMax: 2,
+    redFlags: [
+      "Knee pain reproduced during single-leg stance phase of the march",
+    ],
+    primaryMuscles: ["hip-flexors", "gluteus-medius"],
+    rehabilitationMuscles: [
+      "hip-flexors",
+      "gluteus-medius",
+      "quadriceps-vastus-medialis",
+      "erector-spinae-lower",
+    ],
+    affectedArea: [
+      "quadriceps-vastus-medialis",
+      "hip-flexors",
+    ],
+    youtubeId: "CYfJa4SnEP0",
+    progressionExercise: "step-down-eccentric-pfps",
+  },
+
   // ─── IT Band Syndrome ──────────────────────────────────────────────────────
 
   {
