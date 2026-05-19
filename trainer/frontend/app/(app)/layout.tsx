@@ -111,10 +111,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, onboardingComplete } = useUserStore();
   const { resetDailySlots } = usePhysioStore();
 
-  // Use Zustand's own hydration signal — goes true exactly once, never resets
-  const [hydrated, setHydrated] = useState(
-    () => useUserStore.persist.hasHydrated()
-  );
+  // Use Zustand's own hydration signal — goes true exactly once, never resets.
+  // Guard against SSR: Next.js pre-renders "use client" components on the server;
+  // persist.hasHydrated() must not run there (no localStorage / window).
+  const [hydrated, setHydrated] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return useUserStore.persist.hasHydrated();
+  });
 
   useNotificationTriggers();
   useDataSync();
