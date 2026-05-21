@@ -2,13 +2,19 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, SlidersHorizontal, ChevronRight, Wind, BookOpen } from "lucide-react";
+import { Search, X, SlidersHorizontal, ChevronRight, Wind, BookOpen, TrendingUp, History } from "lucide-react";
 import Link from "next/link";
 import { useUserStore } from "@/app/store/userStore";
+import { useSessionStore } from "@/app/store/sessionStore";
+import { useSettingsStore } from "@/app/store/settingsStore";
 import { allExercises } from "@/app/data/exercises";
 import { Modal } from "@/app/components/ui/Modal";
 import { Badge } from "@/app/components/ui/Badge";
 import { ExerciseMediaTabs } from "@/app/components/ui/ExerciseMediaTabs";
+import { OneRMChart } from "@/app/components/progress/OneRMChart";
+import { useExerciseHistory } from "@/app/hooks/useExerciseHistory";
+import { OneRMCalculatorSheet } from "@/app/components/workout/OneRMCalculatorSheet";
+import { estimateOneRepMax } from "@/app/lib/progression-engine";
 import { type Exercise, type ExerciseCategory, type Equipment } from "@/app/types";
 import { cn } from "@/app/lib/utils";
 
@@ -59,14 +65,31 @@ function matchesSearch(ex: Exercise, query: string): boolean {
 
 // ─── Exercise card ──────────────────────────────────────────────────────────────
 
+function formatLastTrained(dateStr: string): string {
+  const today = new Date().toISOString().slice(0, 10);
+  if (dateStr === today) return "Today";
+  const days = Math.round(
+    (new Date(today).getTime() - new Date(dateStr).getTime()) / 86_400_000
+  );
+  if (days === 1) return "Yesterday";
+  if (days < 7) return `${days}d ago`;
+  if (days < 14) return "1w ago";
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
 function ExerciseCard({
   exercise,
   index,
   onClick,
+  lastTrained,
+  improvementPct,
 }: {
   exercise: Exercise;
   index: number;
   onClick: () => void;
+  lastTrained?: string;
+  improvementPct?: number;
 }) {
   return (
     <motion.button
@@ -93,17 +116,29 @@ function ExerciseCard({
 
       {/* Meta */}
       <div className="flex flex-col items-end gap-1 shrink-0">
-        <span
-          className={cn(
-            "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide",
-            DIFFICULTY_COLORS[exercise.difficulty]
-          )}
-        >
-          {exercise.difficulty.slice(0, 3)}
-        </span>
-        <span className="text-[10px] text-white/25 capitalize">
-          {exercise.movementType}
-        </span>
+        {improvementPct !== undefined && improvementPct >= 5 ? (
+          <span className="text-[9px] font-black px-2 py-0.5 rounded-full bg-trainer-success/12 text-trainer-success border border-trainer-success/25 uppercase tracking-wide">
+            +{improvementPct}%
+          </span>
+        ) : (
+          <span
+            className={cn(
+              "text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wide",
+              DIFFICULTY_COLORS[exercise.difficulty]
+            )}
+          >
+            {exercise.difficulty.slice(0, 3)}
+          </span>
+        )}
+        {lastTrained ? (
+          <span className="text-[9px] text-trainer-success/70 font-semibold">
+            {formatLastTrained(lastTrained)}
+          </span>
+        ) : (
+          <span className="text-[10px] text-white/25 capitalize">
+            {exercise.movementType}
+          </span>
+        )}
       </div>
 
       <ChevronRight size={14} className="text-white/20 shrink-0" />
@@ -115,6 +150,25 @@ function ExerciseCard({
 
 function ExerciseDetail({ exercise }: { exercise: Exercise }) {
   const [showInstructions, setShowInstructions] = useState(true);
+  const { allExerciseLogs, sessionDates } = useSessionStore();
+  const { settings } = useSettingsStore();
+  const unit = (settings.weightUnit ?? "kg") as "kg" | "lb";
+  const history = useExerciseHistory(exercise.id, allExerciseLogs, sessionDates);
+
+  const oneRMData = useMemo(() => {
+    return history.history
+      .slice(0, 20)
+      .reverse()
+      .map((entry) => {
+        const factor = unit === "lb" ? 2.20462 : 1;
+        return {
+          date: entry.date,
+          estimated1RM: Math.round(entry.estimatedOneRepMax * factor),
+          topWeight: Math.round(entry.topSetWeight * factor * 10) / 10,
+          topReps: entry.topSetReps,
+        };
+      });
+  }, [history.history, unit]);
 
   return (
     <div className="flex flex-col gap-5">
@@ -143,6 +197,32 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
           )}
         </div>
       </div>
+
+      {/* Personal best callout */}
+      {history.allTimeBest1RM > 0 && history.history[0] && (
+        <div className="flex items-center gap-3 px-3.5 py-3 rounded-[12px] bg-trainer-gold/8 border border-trainer-gold/20">
+          <div className="w-8 h-8 rounded-full bg-trainer-gold/15 flex items-center justify-center shrink-0">
+            <TrendingUp size={14} className="text-trainer-gold" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] text-trainer-gold/60 uppercase tracking-widest font-bold mb-0.5">Your Best</p>
+            <p className="text-sm font-bold text-trainer-gold tabular-nums">
+              {unit === "lb"
+                ? `${Math.round(history.history[0].topSetWeight * 2.20462)} lb`
+                : `${history.history[0].topSetWeight} kg`}{" "}
+              × {history.history[0].topSetReps}
+            </p>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-[9px] text-white/30 uppercase tracking-wide font-semibold">e1RM</p>
+            <p className="text-sm font-bold text-white/70 tabular-nums">
+              {unit === "lb"
+                ? `${Math.round(history.allTimeBest1RM * 2.20462)}`
+                : `${Math.round(history.allTimeBest1RM * 10) / 10}`}{unit}
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Equipment */}
       <div>
@@ -238,6 +318,68 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
         </div>
       )}
 
+      {/* Personal history mini-chart */}
+      {oneRMData.length >= 2 && (
+        <div className="rounded-[12px] bg-trainer-indigo/6 border border-trainer-indigo/15 p-3.5">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp size={12} className="text-trainer-indigo" />
+            <p className="text-[10px] text-trainer-indigo/70 font-semibold uppercase tracking-wider">
+              Your e1RM Progress
+            </p>
+            <span className="ml-auto text-xs font-bold text-white/70 tabular-nums">
+              {oneRMData[oneRMData.length - 1]?.estimated1RM} {unit}
+            </span>
+          </div>
+          <OneRMChart
+            data={oneRMData}
+            unit={unit}
+            exerciseName={exercise.name}
+          />
+          <p className="text-[9px] text-white/20 mt-1 text-right">
+            {history.totalSessions} sessions logged
+          </p>
+        </div>
+      )}
+
+      {/* Last session set-by-set breakdown */}
+      {history.history.length > 0 && history.history[0].sets.length > 0 && (() => {
+        const last = history.history[0];
+        const factor = unit === "lb" ? 2.20462 : 1;
+        return (
+          <div className="rounded-[12px] bg-white/4 border border-white/8 p-3.5">
+            <div className="flex items-center gap-2 mb-2.5">
+              <History size={12} className="text-white/30" />
+              <p className="text-[10px] text-white/30 font-semibold uppercase tracking-wider">
+                Last Session
+              </p>
+              <span className="ml-auto text-[10px] text-white/25">{last.date}</span>
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {last.sets.map((s, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-[10px] text-white/35 w-12">Set {i + 1}</span>
+                  <div className="flex-1 flex items-center justify-end gap-2">
+                    <span className="text-xs font-semibold text-white/75 tabular-nums">
+                      {Math.round(s.weightUsed * factor * 10) / 10}{unit} × {s.repsCompleted}
+                    </span>
+                    {s.rpe != null && s.rpe > 0 && (
+                      <span className={cn(
+                        "text-[9px] font-bold px-1.5 py-0.5 rounded-full",
+                        s.rpe >= 9 ? "bg-red-500/15 text-red-400" :
+                        s.rpe >= 7 ? "bg-amber-400/15 text-amber-400" :
+                        "bg-white/8 text-white/35"
+                      )}>
+                        RPE {s.rpe}
+                      </span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
+
       {/* Breathing */}
       <div className="flex items-start gap-2.5 p-3.5 rounded-[12px] bg-trainer-indigo/8 border border-trainer-indigo/20">
         <Wind size={14} className="text-trainer-indigo shrink-0 mt-0.5" />
@@ -278,6 +420,50 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
 
 export default function ExercisesPage() {
   const { profile } = useUserStore();
+  const { settings } = useSettingsStore();
+  const { allExerciseLogs } = useSessionStore();
+  const pageUnit = (settings.weightUnit ?? profile?.units ?? "kg") as "kg" | "lb";
+
+  const lastTrainedMap = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const log of allExerciseLogs) {
+      const date = log.loggedAt?.slice(0, 10);
+      if (!date) continue;
+      if (!map[log.exerciseId] || date > map[log.exerciseId]) {
+        map[log.exerciseId] = date;
+      }
+    }
+    return map;
+  }, [allExerciseLogs]);
+
+  const improvementMap = useMemo(() => {
+    const now = Date.now();
+    const cut8 = now - 56 * 86400000;
+    const cut16 = now - 112 * 86400000;
+    const byExercise: Record<string, { recent: number[]; earlier: number[] }> = {};
+    for (const log of allExerciseLogs) {
+      const t = new Date(log.loggedAt).getTime();
+      if (t < cut16) continue;
+      const e1rms = log.sets
+        .map((s) => estimateOneRepMax(s.weightUsed, s.repsCompleted))
+        .filter((v) => v > 0);
+      const best = e1rms.length ? Math.max(...e1rms) : 0;
+      if (best === 0) continue;
+      if (!byExercise[log.exerciseId]) byExercise[log.exerciseId] = { recent: [], earlier: [] };
+      if (t >= cut8) byExercise[log.exerciseId].recent.push(best);
+      else byExercise[log.exerciseId].earlier.push(best);
+    }
+    const result: Record<string, number> = {};
+    for (const [id, { recent, earlier }] of Object.entries(byExercise)) {
+      if (recent.length < 2 || earlier.length < 2) continue;
+      const recentBest = Math.max(...recent);
+      const earlierBest = Math.max(...earlier);
+      if (earlierBest === 0) continue;
+      const pct = Math.round(((recentBest - earlierBest) / earlierBest) * 100);
+      if (pct >= 5) result[id] = pct;
+    }
+    return result;
+  }, [allExerciseLogs]);
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<ExerciseCategory | null>(null);
@@ -335,6 +521,7 @@ export default function ExercisesPage() {
                 <X size={12} />
               </button>
             )}
+            <OneRMCalculatorSheet unit={pageUnit} />
             <Link
               href="/glossary"
               className="flex items-center gap-1.5 text-xs font-semibold text-white/40 hover:text-white/70 transition-colors"
@@ -542,6 +729,8 @@ export default function ExercisesPage() {
                 exercise={exercise}
                 index={i}
                 onClick={() => setSelectedExercise(exercise)}
+                lastTrained={lastTrainedMap[exercise.id]}
+                improvementPct={improvementMap[exercise.id]}
               />
             ))
           )}

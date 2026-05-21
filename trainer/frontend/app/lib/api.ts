@@ -286,3 +286,69 @@ export const progressApi = {
       body: { weight_kg: weightKg },
     }),
 };
+
+// ─── AI API ───────────────────────────────────────────────────────────────────
+
+export interface AIChatMessage {
+  role: "user" | "assistant";
+  content: string;
+}
+
+export interface AIChatContext {
+  goal?: string;
+  fitnessLevel?: string;
+  splitName?: string;
+  recentSessionCount?: number;
+  streak?: number;
+  totalVolumeKg?: number;
+  injuries?: string[];
+  thisWeekVolumeKg?: number;
+  lastWeekVolumeKg?: number;
+  recentPRs?: string[];
+  stagnantExercises?: string[];
+  activeGoalCount?: number;
+}
+
+export const aiApi = {
+  getPostWorkoutTip: (
+    token: string,
+    params: {
+      splitDay: string;
+      exerciseCount: number;
+      totalSets: number;
+      durationMinutes: number;
+      volumeKg: number;
+      prCount: number;
+      goal: string;
+      fitnessLevel?: string;
+    }
+  ) =>
+    apiFetch<{ tip: string }>("/api/ai/tip", {
+      token,
+      method: "POST",
+      body: params,
+    }),
+
+  chat: (token: string, messages: AIChatMessage[], context: AIChatContext) =>
+    apiFetch<{ reply: string }>("/api/ai/chat", {
+      token,
+      method: "POST",
+      body: { messages, context },
+    }),
+
+  getWeeklySummary: (
+    token: string,
+    params: {
+      sessions: { splitDay: string; durationMinutes: number; exerciseCount: number; totalVolumeKg: number; prCount?: number }[];
+      goal: string;
+      streak?: number;
+      weekVolumeTrend?: "up" | "down" | "flat";
+    }
+  ) =>
+    apiFetch<{ summary: string }>("/api/ai/weekly-summary", {
+      token,
+      method: "POST",
+      body: params,
+    }),
+};
+

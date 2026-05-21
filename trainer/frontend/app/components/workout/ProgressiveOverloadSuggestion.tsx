@@ -73,6 +73,11 @@ export function ProgressiveOverloadSuggestion({
                 today → <span className="font-semibold text-white/80">
                   {suggestion.suggestedWeight}{unit}
                 </span>
+                {suggestion.suggestedWeight - suggestion.increaseAmountKg > 0 && (
+                  <span className="text-white/30 ml-1">
+                    ({Math.round((suggestion.increaseAmountKg / (suggestion.suggestedWeight - suggestion.increaseAmountKg)) * 100)}% heavier)
+                  </span>
+                )}
               </p>
 
               {mode === "custom" && (

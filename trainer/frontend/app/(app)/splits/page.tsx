@@ -148,6 +148,42 @@ function DayBreakdown({ split, weekLabel }: { split: WorkoutSplit; weekLabel: st
   );
 }
 
+// ─── Muscle frequency summary ─────────────────────────────────────────────────
+
+function MuscleFrequency({ split }: { split: WorkoutSplit }) {
+  const freq: Record<string, number> = {};
+  for (const day of split.days) {
+    if (day.isRestDay) continue;
+    for (const m of day.muscleGroups) {
+      freq[m] = (freq[m] ?? 0) + 1;
+    }
+  }
+  const entries = Object.entries(freq).sort((a, b) => b[1] - a[1]);
+  if (!entries.length) return null;
+
+  return (
+    <div className="mt-3 pt-3 border-t border-white/5">
+      <p className="text-[10px] text-white/30 uppercase tracking-widest font-semibold mb-2">
+        Weekly Frequency
+      </p>
+      <div className="flex flex-wrap gap-1.5">
+        {entries.map(([muscle, count]) => (
+          <span
+            key={muscle}
+            className={cn(
+              "flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize",
+              muscleChip(muscle)
+            )}
+          >
+            {muscle}
+            <span className="font-bold opacity-75">×{count}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ─── Split card ───────────────────────────────────────────────────────────────
 
 function SplitCard({
@@ -256,6 +292,7 @@ function SplitCard({
                 Schedule · {weekLabel}
               </p>
               <DayBreakdown split={split} weekLabel={weekLabel} />
+              <MuscleFrequency split={split} />
             </div>
           </motion.div>
         )}

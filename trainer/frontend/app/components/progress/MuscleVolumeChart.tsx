@@ -78,6 +78,8 @@ export function MuscleVolumeChart({ sessions, allLogs, unit }: MuscleVolumeChart
     );
   }
 
+  const totalVol = entries.reduce((s, e) => s + e.volume, 0);
+
   return (
     <div className="flex flex-col gap-3">
       {entries.map((entry, i) => {
@@ -112,6 +114,17 @@ export function MuscleVolumeChart({ sessions, allLogs, unit }: MuscleVolumeChart
           </motion.div>
         );
       })}
+
+      {entries.length > 0 && (
+        <div className="flex items-center justify-between pt-2 border-t border-white/5 mt-1">
+          <span className="text-[10px] text-white/25">
+            Total: {formatVol(totalVol)} {unit}
+          </span>
+          <span className="text-[10px] text-white/25">
+            {entries[0]!.label} {Math.round((entries[0]!.volume / totalVol) * 100)}% of volume
+          </span>
+        </div>
+      )}
     </div>
   );
 }

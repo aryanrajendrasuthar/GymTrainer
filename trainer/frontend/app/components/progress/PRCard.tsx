@@ -18,9 +18,55 @@ interface PRCardProps {
   prs: ExercisePR[];
   onSelectExercise?: (exerciseId: string) => void;
   selectedExerciseId?: string | null;
+  sparklines?: Record<string, number[]>;
 }
 
-export function PRCard({ prs, onSelectExercise, selectedExerciseId }: PRCardProps) {
+function relativeDate(iso: string): string {
+  const diffDays = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays}d ago`;
+  if (diffDays < 30) return `${Math.floor(diffDays / 7)}w ago`;
+  if (diffDays < 365) return `${Math.floor(diffDays / 30)}mo ago`;
+  return `${Math.floor(diffDays / 365)}y ago`;
+}
+
+function Sparkline({ values }: { values: number[] }) {
+  if (values.length < 2) return null;
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const range = max - min || 1;
+  const W = 48, H = 20, pad = 2;
+  const points = values.map((v, i) => {
+    const x = pad + (i / (values.length - 1)) * (W - pad * 2);
+    const y = H - pad - ((v - min) / range) * (H - pad * 2);
+    return `${x},${y}`;
+  }).join(" ");
+
+  const lastY = H - pad - ((values[values.length - 1] - min) / range) * (H - pad * 2);
+  const rising = values[values.length - 1] >= values[0];
+
+  return (
+    <svg width={W} height={H} viewBox={`0 0 ${W} ${H}`} className="shrink-0">
+      <polyline
+        points={points}
+        fill="none"
+        stroke={rising ? "rgba(74,222,128,0.55)" : "rgba(248,113,113,0.55)"}
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx={pad + ((values.length - 1) / (values.length - 1)) * (W - pad * 2)}
+        cy={lastY}
+        r="2.5"
+        fill={rising ? "rgb(74,222,128)" : "rgb(248,113,113)"}
+      />
+    </svg>
+  );
+}
+
+export function PRCard({ prs, onSelectExercise, selectedExerciseId, sparklines }: PRCardProps) {
   if (prs.length === 0) {
     return (
       <div className="flex flex-col items-center gap-3 py-8">
@@ -83,7 +129,12 @@ export function PRCard({ prs, onSelectExercise, selectedExerciseId }: PRCardProp
               </p>
             </div>
 
-            {/* e1RM */}
+            {/* Sparkline */}
+            {sparklines?.[pr.exerciseId] && sparklines[pr.exerciseId].length >= 2 && (
+              <Sparkline values={sparklines[pr.exerciseId]} />
+            )}
+
+            {/* e1RM + date */}
             <div className="flex flex-col items-end gap-0.5 shrink-0">
               <span
                 className={cn(
@@ -93,9 +144,8 @@ export function PRCard({ prs, onSelectExercise, selectedExerciseId }: PRCardProp
               >
                 {pr.estimated1RM}{pr.unit}
               </span>
-              <span className="text-[9px] text-white/25 uppercase tracking-wider">
-                e1RM
-              </span>
+              <span className="text-[9px] text-white/25 uppercase tracking-wider">e1RM</span>
+              <span className="text-[9px] text-white/20 tabular-nums">{relativeDate(pr.achievedDate)}</span>
             </div>
 
             {onSelectExercise && (

@@ -8,16 +8,34 @@ export interface BodyWeightEntry {
   weightKg: number;
 }
 
+export interface BodyMeasurements {
+  waistCm?: number;
+  chestCm?: number;
+  hipsCm?: number;
+  neckCm?: number;
+  leftArmCm?: number;
+  rightArmCm?: number;
+  leftThighCm?: number;
+}
+
+export interface BodyMeasurementEntry {
+  date: string; // YYYY-MM-DD
+  measurements: BodyMeasurements;
+}
+
 interface ProgressState {
   bodyWeightLogs: BodyWeightEntry[];
+  bodyMeasurementLogs: BodyMeasurementEntry[];
   addWeightLog: (weightKg: number) => void;
   setWeightLogs: (logs: BodyWeightEntry[]) => void;
+  addMeasurementLog: (measurements: BodyMeasurements) => void;
 }
 
 export const useProgressStore = create<ProgressState>()(
   persist(
     (set) => ({
       bodyWeightLogs: [],
+      bodyMeasurementLogs: [],
 
       addWeightLog: (weightKg) => {
         const today = new Date().toISOString().split("T")[0];
@@ -39,6 +57,19 @@ export const useProgressStore = create<ProgressState>()(
           ].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 365);
           return { bodyWeightLogs: merged };
         }),
+
+      addMeasurementLog: (measurements) => {
+        const today = new Date().toISOString().split("T")[0];
+        set((state) => {
+          const filtered = state.bodyMeasurementLogs.filter((l) => l.date !== today);
+          return {
+            bodyMeasurementLogs: [
+              { date: today, measurements },
+              ...filtered,
+            ].slice(0, 365),
+          };
+        });
+      },
     }),
     { name: "trainer-progress" }
   )

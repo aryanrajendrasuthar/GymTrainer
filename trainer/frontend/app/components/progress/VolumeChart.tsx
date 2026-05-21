@@ -8,6 +8,7 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  ReferenceLine,
 } from "recharts";
 import { cn } from "@/app/lib/utils";
 
@@ -66,6 +67,10 @@ export function VolumeChart({ data, unit, className }: VolumeChartProps) {
   }
 
   const maxVol = Math.max(...data.map((d) => d.volume));
+  const nonZeroData = data.filter((d) => d.volume > 0);
+  const avgVol = nonZeroData.length > 1
+    ? Math.round(nonZeroData.reduce((a, d) => a + d.volume, 0) / nonZeroData.length)
+    : 0;
 
   return (
     <div className={cn("h-44", className)}>
@@ -109,6 +114,14 @@ export function VolumeChart({ data, unit, className }: VolumeChartProps) {
             dot={false}
             activeDot={{ r: 4, fill: "#6C63FF", stroke: "#0A0A0F", strokeWidth: 2 }}
           />
+          {avgVol > 0 && (
+            <ReferenceLine
+              y={avgVol}
+              stroke="rgba(108,99,255,0.4)"
+              strokeDasharray="4 3"
+              strokeWidth={1}
+            />
+          )}
         </AreaChart>
       </ResponsiveContainer>
     </div>

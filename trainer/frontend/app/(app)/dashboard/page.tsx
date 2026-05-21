@@ -1,13 +1,15 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Heart, ChevronRight, PlayCircle, X } from "lucide-react";
+import { Heart, ChevronRight, PlayCircle, X, Bot, Sparkles, Dumbbell } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { usePhysioStore } from "@/app/store/physioStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
+import { usePendingSessionStore } from "@/app/store/pendingSessionStore";
 import { TodayWorkoutCard } from "@/app/components/dashboard/TodayWorkoutCard";
 import { StreakCard, WeekGridCard } from "@/app/components/dashboard/StreakCard";
 import { RecentSessionCard } from "@/app/components/dashboard/RecentSessionCard";
@@ -19,9 +21,27 @@ import { MuscleHeatmapCard } from "@/app/components/dashboard/MuscleHeatmapCard"
 import { RecentPRsCard } from "@/app/components/dashboard/RecentPRsCard";
 import { UpcomingSessionsCard } from "@/app/components/dashboard/UpcomingSessionsCard";
 import { DeloadBanner } from "@/app/components/dashboard/DeloadBanner";
+import { MilestoneBanner } from "@/app/components/dashboard/MilestoneBanner";
+import { WeeklySummaryCard } from "@/app/components/dashboard/WeeklySummaryCard";
 import { NutritionLogCard } from "@/app/components/dashboard/NutritionLogCard";
+import { WaterIntakeCard } from "@/app/components/dashboard/WaterIntakeCard";
+import { SleepLogCard } from "@/app/components/dashboard/SleepLogCard";
+import { RecoveryScoreCard } from "@/app/components/dashboard/RecoveryScoreCard";
+import { HabitTrackerCard } from "@/app/components/dashboard/HabitTrackerCard";
+import { GoalsCard } from "@/app/components/dashboard/GoalsCard";
+import { WeekComparisonCard } from "@/app/components/dashboard/WeekComparisonCard";
+import { BodyStatsCard } from "@/app/components/dashboard/BodyStatsCard";
+import { LifetimeStatsCard } from "@/app/components/dashboard/LifetimeStatsCard";
+import { SupplementCard } from "@/app/components/dashboard/SupplementCard";
+import { WorkoutTemplatesCard } from "@/app/components/dashboard/WorkoutTemplatesCard";
 import { InstallBanner } from "@/app/components/ui/InstallBanner";
+import { GoalCheckinModal, shouldShowCheckin } from "@/app/components/dashboard/GoalCheckinModal";
+import { ExercisePickerSheet } from "@/app/components/workout/ExercisePickerSheet";
+import { WeightNudgeBanner } from "@/app/components/dashboard/WeightNudgeBanner";
+import { useProgressStore } from "@/app/store/progressStore";
 import { getSplitById } from "@/app/data/splits";
+import { analyseRoutine, getPendingSuggestions } from "@/app/lib/progression-engine";
+import { exerciseMap } from "@/app/data/exercises";
 import type { WorkoutSession } from "@/app/types";
 
 function getGreeting(): string {
@@ -80,10 +100,18 @@ function getWeekSessionDates(sessions: WorkoutSession[]): string[] {
 }
 
 export default function DashboardPage() {
-  const { profile } = useUserStore();
-  const { recentSessions, draftSession, clearDraftSession } = useSessionStore();
+  const router = useRouter();
+  const [showCheckin, setShowCheckin] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return shouldShowCheckin();
+  });
+  const [showPicker, setShowPicker] = useState(false);
+  const { profile, accessToken } = useUserStore();
+  const { recentSessions, allExerciseLogs, draftSession, clearDraftSession } = useSessionStore();
   const { activeInjuries, todayCompletedSlots } = usePhysioStore();
   const { settings } = useSettingsStore();
+  const { addSession: addPendingSession } = usePendingSessionStore();
+  const { bodyWeightLogs } = useProgressStore();
 
   const split = useMemo(
     () => (profile?.splitId ? getSplitById(profile.splitId) : null),
@@ -119,11 +147,66 @@ export default function DashboardPage() {
   }, [activeInjuries, todayCompletedSlots]);
 
   const firstName = profile?.name?.split(" ")[0] ?? "Athlete";
-  const weightUnit = settings.weightUnit ?? profile?.units ?? "kg";
+  const weightUnit = (settings.weightUnit ?? profile?.units ?? "kg") as "kg" | "lb";
+
+  // Latest tracked weight vs profile weight for nudge banner
+  const latestTrackedKg = bodyWeightLogs[0]?.weightKg ?? null;
+  const profileWeightKg = profile?.weightKg ?? null;
+
   const todayExerciseIds = useMemo(
     () => todaySplitDay?.exercises ?? [],
     [todaySplitDay]
   );
+
+  const progressionHints = useMemo(() => {
+    if (!todayExerciseIds.length || !profile?.goal || todaySplitDay?.isRestDay) return [];
+    const overloadAmount = settings.overloadAmount ?? "standard";
+    const analyses = analyseRoutine(todayExerciseIds, allExerciseLogs, profile.goal, overloadAmount);
+    return getPendingSuggestions(analyses).map((s) => ({
+      name: exerciseMap[s.exerciseId]?.name ?? s.exerciseId.replace(/-/g, " "),
+      suggestedWeight: s.suggestedWeight,
+      increaseAmountKg: s.increaseAmountKg,
+    }));
+  }, [todayExerciseIds, allExerciseLogs, profile?.goal, settings.overloadAmount, todaySplitDay?.isRestDay]);
+
+  // Estimate today's workout based on past sessions with same split day name
+  const todayEstimate = useMemo(() => {
+    if (!todaySplitDay || todaySplitDay.isRestDay) return undefined;
+    const past = recentSessions.filter(
+      (s) => s.splitDay === todaySplitDay.dayName && s.durationMinutes > 0
+    );
+    if (past.length < 2) return undefined;
+    const avgDuration = Math.round(past.reduce((a, s) => a + s.durationMinutes, 0) / past.length);
+    const avgVolume = Math.round(past.reduce((a, s) => a + s.totalVolumeKg, 0) / past.length);
+    return { durationMinutes: avgDuration, volumeKg: avgVolume };
+  }, [todaySplitDay, recentSessions]);
+
+  const recentExerciseIds = useMemo(() => {
+    const seen = new Set<string>();
+    const ids: string[] = [];
+    for (const s of recentSessions) {
+      for (const ex of s.exercisesCompleted ?? []) {
+        if (!seen.has(ex.exerciseId)) {
+          seen.add(ex.exerciseId);
+          ids.push(ex.exerciseId);
+        }
+      }
+      if (ids.length >= 20) break;
+    }
+    return ids;
+  }, [recentSessions]);
+
+  function handleStartQuickWorkout(exerciseIds: string[], dayName: string) {
+    const today = new Date().toISOString().split("T")[0];
+    const id = addPendingSession({
+      dayName,
+      exercises: exerciseIds.map((eid) => ({ id: eid, type: "workout" })),
+      slot: "anytime",
+      date: today,
+    });
+    setShowPicker(false);
+    router.push(`/workout?pending=${id}`);
+  }
 
   return (
     <div className="flex flex-col min-h-full pb-6 page-enter">
@@ -183,6 +266,10 @@ export default function DashboardPage() {
             split={split}
             splitDay={todaySplitDay}
             dayIndex={todayDayIndex}
+            progressionHints={progressionHints}
+            estimate={todayEstimate}
+            unit={weightUnit}
+            onTrainAnyway={todaySplitDay.isRestDay ? () => setShowPicker(true) : undefined}
           />
         ) : (
           <NoProgrammeCard />
@@ -190,6 +277,25 @@ export default function DashboardPage() {
 
         {/* Upcoming sessions horizontal scroll */}
         <UpcomingSessionsCard />
+
+        {/* Quick Workout builder */}
+        <motion.button
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.05 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={() => setShowPicker(true)}
+          className="w-full flex items-center gap-4 p-4 rounded-[16px] bg-trainer-surface border border-white/8 hover:border-white/16 transition-all text-left"
+        >
+          <div className="w-10 h-10 rounded-[12px] bg-trainer-indigo/15 flex items-center justify-center shrink-0">
+            <Dumbbell size={18} className="text-trainer-indigo" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-bold text-white">Quick Workout</p>
+            <p className="text-xs text-white/40 mt-0.5">Pick exercises and start immediately</p>
+          </div>
+          <ChevronRight size={15} className="text-white/25 shrink-0" />
+        </motion.button>
 
         {/* Weekly plan */}
         {split && (
@@ -206,8 +312,44 @@ export default function DashboardPage() {
           <WeekGridCard sessionDates={weekDates} />
         </div>
 
+        {/* Quick-start saved routines */}
+        <WorkoutTemplatesCard />
+
+        {/* Week-over-week comparison */}
+        <WeekComparisonCard />
+
+        {/* Body stats — weight trend, BMI, BF% */}
+        <BodyStatsCard />
+
+        {/* Daily recovery score */}
+        <RecoveryScoreCard />
+
+        {/* Weekly AI summary */}
+        <WeeklySummaryCard
+          sessions={recentSessions}
+          accessToken={accessToken ?? undefined}
+          goal={profile?.goal}
+          streak={streak}
+        />
+
+        {/* Milestone / suggestion banner */}
+        <MilestoneBanner
+          sessions={recentSessions}
+          allLogs={allExerciseLogs}
+          streak={streak}
+        />
+
         {/* Deload recommendation */}
         <DeloadBanner exerciseIds={todayExerciseIds} />
+
+        {/* Weight divergence nudge */}
+        {latestTrackedKg !== null && profileWeightKg !== null && (
+          <WeightNudgeBanner
+            trackedKg={latestTrackedKg}
+            profileKg={profileWeightKg}
+            unit={weightUnit}
+          />
+        )}
 
         {/* Physio reminder */}
         {pendingPhysioCount > 0 && (
@@ -216,6 +358,18 @@ export default function DashboardPage() {
 
         {/* Daily weight check-in */}
         <DailyCheckinCard />
+
+        {/* Water intake */}
+        <WaterIntakeCard />
+
+        {/* Sleep log */}
+        <SleepLogCard />
+
+        {/* Daily habits */}
+        <HabitTrackerCard />
+
+        {/* Supplement tracker */}
+        <SupplementCard />
 
         {/* Daily nutrition log */}
         <NutritionLogCard />
@@ -226,8 +380,40 @@ export default function DashboardPage() {
         {/* Recent PRs horizontal scroll */}
         <RecentPRsCard />
 
+        {/* Performance goals */}
+        <GoalsCard />
+
+        {/* All-time lifetime totals */}
+        <LifetimeStatsCard />
+
         {/* Muscle recovery heatmap */}
         <MuscleHeatmapCard />
+
+        {/* AI Coach card */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+        >
+          <Link
+            href="/coach"
+            className="flex items-center gap-4 p-4 rounded-[16px] bg-gradient-to-r from-trainer-indigo/15 to-purple-900/15 border border-trainer-indigo/25 hover:border-trainer-indigo/50 transition-all group"
+          >
+            <div className="w-10 h-10 rounded-[12px] bg-trainer-indigo/20 flex items-center justify-center shrink-0">
+              <Bot size={20} className="text-trainer-indigo" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white">AI Coach</p>
+              <p className="text-xs text-white/40 mt-0.5 truncate">
+                Ask about training, nutrition, recovery…
+              </p>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Sparkles size={11} className="text-trainer-indigo/60" />
+              <ChevronRight size={15} className="text-white/25 group-hover:text-trainer-indigo transition-colors" />
+            </div>
+          </Link>
+        </motion.div>
 
         {/* Achievement badges */}
         <AchievementsCard />
@@ -238,6 +424,21 @@ export default function DashboardPage() {
           weightUnit={weightUnit}
         />
       </div>
+
+      {/* 4-week goal check-in */}
+      <GoalCheckinModal
+        open={showCheckin}
+        onClose={() => setShowCheckin(false)}
+        sessionCount={recentSessions.length}
+      />
+
+      {/* Quick Workout exercise picker */}
+      <ExercisePickerSheet
+        open={showPicker}
+        onClose={() => setShowPicker(false)}
+        onStart={handleStartQuickWorkout}
+        recentIds={recentExerciseIds}
+      />
     </div>
   );
 }

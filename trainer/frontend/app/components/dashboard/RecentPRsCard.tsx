@@ -119,10 +119,17 @@ export function RecentPRsCard() {
               {formatVolume(pr.weight, unit)} × {pr.reps}
             </p>
 
-            {/* Date */}
-            <p className="text-[9px] text-white/20 mt-1">
-              {new Date(pr.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
-            </p>
+            {/* Date + BW ratio */}
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-[9px] text-white/20">
+                {new Date(pr.date).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+              </p>
+              {profile?.weightKg && (
+                <p className="text-[9px] text-white/20 tabular-nums">
+                  {(pr.e1rm / profile.weightKg).toFixed(2)}×BW
+                </p>
+              )}
+            </div>
           </motion.div>
         ))}
       </div>

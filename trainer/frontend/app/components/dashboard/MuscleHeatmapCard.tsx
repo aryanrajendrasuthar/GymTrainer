@@ -73,6 +73,12 @@ export function MuscleHeatmapCard() {
         }
       }
       return { key: g.key, label: g.label, hoursAgo: best };
+    }).sort((a, b) => {
+      // Most recently trained (smallest hoursAgo) first; untrained (null) last
+      if (a.hoursAgo === null && b.hoursAgo === null) return 0;
+      if (a.hoursAgo === null) return 1;
+      if (b.hoursAgo === null) return -1;
+      return a.hoursAgo - b.hoursAgo;
     });
   }, [muscleStatus]);
 

@@ -60,11 +60,16 @@ export function PainTrendChart({ condition, painHistory, className }: PainTrendC
         <p className="text-[10px] text-white/30 uppercase tracking-wider font-semibold">
           Pain Trend ({entries.length} readings)
         </p>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1.5">
           <TrendIcon size={11} style={{ color: trendColor }} />
           <span className="text-[11px] font-bold tabular-nums" style={{ color: trendColor }}>
             {delta > 0 ? "+" : ""}{delta.toFixed(0)}
           </span>
+          {delta < -1 && first > 0 && (
+            <span className="text-[9px] font-semibold text-trainer-success bg-trainer-success/10 px-1.5 py-0.5 rounded-full">
+              {Math.round(Math.abs(delta) / first * 100)}% better
+            </span>
+          )}
         </div>
       </div>
 

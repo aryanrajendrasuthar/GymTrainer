@@ -16,6 +16,7 @@ import { type BodyWeightEntry } from "@/app/store/progressStore";
 interface BodyWeightChartProps {
   data: BodyWeightEntry[];
   unit: "kg" | "lb";
+  goalWeightKg?: number;
   className?: string;
 }
 
@@ -45,7 +46,7 @@ function CustomTooltip({
   );
 }
 
-export function BodyWeightChart({ data, unit, className }: BodyWeightChartProps) {
+export function BodyWeightChart({ data, unit, goalWeightKg, className }: BodyWeightChartProps) {
   if (data.length < 2) {
     return (
       <div
@@ -72,8 +73,10 @@ export function BodyWeightChart({ data, unit, className }: BodyWeightChartProps)
     }));
 
   const weights = displayData.map((d) => d.weight);
-  const minW = Math.min(...weights);
-  const maxW = Math.max(...weights);
+  const goalDisplay = goalWeightKg ? toDisplayWeight(goalWeightKg, unit) : null;
+  const allValues = goalDisplay ? [...weights, goalDisplay] : weights;
+  const minW = Math.min(...allValues);
+  const maxW = Math.max(...allValues);
   const padding = (maxW - minW) * 0.3 || 2;
   const avgW = Math.round((weights.reduce((a, b) => a + b, 0) / weights.length) * 10) / 10;
 
@@ -107,7 +110,28 @@ export function BodyWeightChart({ data, unit, className }: BodyWeightChartProps)
             y={avgW}
             stroke="rgba(0,212,170,0.2)"
             strokeDasharray="4 4"
+            label={{
+              value: `avg ${avgW}${unit}`,
+              position: "insideTopLeft",
+              fill: "rgba(0,212,170,0.35)",
+              fontSize: 9,
+              fontWeight: 600,
+            }}
           />
+          {goalDisplay !== null && (
+            <ReferenceLine
+              y={goalDisplay}
+              stroke="rgba(108,99,255,0.55)"
+              strokeDasharray="5 3"
+              label={{
+                value: `Goal ${goalDisplay}${unit}`,
+                position: "insideTopRight",
+                fill: "rgba(108,99,255,0.7)",
+                fontSize: 9,
+                fontWeight: 600,
+              }}
+            />
+          )}
           <Line
             type="monotone"
             dataKey="weight"

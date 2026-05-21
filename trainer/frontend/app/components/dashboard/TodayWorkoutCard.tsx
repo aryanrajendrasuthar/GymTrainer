@@ -1,15 +1,32 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronRight, Coffee, Dumbbell, Moon, Zap } from "lucide-react";
+import { ChevronRight, Clock, Coffee, Dumbbell, Moon, TrendingUp, Zap, CalendarDays, X } from "lucide-react";
 import { type SplitDay, type WorkoutSplit } from "@/app/types";
-import { cn } from "@/app/lib/utils";
+import { cn, formatVolume } from "@/app/lib/utils";
+import { exerciseMap } from "@/app/data/exercises";
+
+interface ProgressionHint {
+  name: string;
+  suggestedWeight: number;
+  increaseAmountKg: number;
+}
+
+interface WorkoutEstimate {
+  durationMinutes: number;
+  volumeKg: number;
+}
 
 interface TodayWorkoutCardProps {
   split: WorkoutSplit;
   splitDay: SplitDay;
   dayIndex: number;
+  progressionHints?: ProgressionHint[];
+  estimate?: WorkoutEstimate;
+  unit?: "kg" | "lb";
+  onTrainAnyway?: () => void;
 }
 
 const MUSCLE_COLOR_MAP: Record<string, string> = {
@@ -34,7 +51,8 @@ function muscleChipClass(muscle: string): string {
   return MUSCLE_COLOR_MAP[muscle.toLowerCase()] ?? "text-white/60 bg-white/8";
 }
 
-export function TodayWorkoutCard({ split, splitDay, dayIndex }: TodayWorkoutCardProps) {
+export function TodayWorkoutCard({ split, splitDay, dayIndex, progressionHints, estimate, unit = "kg", onTrainAnyway }: TodayWorkoutCardProps) {
+  const [showDayPicker, setShowDayPicker] = useState(false);
   if (splitDay.isRestDay) {
     return (
       <motion.div
@@ -57,11 +75,22 @@ export function TodayWorkoutCard({ split, splitDay, dayIndex }: TodayWorkoutCard
             </p>
           </div>
         </div>
-        <div className="mt-4 pt-4 border-t border-white/6 flex items-center gap-2">
-          <Coffee className="w-4 h-4 text-trainer-success/70" />
-          <span className="text-xs text-white/40">
-            {split.name} · {split.daysPerWeek} days/week
-          </span>
+        <div className="mt-4 pt-4 border-t border-white/6 flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <Coffee className="w-4 h-4 text-trainer-success/70" />
+            <span className="text-xs text-white/40">
+              {split.name} · {split.daysPerWeek} days/week
+            </span>
+          </div>
+          {onTrainAnyway && (
+            <button
+              onClick={onTrainAnyway}
+              className="flex items-center gap-1.5 text-[11px] font-semibold text-white/30 hover:text-trainer-indigo transition-colors"
+            >
+              <Dumbbell size={11} />
+              Train anyway
+            </button>
+          )}
         </div>
       </motion.div>
     );
@@ -145,7 +174,32 @@ export function TodayWorkoutCard({ split, splitDay, dayIndex }: TodayWorkoutCard
           ))}
         </div>
 
-        {/* Stats row */}
+        {/* Exercise name preview */}
+        {splitDay.exercises && splitDay.exercises.length > 0 && (() => {
+          const SHOW = 4;
+          const names = splitDay.exercises.map((id) => exerciseMap[id]?.name ?? id);
+          const shown = names.slice(0, SHOW);
+          const more = names.length - SHOW;
+          return (
+            <div className="flex flex-wrap gap-1.5 mb-4">
+              {shown.map((name) => (
+                <span
+                  key={name}
+                  className="text-[10px] font-medium text-white/40 bg-white/6 border border-white/8 px-2 py-0.5 rounded-full truncate max-w-[120px]"
+                >
+                  {name}
+                </span>
+              ))}
+              {more > 0 && (
+                <span className="text-[10px] font-medium text-white/25 px-1 py-0.5">
+                  +{more} more
+                </span>
+              )}
+            </div>
+          );
+        })()}
+
+        {/* Stats row + day switcher */}
         <div className="flex items-center gap-4 mb-5">
           {exerciseCount > 0 && (
             <motion.div
@@ -167,7 +221,117 @@ export function TodayWorkoutCard({ split, splitDay, dayIndex }: TodayWorkoutCard
             <span className="text-sm font-bold text-white">{split.daysPerWeek}</span>
             <span className="text-xs text-white/40">days/week</span>
           </motion.div>
+
+          {estimate && (
+            <>
+              <div className="w-px h-3 bg-white/12 shrink-0" />
+              <motion.div
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+                className="flex items-center gap-1.5"
+              >
+                <Clock size={10} className="text-white/30" />
+                <span className="text-xs text-white/40">~{estimate.durationMinutes}m</span>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.44 }}
+                className="flex items-center gap-1.5"
+              >
+                <TrendingUp size={10} className="text-white/30" />
+                <span className="text-xs text-white/40">~{formatVolume(estimate.volumeKg, unit)}</span>
+              </motion.div>
+            </>
+          )}
+
+          {/* Switch day button */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.4 }}
+            onClick={() => setShowDayPicker((v) => !v)}
+            className="ml-auto flex items-center gap-1 text-[11px] text-white/30 hover:text-white/55 transition-colors"
+          >
+            <CalendarDays size={11} />
+            {showDayPicker ? "Close" : "Switch day"}
+          </motion.button>
         </div>
+
+        {/* Day picker */}
+        <AnimatePresence>
+          {showDayPicker && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              className="overflow-hidden mb-5"
+            >
+              <div className="bg-black/30 rounded-[12px] p-2 flex flex-col gap-1">
+                {split.days.map((day, i) => (
+                  <Link
+                    key={i}
+                    href={day.isRestDay ? "#" : `/workout?day=${i}`}
+                    onClick={() => !day.isRestDay && setShowDayPicker(false)}
+                    className={cn(
+                      "flex items-center justify-between px-3 py-2 rounded-[8px] transition-colors",
+                      i === dayIndex
+                        ? "bg-trainer-indigo/20 border border-trainer-indigo/30"
+                        : day.isRestDay
+                        ? "opacity-35 cursor-default"
+                        : "hover:bg-white/8"
+                    )}
+                  >
+                    <span className={cn(
+                      "text-xs font-semibold",
+                      i === dayIndex ? "text-trainer-indigo" : "text-white/70"
+                    )}>
+                      {day.dayName}
+                    </span>
+                    <div className="flex items-center gap-1.5">
+                      {i === dayIndex && (
+                        <span className="text-[9px] text-trainer-indigo font-bold uppercase tracking-wide">Today</span>
+                      )}
+                      {day.isRestDay ? (
+                        <Moon size={11} className="text-white/25" />
+                      ) : (
+                        <ChevronRight size={11} className="text-white/25" />
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Progression hints */}
+        {progressionHints && progressionHints.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+            className="mb-5 bg-trainer-success/8 border border-trainer-success/15 rounded-[12px] px-3 py-2.5"
+          >
+            <div className="flex items-center gap-1.5 mb-2">
+              <TrendingUp size={10} className="text-trainer-success" />
+              <p className="text-[10px] font-bold text-trainer-success uppercase tracking-wide">
+                {progressionHints.length} ready to progress
+              </p>
+            </div>
+            <div className="flex flex-col gap-1">
+              {progressionHints.map((hint) => (
+                <div key={hint.name} className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] text-white/50 truncate">{hint.name}</p>
+                  <p className="text-[10px] font-semibold text-trainer-success shrink-0">
+                    +{hint.increaseAmountKg}kg → {hint.suggestedWeight}kg
+                  </p>
+                </div>
+              ))}
+            </div>
+          </motion.div>
+        )}
 
         {/* CTA button */}
         <motion.div

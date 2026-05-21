@@ -74,6 +74,15 @@ export function PreviousPerformancePanel({
             </span>
           </div>
         ))}
+        {data.lastSession.sets.length > 0 && (() => {
+          const vol = Math.round(data.lastSession!.sets.reduce((s, set) => s + set.repsCompleted * set.weightUsed, 0));
+          return (
+            <div className="flex items-center justify-between pt-1 border-t border-white/5">
+              <span className="text-[10px] text-white/25">Session volume</span>
+              <span className="text-[10px] font-semibold text-white/40 tabular-nums">{vol} {unit}</span>
+            </div>
+          );
+        })()}
       </div>
 
       {/* Personal best */}

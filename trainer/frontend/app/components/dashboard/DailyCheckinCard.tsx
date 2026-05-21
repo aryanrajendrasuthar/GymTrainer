@@ -98,14 +98,19 @@ export function DailyCheckinCard() {
               </button>
 
               <div className="flex-1 text-center">
-                <span
-                  className={cn(
-                    "text-2xl font-bold text-white tabular-nums",
-                  )}
-                >
+                <span className="text-2xl font-bold text-white tabular-nums">
                   {weight}
                 </span>
                 <span className="text-sm text-white/40 ml-1">{unit}</span>
+                {(() => {
+                  const delta = Math.round((weight - displayInitial) * 10) / 10;
+                  if (delta === 0) return null;
+                  return (
+                    <p className={cn("text-[11px] font-semibold tabular-nums mt-0.5", delta > 0 ? "text-red-400" : "text-trainer-success")}>
+                      {delta > 0 ? "+" : ""}{delta} vs last
+                    </p>
+                  );
+                })()}
               </div>
 
               <button

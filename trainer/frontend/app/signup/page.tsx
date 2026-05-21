@@ -8,6 +8,7 @@ import { Eye, EyeOff, AlertCircle, Mail, CheckCircle2 } from "lucide-react";
 import { authApi, ApiError } from "@/app/lib/api";
 import { supabase } from "@/app/lib/supabaseClient";
 import { TrainerLogo } from "@/app/components/ui/TrainerLogo";
+import { GymBackground } from "@/app/components/ui/GymBackground";
 import { Input } from "@/app/components/ui/Input";
 import { cn } from "@/app/lib/utils";
 
@@ -78,6 +79,7 @@ export default function SignUpPage() {
 
   return (
     <div className="min-h-screen gym-bg-auth flex flex-col items-center justify-center px-5 py-12">
+      <GymBackground variant="auth" />
       <motion.div
         initial={{ opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}

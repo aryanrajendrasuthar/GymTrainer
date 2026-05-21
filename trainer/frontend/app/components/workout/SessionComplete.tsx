@@ -2,15 +2,19 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Clock, Dumbbell, BarChart3, Star, Save, X, Zap, Share2 } from "lucide-react";
+import { Trophy, Clock, Dumbbell, BarChart3, Star, Save, X, Zap, Share2, Flame, Bookmark, Check } from "lucide-react";
 import { Button } from "@/app/components/ui/Button";
 import { Textarea } from "@/app/components/ui/Input";
 import { MuscleActivationDiagram } from "@/app/components/ui/MuscleActivationDiagram";
 import { Badge } from "@/app/components/ui/Badge";
 import { Confetti } from "@/app/components/ui/Confetti";
 import { useCountUp } from "@/app/hooks/useCountUp";
+import { GymBackground } from "@/app/components/ui/GymBackground";
+import { CooldownCard } from "@/app/components/workout/CooldownCard";
+import { useWorkoutTemplateStore } from "@/app/store/workoutTemplateStore";
 import { type WorkoutSession, type MuscleGroup } from "@/app/types";
-import { formatVolume } from "@/app/lib/utils";
+import { formatVolume, cn } from "@/app/lib/utils";
+import { aiApi } from "@/app/lib/api";
 
 interface PersonalRecord {
   exerciseName: string;
@@ -24,9 +28,30 @@ interface SessionCompleteProps {
   musclesTrained: MuscleGroup[];
   personalRecords: PersonalRecord[];
   unit?: "kg" | "lb";
-  onSave: (notes: string) => void;
+  userWeightKg?: number;
+  accessToken?: string;
+  userGoal?: string;
+  userLevel?: string;
+  allTimeBestVolumeKg?: number;
+  onSave: (notes: string, rating?: number) => void;
   onDiscard: () => void;
   onRepeat?: () => void;
+}
+
+function estimateCaloriesBurned(
+  userWeightKg: number,
+  durationMinutes: number,
+  exercises: WorkoutSession["exercisesCompleted"]
+): number {
+  if (!exercises?.length || durationMinutes <= 0) return 0;
+  // MET values for different training styles
+  const exerciseIds = exercises.map((e) => e.exerciseId);
+  const metabolicIds = ["battle-ropes", "burpee", "mountain-climbers", "box-jump", "jump-rope", "kettlebell-swing"];
+  const isMetabolic = exerciseIds.some((id) => metabolicIds.includes(id));
+  const heavyCompoundIds = ["barbell-deadlift", "barbell-squat", "barbell-bench-press", "overhead-press", "barbell-bent-over-row"];
+  const heavyCount = exerciseIds.filter((id) => heavyCompoundIds.includes(id)).length;
+  const met = isMetabolic ? 7.0 : heavyCount >= 2 ? 5.5 : 4.0;
+  return Math.round(met * userWeightKg * (durationMinutes / 60));
 }
 
 // ─── Animated stat card ────────────────────────────────────────────────────────
@@ -37,12 +62,14 @@ function StatCard({
   value,
   delay,
   highlight,
+  isPR,
 }: {
   icon: React.ElementType;
   label: string;
   value: string;
   delay: number;
   highlight?: boolean;
+  isPR?: boolean;
 }) {
   return (
     <motion.div
@@ -50,14 +77,22 @@ function StatCard({
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, type: "spring", stiffness: 300, damping: 24 }}
       className={`rounded-[16px] p-4 border ${
-        highlight
+        isPR
+          ? "bg-trainer-gold/12 border-trainer-gold/35"
+          : highlight
           ? "bg-trainer-gold/8 border-trainer-gold/25"
           : "bg-trainer-elevated border-white/8"
       }`}
     >
-      <Icon size={18} className={highlight ? "text-trainer-gold mb-2" : "text-trainer-indigo mb-2"} />
+      <Icon size={18} className={isPR || highlight ? "text-trainer-gold mb-2" : "text-trainer-indigo mb-2"} />
       <p className="text-xl font-bold">{value}</p>
       <p className="text-xs text-white/40 mt-0.5">{label}</p>
+      {isPR && (
+        <span className="inline-flex items-center gap-0.5 mt-1.5 text-[9px] font-black text-trainer-gold bg-trainer-gold/15 border border-trainer-gold/30 rounded-full px-1.5 py-0.5 uppercase tracking-wide">
+          <Zap size={7} className="fill-current" />
+          Vol. Record
+        </span>
+      )}
     </motion.div>
   );
 }
@@ -67,14 +102,26 @@ export function SessionComplete({
   musclesTrained,
   personalRecords,
   unit = "kg",
+  userWeightKg,
+  accessToken,
+  userGoal,
+  userLevel,
+  allTimeBestVolumeKg = 0,
   onSave,
   onDiscard,
   onRepeat,
 }: SessionCompleteProps) {
+  const { saveTemplate } = useWorkoutTemplateStore();
   const [notes, setNotes] = useState(session.sessionNotes || "");
+  const [rating, setRating] = useState<number>(0);
   const [discardConfirm, setDiscardConfirm] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [shared, setShared] = useState(false);
+  const [coachTip, setCoachTip] = useState<string | null>(null);
+  const [saveAsTemplate, setSaveAsTemplate] = useState(false);
+  const [templateName, setTemplateName] = useState(session.splitDay ?? "My Workout");
+  const [templateSaved, setTemplateSaved] = useState(false);
+  const exerciseIds = session.exercisesCompleted?.map((e) => e.exerciseId) ?? [];
   const hasPR = personalRecords.length > 0;
 
   // Fire confetti after mount when there are PRs
@@ -84,6 +131,26 @@ export function SessionComplete({
       return () => clearTimeout(t);
     }
   }, [hasPR]);
+
+  // Fetch post-workout AI tip
+  useEffect(() => {
+    if (!accessToken || !userGoal) return;
+    const totalSets = session.exercisesCompleted?.reduce((a, e) => a + e.sets.length, 0) ?? 0;
+    aiApi
+      .getPostWorkoutTip(accessToken, {
+        splitDay: session.splitDay ?? "Workout",
+        exerciseCount: session.exercisesCompleted?.length ?? 0,
+        totalSets,
+        durationMinutes: session.durationMinutes ?? 0,
+        volumeKg: session.totalVolumeKg ?? 0,
+        prCount: personalRecords.length,
+        goal: userGoal,
+        fitnessLevel: userLevel,
+      })
+      .then((r) => setCoachTip(r.tip))
+      .catch(() => {});
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function handleShare() {
     const splitDay = session.splitDay ?? "Workout";
@@ -118,12 +185,18 @@ export function SessionComplete({
 
   const exerciseCount = session.exercisesCompleted?.length ?? 0;
   const volumeKg = session.totalVolumeKg ?? 0;
+  const isVolumePR = allTimeBestVolumeKg > 0 && volumeKg > allTimeBestVolumeKg;
+  const estimatedCals =
+    userWeightKg && session.durationMinutes
+      ? estimateCaloriesBurned(userWeightKg, session.durationMinutes, session.exercisesCompleted ?? [])
+      : 0;
 
   const animatedSets = useCountUp(totalSets, 600, 400);
   const animatedExercises = useCountUp(exerciseCount, 500, 300);
 
   return (
     <div className="min-h-screen gym-bg flex flex-col">
+      <GymBackground variant="alt" />
       {/* Canvas confetti overlay */}
       <Confetti active={showConfetti} count={100} originY={0.25} />
 
@@ -204,7 +277,16 @@ export function SessionComplete({
             value={formatVolume(volumeKg, unit)}
             delay={0.3}
             highlight={volumeKg > 0}
+            isPR={isVolumePR}
           />
+          {estimatedCals > 0 && (
+            <StatCard
+              icon={Flame}
+              label="Est. Calories"
+              value={`~${estimatedCals} kcal`}
+              delay={0.35}
+            />
+          )}
         </div>
 
         {/* Muscle diagram */}
@@ -264,11 +346,16 @@ export function SessionComplete({
           )}
         </AnimatePresence>
 
+        {/* Cooldown stretches */}
+        {musclesTrained.length > 0 && (
+          <CooldownCard musclesTrained={musclesTrained} />
+        )}
+
         {/* Session notes */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.45 }}
+          transition={{ delay: 0.47 }}
         >
           <Textarea
             label="Session Notes"
@@ -280,6 +367,62 @@ export function SessionComplete({
           />
         </motion.div>
 
+        {/* Workout rating */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.49 }}
+          className="bg-trainer-surface border border-white/8 rounded-[14px] p-4"
+        >
+          <p className="text-xs text-white/40 mb-3 text-center uppercase tracking-widest font-semibold">
+            Rate this workout
+          </p>
+          <div className="flex items-center justify-center gap-3">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <motion.button
+                key={star}
+                whileTap={{ scale: 0.85 }}
+                onClick={() => setRating(rating === star ? 0 : star)}
+                className="focus:outline-none"
+              >
+                <Star
+                  size={28}
+                  className={cn(
+                    "transition-all duration-150",
+                    star <= rating
+                      ? "text-trainer-gold fill-trainer-gold"
+                      : "text-white/15"
+                  )}
+                />
+              </motion.button>
+            ))}
+          </div>
+          {rating > 0 && (
+            <motion.p
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-[11px] text-white/35 text-center mt-2"
+            >
+              {["", "Rough session", "Below average", "Decent workout", "Solid session", "Absolute beast! 🔥"][rating]}
+            </motion.p>
+          )}
+        </motion.div>
+
+        {/* Coach AI tip */}
+        <AnimatePresence>
+          {coachTip && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-start gap-3 bg-trainer-indigo/8 border border-trainer-indigo/25 rounded-[14px] p-3.5"
+            >
+              <Zap size={14} className="text-trainer-indigo mt-0.5 shrink-0" />
+              <p className="text-xs text-white/70 leading-relaxed italic">{coachTip}</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* Action buttons */}
         <motion.div
           initial={{ opacity: 0, y: 12 }}
@@ -287,10 +430,69 @@ export function SessionComplete({
           transition={{ delay: 0.5 }}
           className="space-y-3 pb-20 md:pb-4"
         >
-          <Button variant="primary" fullWidth size="lg" onClick={() => onSave(notes)}>
+          <Button
+            variant="primary"
+            fullWidth
+            size="lg"
+            onClick={() => {
+              if (saveAsTemplate && exerciseIds.length > 0) {
+                saveTemplate(templateName.trim() || (session.splitDay ?? "My Workout"), exerciseIds);
+                setTemplateSaved(true);
+              }
+              onSave(notes, rating > 0 ? rating : undefined);
+            }}
+          >
             <Save size={18} />
             Save Workout
           </Button>
+
+          {/* Save as Template toggle */}
+          {exerciseIds.length > 0 && (
+            <div className="rounded-[12px] bg-trainer-surface border border-white/8 overflow-hidden">
+              <button
+                onClick={() => setSaveAsTemplate((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3"
+              >
+                <div className="flex items-center gap-2.5">
+                  <Bookmark size={14} className={saveAsTemplate ? "text-trainer-indigo" : "text-white/30"} />
+                  <span className={cn("text-sm font-medium", saveAsTemplate ? "text-white" : "text-white/45")}>
+                    Save as Template
+                  </span>
+                </div>
+                <div className={cn(
+                  "w-10 h-5.5 rounded-full transition-colors relative",
+                  saveAsTemplate ? "bg-trainer-indigo" : "bg-white/12"
+                )} style={{ height: "22px", width: "40px" }}>
+                  <motion.div
+                    className="absolute top-[3px] w-4 h-4 rounded-full bg-white shadow-sm"
+                    animate={{ left: saveAsTemplate ? "20px" : "3px" }}
+                    transition={{ type: "spring", stiffness: 500, damping: 35 }}
+                  />
+                </div>
+              </button>
+              <AnimatePresence>
+                {saveAsTemplate && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden border-t border-white/8 px-4 py-3"
+                  >
+                    <input
+                      type="text"
+                      value={templateName}
+                      onChange={(e) => setTemplateName(e.target.value)}
+                      placeholder="Template name…"
+                      className="w-full bg-trainer-elevated border border-white/10 rounded-[10px] px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-trainer-indigo/40"
+                    />
+                    <p className="text-[10px] text-white/30 mt-1.5 text-center">
+                      Saved to your templates for quick access
+                    </p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
 
           <Button
             variant="secondary"

@@ -13,6 +13,26 @@ interface RestTimerProps {
 
 const PRESETS = [60, 90, 120, 180] as const;
 
+function playTone(frequency: number, duration: number, gain = 0.25) {
+  if (typeof window === "undefined") return;
+  try {
+    const ctx = new AudioContext();
+    const osc = ctx.createOscillator();
+    const gainNode = ctx.createGain();
+    osc.connect(gainNode);
+    gainNode.connect(ctx.destination);
+    osc.type = "sine";
+    osc.frequency.value = frequency;
+    gainNode.gain.setValueAtTime(gain, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+    osc.start(ctx.currentTime);
+    osc.stop(ctx.currentTime + duration);
+    osc.onended = () => ctx.close();
+  } catch {
+    // AudioContext not available
+  }
+}
+
 function formatTime(s: number): string {
   const m = Math.floor(s / 60);
   const sec = s % 60;
@@ -50,9 +70,14 @@ export function RestTimer({ open, seconds, onClose }: RestTimerProps) {
           if (typeof navigator !== "undefined" && navigator.vibrate) {
             navigator.vibrate([100, 50, 100]);
           }
+          // Success chime: two ascending tones
+          playTone(523, 0.15);
+          setTimeout(() => playTone(784, 0.3), 160);
           setTimeout(onClose, 800);
           return 0;
         }
+        // Short warning beep at 3s remaining
+        if (r === 4) playTone(440, 0.08, 0.15);
         return r - 1;
       });
     }, 1000);

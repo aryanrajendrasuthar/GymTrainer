@@ -34,6 +34,18 @@ export function AchievementsCard() {
   const { unlocked } = useAchievementStore();
   const unlockedCount = Object.keys(unlocked).length;
 
+  const tierCounts = { bronze: 0, silver: 0, gold: 0, platinum: 0 };
+  for (const id of Object.keys(unlocked)) {
+    const def = ACHIEVEMENT_DEFS[id as AchievementId];
+    if (def) tierCounts[def.tier as keyof typeof tierCounts]++;
+  }
+  const tierPills = [
+    { tier: "bronze",   color: "text-amber-600 bg-amber-900/20 border-amber-600/25"   },
+    { tier: "silver",   color: "text-slate-300 bg-slate-700/20 border-slate-300/25"   },
+    { tier: "gold",     color: "text-yellow-400 bg-yellow-900/20 border-yellow-400/25" },
+    { tier: "platinum", color: "text-cyan-300 bg-cyan-900/20 border-cyan-300/25"       },
+  ].filter((t) => tierCounts[t.tier as keyof typeof tierCounts] > 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -57,6 +69,27 @@ export function AchievementsCard() {
           <ChevronRight size={12} />
         </Link>
       </div>
+
+      {/* Progress bar */}
+      <div className="h-1 bg-white/6 rounded-full overflow-hidden mb-3">
+        <motion.div
+          className="h-full bg-yellow-400/60 rounded-full"
+          initial={{ width: 0 }}
+          animate={{ width: `${(unlockedCount / ORDERED.length) * 100}%` }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
+        />
+      </div>
+
+      {/* Tier pills */}
+      {tierPills.length > 0 && (
+        <div className="flex gap-1.5 mb-3">
+          {tierPills.map((t) => (
+            <span key={t.tier} className={cn("text-[9px] font-bold px-2 py-0.5 rounded-full border capitalize", t.color)}>
+              {tierCounts[t.tier as keyof typeof tierCounts]} {t.tier}
+            </span>
+          ))}
+        </div>
+      )}
 
       {/* Horizontal badge scroll */}
       <div className="flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1">

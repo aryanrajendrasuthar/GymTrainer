@@ -30,6 +30,10 @@ export const metadata: Metadata = {
   description:
     "Premium cross-platform fitness and physiotherapy app. Intelligent workout logging, progressive overload tracking, and evidence-based physiotherapy protocols.",
   manifest: "/manifest.json",
+  authors: [{ name: "Aryan Suthar", url: "mailto:asuthar1@asu.edu" }],
+  creator: "Aryan Suthar",
+  publisher: "Aryan Suthar",
+  keywords: ["fitness", "gym", "workout", "physiotherapy", "training", "progressive overload"],
   icons: {
     icon: "/icon.svg",
     apple: "/icon.svg",
@@ -51,6 +55,7 @@ export const metadata: Metadata = {
     title: "Trainer — Your Personal Fitness & Physiotherapy App",
     description:
       "Premium cross-platform fitness and physiotherapy app. Intelligent workout logging, progressive overload tracking, and evidence-based physiotherapy protocols.",
+    creator: "@aryansuthar",
   },
 };
 
@@ -62,6 +67,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <head>
+        <meta name="author" content="Aryan Suthar" />
+        <meta name="copyright" content={`© ${new Date().getFullYear()} Aryan Suthar. All rights reserved.`} />
         <script
           dangerouslySetInnerHTML={{
             __html: `

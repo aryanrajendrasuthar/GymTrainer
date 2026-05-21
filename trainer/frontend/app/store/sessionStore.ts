@@ -28,6 +28,8 @@ interface SessionState {
   deleteSession: (sessionId: string) => void;
   setDraftSession: (draft: DraftSession) => void;
   clearDraftSession: () => void;
+  rateSession: (id: string, rating: number) => void;
+  editSessionNotes: (id: string, notes: string) => void;
 }
 
 export const useSessionStore = create<SessionState>()(
@@ -97,6 +99,20 @@ export const useSessionStore = create<SessionState>()(
 
   setDraftSession: (draft) => set({ draftSession: draft }),
   clearDraftSession: () => set({ draftSession: null }),
+
+  rateSession: (id, rating) =>
+    set((state) => ({
+      recentSessions: state.recentSessions.map((s) =>
+        s.id === id ? { ...s, rating } : s
+      ),
+    })),
+
+  editSessionNotes: (id, notes) =>
+    set((state) => ({
+      recentSessions: state.recentSessions.map((s) =>
+        s.id === id ? { ...s, sessionNotes: notes } : s
+      ),
+    })),
     }),
     {
       name: "trainer-sessions",

@@ -8,6 +8,7 @@ import { useSessionStore } from "@/app/store/sessionStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
 import { analyseRoutine, detectDeloadSignal } from "@/app/lib/progression-engine";
+import { exerciseMap } from "@/app/data/exercises";
 
 interface DeloadBannerProps {
   exerciseIds: string[];
@@ -60,7 +61,13 @@ export function DeloadBanner({ exerciseIds }: DeloadBannerProps) {
             <p className="text-sm font-bold text-trainer-warning">Deload week suggested</p>
             <p className="text-xs text-white/50 mt-0.5 leading-relaxed">
               High RPE logged for {deloadSignal.affectedExercises.length} exercise
-              {deloadSignal.affectedExercises.length !== 1 ? "s" : ""} over multiple sessions.
+              {deloadSignal.affectedExercises.length !== 1 ? "s" : ""} over multiple sessions
+              {deloadSignal.affectedExercises.length > 0 && (
+                <span className="text-white/35">
+                  {" "}({deloadSignal.affectedExercises.slice(0, 2).map((id) => exerciseMap[id]?.name ?? id).join(", ")}
+                  {deloadSignal.affectedExercises.length > 2 ? ` +${deloadSignal.affectedExercises.length - 2} more` : ""})
+                </span>
+              )}.
               Reduce load by ~40–60% this week to recover.
             </p>
             <Link

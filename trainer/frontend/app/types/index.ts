@@ -303,6 +303,7 @@ export interface WorkoutSession {
   sessionNotes?: string;
   completedAt?: string;
   isPartial: boolean;
+  rating?: number;
 }
 
 export interface PhysioSessionLog {

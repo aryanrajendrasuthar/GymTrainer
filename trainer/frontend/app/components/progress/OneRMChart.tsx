@@ -102,6 +102,13 @@ export function OneRMChart({ data, unit, className }: OneRMChartProps) {
             y={maxE1RM}
             stroke="rgba(255,215,0,0.25)"
             strokeDasharray="4 4"
+            label={{
+              value: `PR ${maxE1RM}${unit}`,
+              position: "insideTopRight",
+              fill: "rgba(255,215,0,0.5)",
+              fontSize: 9,
+              fontWeight: 600,
+            }}
           />
           <Line
             type="monotone"

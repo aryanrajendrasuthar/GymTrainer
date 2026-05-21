@@ -2,8 +2,9 @@
 
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Check, Plus, Minus, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, Plus, Minus, ChevronDown, ChevronUp, Calculator, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/app/components/ui/Button";
+import { PlateCalculator } from "@/app/components/workout/PlateCalculator";
 import { type SetLog } from "@/app/types";
 import { cn } from "@/app/lib/utils";
 
@@ -19,6 +20,9 @@ interface SetLoggerProps {
   isCompleted?: boolean;
   completedLog?: SetLog;
   restSuggestion?: string;
+  onEditSet?: (setNumber: number, updates: { repsCompleted: number; weightUsed: number; rpe?: number }) => void;
+  onDeleteSet?: (setNumber: number) => void;
+  bestAtReps?: (reps: number) => number | null;
 }
 
 const WEIGHT_STEPS = [1.25, 2.5, 5] as const;
@@ -31,33 +35,111 @@ function CompletedSetRow({
   weightUsed,
   unit,
   rpe,
+  onEdit,
+  onDelete,
+  isNew,
 }: {
   setNumber: number;
   repsCompleted: number;
   weightUsed: number;
   unit: string;
   rpe?: number;
+  onEdit?: (updates: { repsCompleted: number; weightUsed: number; rpe?: number }) => void;
+  onDelete?: () => void;
+  isNew?: boolean;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [editWeight, setEditWeight] = useState(weightUsed);
+  const [editReps, setEditReps] = useState(repsCompleted);
+  const [editRpe, setEditRpe] = useState<number | undefined>(rpe);
+
+  function handleSave() {
+    onEdit?.({ repsCompleted: editReps, weightUsed: editWeight, rpe: editRpe });
+    setEditing(false);
+  }
+
+  if (editing) {
+    return (
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="bg-trainer-elevated border border-trainer-indigo/30 rounded-[10px] p-3 space-y-3"
+      >
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-trainer-indigo">Edit Set {setNumber}</span>
+          <button onClick={() => setEditing(false)} className="text-xs text-white/30 hover:text-white/60">Cancel</button>
+        </div>
+        <div className="flex gap-3">
+          <div className="flex-1">
+            <p className="text-[10px] text-white/35 mb-1">Weight ({unit})</p>
+            <input
+              type="number"
+              value={editWeight || ""}
+              onChange={(e) => setEditWeight(parseFloat(e.target.value) || 0)}
+              step="0.5"
+              className="w-full bg-trainer-surface border border-white/10 rounded-[8px] px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-trainer-indigo/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+              style={{ fontSize: "16px" }}
+            />
+          </div>
+          <div className="flex-1">
+            <p className="text-[10px] text-white/35 mb-1">Reps</p>
+            <input
+              type="number"
+              value={editReps}
+              onChange={(e) => setEditReps(parseInt(e.target.value) || 1)}
+              min="1"
+              className="w-full bg-trainer-surface border border-white/10 rounded-[8px] px-3 py-2 text-sm font-bold text-white text-center focus:outline-none focus:border-trainer-indigo/40 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none"
+              style={{ fontSize: "16px" }}
+            />
+          </div>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleSave}
+            className="flex-1 py-2 bg-trainer-indigo/15 border border-trainer-indigo/30 text-trainer-indigo text-xs font-semibold rounded-[8px] hover:bg-trainer-indigo/25 transition-colors"
+          >
+            Save
+          </button>
+          {onDelete && (
+            <button
+              onClick={() => { onDelete(); setEditing(false); }}
+              className="w-9 py-2 bg-trainer-danger/10 border border-trainer-danger/20 text-trainer-danger rounded-[8px] flex items-center justify-center hover:bg-trainer-danger/20 transition-colors"
+            >
+              <Trash2 size={13} />
+            </button>
+          )}
+        </div>
+      </motion.div>
+    );
+  }
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0, scale: 0.88, y: -4 }}
       animate={{ opacity: 1, scale: 1, y: 0 }}
       transition={{ type: "spring", stiffness: 500, damping: 30 }}
-      className="relative flex items-center justify-between py-2.5 px-3 bg-trainer-success/8 border border-trainer-success/20 rounded-[10px] overflow-hidden"
+      className={cn(
+        "relative flex items-center justify-between py-2.5 px-3 border rounded-[10px] overflow-hidden",
+        onEdit ? "cursor-pointer hover:border-trainer-indigo/30 transition-colors" : "",
+        "bg-trainer-success/8 border-trainer-success/20"
+      )}
+      onClick={onEdit ? () => { setEditing(true); setEditWeight(weightUsed); setEditReps(repsCompleted); setEditRpe(rpe); } : undefined}
     >
       {/* Burst ring — fires once on mount */}
-      <motion.div
-        className="absolute inset-0 rounded-[10px] border-2 border-trainer-success pointer-events-none"
-        initial={{ opacity: 0.9, scale: 0.8 }}
-        animate={{ opacity: 0, scale: 1.15 }}
-        transition={{ duration: 0.5, ease: "easeOut" }}
-      />
+      {isNew && (
+        <motion.div
+          className="absolute inset-0 rounded-[10px] border-2 border-trainer-success pointer-events-none"
+          initial={{ opacity: 0.9, scale: 0.8 }}
+          animate={{ opacity: 0, scale: 1.15 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        />
+      )}
 
       <div className="flex items-center gap-2.5">
         <motion.div
           className="w-6 h-6 rounded-full bg-trainer-success/20 flex items-center justify-center"
-          initial={{ scale: 0, rotate: -90 }}
+          initial={isNew ? { scale: 0, rotate: -90 } : false}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: "spring", stiffness: 600, damping: 20, delay: 0.05 }}
         >
@@ -66,15 +148,18 @@ function CompletedSetRow({
         <span className="text-sm font-medium text-white/70">Set {setNumber}</span>
       </div>
 
-      <motion.span
-        className="text-sm font-semibold text-white tabular-nums"
-        initial={{ opacity: 0, x: 8 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.08 }}
-      >
-        {repsCompleted} × {weightUsed}{unit}
-        {rpe && <span className="text-white/40 font-normal ml-1.5">RPE {rpe}</span>}
-      </motion.span>
+      <div className="flex items-center gap-2">
+        <motion.span
+          className="text-sm font-semibold text-white tabular-nums"
+          initial={isNew ? { opacity: 0, x: 8 } : false}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.08 }}
+        >
+          {repsCompleted} × {weightUsed}{unit}
+          {rpe && <span className="text-white/40 font-normal ml-1.5">RPE {rpe}</span>}
+        </motion.span>
+        {onEdit && <Pencil size={11} className="text-white/20 shrink-0" />}
+      </div>
     </motion.div>
   );
 }
@@ -92,12 +177,16 @@ export function SetLogger({
   isCompleted = false,
   completedLog,
   restSuggestion,
+  onEditSet,
+  onDeleteSet,
+  bestAtReps,
 }: SetLoggerProps) {
   const [reps, setReps] = useState(targetRepsMin);
   const [weight, setWeight] = useState(prefillWeight ?? 0);
   const [rpe, setRpe] = useState<number | undefined>(undefined);
   const [notes, setNotes] = useState("");
   const [showNotes, setShowNotes] = useState(false);
+  const [showPlates, setShowPlates] = useState(false);
   const [weightStep] = useState<number>(2.5);
   const [btnPressed, setBtnPressed] = useState(false);
 
@@ -134,6 +223,8 @@ export function SetLogger({
         weightUsed={completedLog.weightUsed}
         unit={unit}
         rpe={completedLog.rpe}
+        onEdit={onEditSet ? (updates) => onEditSet(setNumber, updates) : undefined}
+        onDelete={onDeleteSet ? () => onDeleteSet(setNumber) : undefined}
       />
     );
   }
@@ -153,14 +244,47 @@ export function SetLogger({
           </div>
           <span className="text-sm font-semibold text-trainer-indigo">Set {setNumber}</span>
         </div>
-        <span className="text-xs text-white/40">
-          Target: {targetRepsMin}–{targetRepsMax} reps
-        </span>
+        <div className="flex items-center gap-2">
+          {bestAtReps && (() => {
+            const pb = bestAtReps(reps);
+            if (!pb) return null;
+            const isBeating = weight > pb;
+            return (
+              <span className={cn(
+                "text-[10px] font-semibold px-2 py-0.5 rounded-full",
+                isBeating
+                  ? "bg-trainer-gold/15 text-trainer-gold"
+                  : "bg-white/6 text-white/35"
+              )}>
+                {isBeating ? "🏆 " : ""}PB@{reps}: {pb % 1 === 0 ? pb : pb.toFixed(1)}{unit}
+              </span>
+            );
+          })()}
+          <span className="text-xs text-white/40">
+            Target: {targetRepsMin}–{targetRepsMax} reps
+          </span>
+        </div>
       </div>
 
       {/* Weight input */}
       <div>
-        <label className="text-xs text-white/40 mb-2 block">Weight ({unit})</label>
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-xs text-white/40">Weight ({unit})</label>
+          {weight > 0 && (
+            <button
+              onClick={() => setShowPlates((v) => !v)}
+              className={cn(
+                "flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full transition-colors",
+                showPlates
+                  ? "bg-trainer-indigo/20 text-trainer-indigo"
+                  : "text-white/25 hover:text-white/60"
+              )}
+            >
+              <Calculator size={10} />
+              Plates
+            </button>
+          )}
+        </div>
         <div className="flex items-center gap-3">
           <motion.button
             whileTap={{ scale: 0.88 }}
@@ -210,6 +334,16 @@ export function SetLogger({
             </motion.button>
           ))}
         </div>
+
+        {/* Plate calculator */}
+        <AnimatePresence>
+          {showPlates && weight > 0 && (
+            <PlateCalculator
+              weightKg={unit === "lb" ? weight / 2.20462 : weight}
+              unit={unit}
+            />
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Reps input */}

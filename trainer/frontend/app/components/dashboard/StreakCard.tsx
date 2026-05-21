@@ -11,10 +11,18 @@ interface StreakCardProps {
   totalSessions: number;
 }
 
+const MILESTONES = [7, 14, 21, 30, 60, 90, 100, 180, 365];
+
 export function StreakCard({ streak, weekSessionCount, totalSessions }: StreakCardProps) {
   const streakIsActive = streak > 0;
   const animatedStreak = useCountUp(streak, 700, 200);
   const animatedTotal = useCountUp(totalSessions, 800, 350);
+
+  const nextMilestone = MILESTONES.find((m) => m > streak) ?? null;
+  const prevMilestone = MILESTONES.filter((m) => m <= streak).at(-1) ?? 0;
+  const milestoneProgress = nextMilestone
+    ? (streak - prevMilestone) / (nextMilestone - prevMilestone)
+    : 1;
 
   return (
     <motion.div
@@ -81,6 +89,27 @@ export function StreakCard({ streak, weekSessionCount, totalSessions }: StreakCa
           </span>
         </div>
       </div>
+
+      {/* Next milestone */}
+      {nextMilestone && streak > 0 && (
+        <div className="mt-2 pt-2 border-t border-white/5">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[9px] text-white/25">Next milestone</span>
+            <span className="text-[9px] font-bold text-trainer-warning">{nextMilestone}d</span>
+          </div>
+          <div className="h-1 bg-white/8 rounded-full overflow-hidden">
+            <motion.div
+              className="h-full rounded-full bg-trainer-warning"
+              initial={{ width: 0 }}
+              animate={{ width: `${milestoneProgress * 100}%` }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.3 }}
+            />
+          </div>
+          <p className="text-[9px] text-white/20 mt-0.5 tabular-nums">
+            {nextMilestone - streak} more day{nextMilestone - streak !== 1 ? "s" : ""}
+          </p>
+        </div>
+      )}
     </motion.div>
   );
 }

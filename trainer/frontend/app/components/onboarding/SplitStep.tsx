@@ -1,7 +1,8 @@
 "use client";
 
+import { useEffect } from "react";
 import { motion } from "framer-motion";
-import { Calendar } from "lucide-react";
+import { Calendar, Sparkles } from "lucide-react";
 import { type FitnessGoal, type FitnessLevel } from "@/app/types";
 import { workoutSplits } from "@/app/data/splits";
 import { cn } from "@/app/lib/utils";
@@ -32,15 +33,30 @@ export function SplitStep({ value, goal, fitnessLevel, onChange }: SplitStepProp
   const recommended = workoutSplits.filter(
     (s) => s.targetGoals.includes(goal) && s.difficulty === fitnessLevel
   );
+  // Fallback: goal matches but any difficulty
+  const fallback = recommended.length === 0
+    ? workoutSplits.filter((s) => s.targetGoals.includes(goal))
+    : [];
+  const topPick = (recommended[0] ?? fallback[0]) ?? null;
+
+  // Auto-select top pick on mount if nothing chosen yet
+  useEffect(() => {
+    if (!value && topPick) {
+      onChange(topPick.id);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const others = workoutSplits.filter(
-    (s) => !recommended.some((r) => r.id === s.id)
+    (s) => !recommended.some((r) => r.id === s.id) && !fallback.some((r) => r.id === s.id)
   );
+  const primaryRec = recommended.length > 0 ? recommended : fallback;
 
   const sections = [
-    ...(recommended.length > 0
-      ? [{ heading: "Recommended for you", splits: recommended }]
+    ...(primaryRec.length > 0
+      ? [{ heading: "Recommended for you", splits: primaryRec }]
       : []),
-    { heading: "All Programmes", splits: others },
+    ...(others.length > 0 ? [{ heading: "All Programmes", splits: others }] : []),
   ];
 
   let globalIndex = 0;
@@ -63,7 +79,8 @@ export function SplitStep({ value, goal, fitnessLevel, onChange }: SplitStepProp
             {splits.map((split) => {
               const idx = globalIndex++;
               const isSelected = value === split.id;
-              const isRecommended = recommended.some((r) => r.id === split.id);
+              const isTopPick = topPick?.id === split.id;
+              const isRec = primaryRec.some((r) => r.id === split.id);
               const diff = DIFFICULTY_STYLE[split.difficulty];
 
               return (
@@ -91,7 +108,13 @@ export function SplitStep({ value, goal, fitnessLevel, onChange }: SplitStepProp
                       {split.name}
                     </p>
                     <div className="flex items-center gap-1.5 shrink-0">
-                      {isRecommended && (
+                      {isTopPick && (
+                        <span className="flex items-center gap-1 text-[9px] font-bold text-trainer-indigo bg-trainer-indigo/15 px-2 py-0.5 rounded-full uppercase tracking-wide">
+                          <Sparkles className="w-2.5 h-2.5" />
+                          Top Pick
+                        </span>
+                      )}
+                      {isRec && !isTopPick && (
                         <span className="text-[9px] font-bold text-trainer-indigo bg-trainer-indigo/15 px-2 py-0.5 rounded-full uppercase tracking-wide">
                           Best fit
                         </span>

@@ -21,6 +21,8 @@ import {
   RefreshCw,
   Download,
   Trophy,
+  Shield,
+  Code2,
 } from "lucide-react";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
@@ -932,8 +934,51 @@ export default function SettingsPage() {
           </SettingsCard>
         </motion.div>
 
+        {/* About */}
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.35 }}
+          className="bg-trainer-surface border border-white/8 rounded-[16px] p-4 space-y-3"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <Shield size={13} className="text-trainer-indigo" />
+            <p className="text-xs font-semibold text-white/40 uppercase tracking-widest">About</p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-white/50">App</span>
+              <span className="text-sm font-semibold text-white">Trainer</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-white/50">Version</span>
+              <span className="text-sm font-semibold text-white tabular-nums">1.0.0</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-white/50">Developer</span>
+              <span className="text-sm font-semibold text-white">Aryan Suthar</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-white/50">Contact</span>
+              <span className="text-sm font-semibold text-white">asuthar1@asu.edu</span>
+            </div>
+          </div>
+
+          <div className="border-t border-white/6 pt-3">
+            <div className="flex items-start gap-2">
+              <Code2 size={12} className="text-white/20 mt-0.5 shrink-0" />
+              <p className="text-[10px] text-white/20 leading-relaxed">
+                © {new Date().getFullYear()} Aryan Suthar. All rights reserved. Trainer is a proprietary
+                fitness application. Unauthorised copying, distribution, or use of this software or its
+                concepts is strictly prohibited.
+              </p>
+            </div>
+          </div>
+        </motion.div>
+
         {/* App version */}
-        <p className="text-center text-[10px] text-white/15 pb-2">Trainer v0.1.0</p>
+        <p className="text-center text-[10px] text-white/15 pb-2">Trainer v1.0.0 · © 2025 Aryan Suthar</p>
       </div>
 
       {/* Saved flash */}

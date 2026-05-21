@@ -93,6 +93,11 @@ export function UpcomingSessionsCard() {
             <Calendar size={12} className="text-trainer-indigo" />
           </div>
           <p className="text-sm font-bold text-white">Upcoming Sessions</p>
+          {split && (
+            <span className="text-[10px] text-trainer-indigo/70 font-semibold bg-trainer-indigo/8 px-1.5 py-0.5 rounded-full">
+              {split.days.filter((d) => !d.isRestDay).length}/{split.days.length}d
+            </span>
+          )}
         </div>
         <Link
           href="/splits"

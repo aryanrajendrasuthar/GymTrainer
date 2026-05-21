@@ -16,10 +16,13 @@ import { SplitStep } from "@/app/components/onboarding/SplitStep";
 import { InjuryCheckStep } from "@/app/components/onboarding/InjuryCheckStep";
 import { UnitsStep } from "@/app/components/onboarding/UnitsStep";
 import { NotificationsStep, type NotificationPrefs } from "@/app/components/onboarding/NotificationsStep";
+import { PlanSummaryStep } from "@/app/components/onboarding/PlanSummaryStep";
 import { type Equipment, type FitnessGoal, type FitnessLevel, type UserInjury } from "@/app/types";
+import { getSplitById } from "@/app/data/splits";
 import { usePhysioStore } from "@/app/store/physioStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { cn } from "@/app/lib/utils";
+import { GymBackground } from "@/app/components/ui/GymBackground";
 
 const STEPS = [
   {
@@ -61,6 +64,11 @@ const STEPS = [
     id: "notifications",
     title: "Stay on track",
     subtitle: "Choose which reminders to enable.",
+  },
+  {
+    id: "summary",
+    title: "Your plan is ready",
+    subtitle: "Here's everything set up for you.",
   },
 ];
 
@@ -139,6 +147,7 @@ export default function OnboardingPage() {
     if (step === 5) return true; // injuries — optional
     if (step === 6) return weightUnit !== null;
     if (step === 7) return true; // notifications — always proceed
+    if (step === 8) return true; // summary — always proceed
     return false;
   };
 
@@ -239,6 +248,7 @@ export default function OnboardingPage() {
 
   return (
     <div className="min-h-screen gym-bg-auth flex flex-col">
+      <GymBackground variant="auth" />
       {/* Header */}
       <div className="flex items-center justify-between px-5 pt-safe pt-12 pb-4">
         <motion.button
@@ -336,6 +346,25 @@ export default function OnboardingPage() {
             )}
             {step === 7 && (
               <NotificationsStep value={notifPrefs} onChange={setNotifPrefs} />
+            )}
+            {step === 8 && goal && (
+              <PlanSummaryStep
+                goal={goal}
+                split={splitId ? (getSplitById(splitId) ?? null) : null}
+                nutritionTargets={
+                  metricsComplete(metrics)
+                    ? calculateNutritionTargets(
+                        metrics.weightKg,
+                        metrics.heightCm,
+                        metrics.age,
+                        metrics.gender,
+                        metrics.activityLevel,
+                        goal
+                      )
+                    : null
+                }
+                unit={weightUnit ?? "kg"}
+              />
             )}
           </motion.div>
         </AnimatePresence>

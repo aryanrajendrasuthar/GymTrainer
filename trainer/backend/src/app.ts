@@ -10,6 +10,7 @@ import { sessionsRouter } from "./routes/sessions";
 import { exercisesRouter } from "./routes/exercises";
 import { progressRouter } from "./routes/progress";
 import { physioRouter } from "./routes/physio";
+import { aiRouter } from "./routes/ai";
 
 const app = express();
 const PORT = process.env.PORT ?? 4000;
@@ -50,6 +51,7 @@ app.use("/api/sessions", sessionsRouter);
 app.use("/api/exercises", exercisesRouter);
 app.use("/api/progress", progressRouter);
 app.use("/api/physio", physioRouter);
+app.use("/api/ai", aiRouter);
 
 // ─── Error Handler (must be last) ────────────────────────────────────────────
 

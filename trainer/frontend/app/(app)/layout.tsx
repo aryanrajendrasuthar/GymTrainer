@@ -7,9 +7,12 @@ import { usePhysioStore } from "@/app/store/physioStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useNotificationStore } from "@/app/store/notificationStore";
 import { useSessionStore } from "@/app/store/sessionStore";
+import { useSupplementStore } from "@/app/store/supplementStore";
+import { useGoalStore } from "@/app/store/goalStore";
 import { BottomNav } from "@/app/components/ui/BottomNav";
 import { NotificationToast } from "@/app/components/ui/NotificationToast";
 import { OfflineBanner } from "@/app/components/ui/OfflineBanner";
+import { GymBackground } from "@/app/components/ui/GymBackground";
 import { useDataSync } from "@/app/hooks/useDataSync";
 
 function useNotificationTriggers() {
@@ -18,6 +21,9 @@ function useNotificationTriggers() {
   const { settings } = useSettingsStore();
   const push = useNotificationStore((s) => s.push);
   const recentSessions = useSessionStore((s) => s.recentSessions);
+  const supplements = useSupplementStore((s) => s.supplements);
+  const supplementCompletions = useSupplementStore((s) => s.completions);
+  const goals = useGoalStore((s) => s.goals);
   const firedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
@@ -100,15 +106,50 @@ function useNotificationTriggers() {
           });
         }
       }
+
+      // ── Supplement reminder (after 8pm, enabled supplements not all taken) ─
+      if (hour >= 20) {
+        const enabled = supplements.filter((s) => s.enabled);
+        if (enabled.length > 0) {
+          const todayStr = now.toISOString().split("T")[0];
+          const takenIds = supplementCompletions.find((c) => c.date === todayStr)?.takenIds ?? [];
+          const missing = enabled.filter((s) => !takenIds.includes(s.id));
+          if (missing.length > 0) {
+            fire(`supplements-${now.toDateString()}`, {
+              type: "info",
+              title: "Supplement reminder",
+              body: `${missing.length} supplement${missing.length !== 1 ? "s" : ""} not yet logged today.`,
+              action: { label: "Log now", href: "/dashboard" },
+            });
+          }
+        }
+      }
+      // ── Goal deadline warning (after 8am, deadline ≤ 3 days) ───────────────
+      if (hour >= 8) {
+        const urgentGoals = goals.filter((g) => {
+          if (g.achieved) return false;
+          if (!g.deadline) return false;
+          const daysLeft = Math.ceil((new Date(g.deadline).getTime() - Date.now()) / 86400000);
+          return daysLeft >= 0 && daysLeft <= 3;
+        });
+        if (urgentGoals.length > 0) {
+          fire(`goal-deadline-${now.toDateString()}`, {
+            type: "warning",
+            title: "Goal deadline approaching",
+            body: `${urgentGoals.length} goal${urgentGoals.length !== 1 ? "s" : ""} due within 3 days.`,
+            action: { label: "View Goals", href: "/dashboard" },
+          });
+        }
+      }
     } catch {
       // silently ignore trigger errors — never crash the layout
     }
-  }, [isAuthenticated, activeInjuries, todayCompletedSlots, settings, profile, push, recentSessions]);
+  }, [isAuthenticated, activeInjuries, todayCompletedSlots, settings, profile, push, recentSessions, supplements, supplementCompletions, goals]);
 }
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const { isAuthenticated, onboardingComplete } = useUserStore();
+  const { isAuthenticated, onboardingComplete, ensureValidToken } = useUserStore();
   const { resetDailySlots } = usePhysioStore();
 
   // Use Zustand's own hydration signal — goes true exactly once, never resets.
@@ -126,6 +167,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     if (hydrated) return;
     return useUserStore.persist.onFinishHydration(() => setHydrated(true));
   }, [hydrated]);
+
+  // Silently refresh the access token on every app open so sessions survive
+  // across days. ensureValidToken() is a no-op if the token is still fresh;
+  // if the JWT has expired it uses the persisted refreshToken to get a new one.
+  // If the refresh token itself has expired it calls signOut() internally, which
+  // flips isAuthenticated → false and the effect below redirects to /signin.
+  useEffect(() => {
+    if (!hydrated || !isAuthenticated) return;
+    ensureValidToken();
+  }, [hydrated, isAuthenticated, ensureValidToken]);
 
   useEffect(() => {
     if (!hydrated) return;
@@ -146,6 +197,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   if (!hydrated || !isAuthenticated || !onboardingComplete) {
     return (
       <div className="flex flex-col min-h-screen gym-bg">
+        <GymBackground />
         <div className="flex-1 pb-20" />
         <BottomNav />
       </div>
@@ -154,6 +206,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex flex-col min-h-screen gym-bg">
+      <GymBackground />
       <OfflineBanner />
       <NotificationToast />
       <main className="flex-1 pb-20 overflow-y-auto">

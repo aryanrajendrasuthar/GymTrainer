@@ -22,6 +22,7 @@ const SLOT_COLORS: Record<PendingSlot, string> = {
 function SessionChip({ session, onRemove }: { session: PendingSession; onRemove: () => void }) {
   const workoutCount = session.exercises.filter((e) => e.type === "workout").length;
   const physioCount = session.exercises.filter((e) => e.type === "physio").length;
+  const estMin = Math.max(10, workoutCount * 10 + physioCount * 5);
 
   return (
     <motion.div
@@ -54,6 +55,7 @@ function SessionChip({ session, onRemove }: { session: PendingSession; onRemove:
               {physioCount}
             </span>
           )}
+          <span className="text-[11px] text-white/25">~{estMin}min</span>
         </div>
       </div>
 

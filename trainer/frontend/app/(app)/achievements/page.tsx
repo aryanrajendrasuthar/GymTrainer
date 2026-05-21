@@ -2,12 +2,14 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Lock } from "lucide-react";
+import { Trophy, Lock, ChevronRight } from "lucide-react";
 import {
   useAchievementStore,
   ACHIEVEMENT_DEFS,
   type AchievementId,
 } from "@/app/store/achievementStore";
+import { useSessionStore } from "@/app/store/sessionStore";
+import { estimateOneRepMax } from "@/app/lib/progression-engine";
 import { cn } from "@/app/lib/utils";
 
 // ─── Tier config ────────────────────────────────────────────────────────────
@@ -59,6 +61,111 @@ function buildTierGroups(): Record<Tier, AchievementId[]> {
 }
 
 const TIER_GROUPS = buildTierGroups();
+
+// ─── Progress helpers ─────────────────────────────────────────────────────────
+
+function computeCurrentStreak(sessions: { date: string }[]): number {
+  if (!sessions.length) return 0;
+  const uniqueDays = Array.from(new Set(sessions.map((s) => s.date))).sort().reverse();
+  const today = new Date().toISOString().slice(0, 10);
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
+  if (uniqueDays[0] !== today && uniqueDays[0] !== yesterday) return 0;
+  let streak = 1;
+  for (let i = 1; i < uniqueDays.length; i++) {
+    const prev = new Date(uniqueDays[i - 1]!).getTime();
+    const curr = new Date(uniqueDays[i]!).getTime();
+    if (prev - curr === 86400000) streak++;
+    else break;
+  }
+  return streak;
+}
+
+function getAchievementProgress(
+  id: AchievementId,
+  stats: { sessionCount: number; streak: number; prCount: number; totalVolumeKg: number; physioCount: number; uniqueExercises: number }
+): number {
+  const { sessionCount, streak, prCount, totalVolumeKg, physioCount, uniqueExercises } = stats;
+  switch (id) {
+    case "first_workout": return Math.min(1, sessionCount);
+    case "sessions_5":    return Math.min(1, sessionCount / 5);
+    case "sessions_10":   return Math.min(1, sessionCount / 10);
+    case "sessions_25":   return Math.min(1, sessionCount / 25);
+    case "sessions_50":   return Math.min(1, sessionCount / 50);
+    case "sessions_100":  return Math.min(1, sessionCount / 100);
+    case "streak_3":      return Math.min(1, streak / 3);
+    case "streak_7":      return Math.min(1, streak / 7);
+    case "streak_14":     return Math.min(1, streak / 14);
+    case "streak_30":     return Math.min(1, streak / 30);
+    case "first_pr":      return Math.min(1, prCount);
+    case "pr_5":          return Math.min(1, prCount / 5);
+    case "pr_10":         return Math.min(1, prCount / 10);
+    case "volume_50000":  return Math.min(1, totalVolumeKg / 50000);
+    case "first_physio":  return Math.min(1, physioCount);
+    case "physio_7":      return Math.min(1, physioCount / 7);
+    case "exercises_10":  return Math.min(1, uniqueExercises / 10);
+    case "exercises_25":  return Math.min(1, uniqueExercises / 25);
+    default: return 0;
+  }
+}
+
+// ─── Coming Up Next card ──────────────────────────────────────────────────────
+
+function ComingUpNext({
+  items,
+}: {
+  items: { id: AchievementId; pct: number }[];
+}) {
+  if (!items.length) return null;
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.05 }}
+      className="bg-trainer-surface border border-white/8 rounded-[16px] p-4 flex flex-col gap-3"
+    >
+      <p className="text-[10px] text-white/35 uppercase tracking-widest font-semibold">Coming Up Next</p>
+      {items.map(({ id, pct }, i) => {
+        const def = ACHIEVEMENT_DEFS[id];
+        const tier = def.tier as Tier;
+        const style = TIER_STYLE[tier];
+        const barColor =
+          tier === "platinum" ? "bg-cyan-300" :
+          tier === "gold" ? "bg-yellow-400" :
+          tier === "silver" ? "bg-slate-300" : "bg-amber-500";
+        return (
+          <motion.div
+            key={id}
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.08 + i * 0.04 }}
+            className="flex items-center gap-3"
+          >
+            <div className="w-8 h-8 rounded-full bg-white/6 ring-1 ring-white/10 flex items-center justify-center text-base shrink-0">
+              <Lock size={12} className="text-white/20" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <p className="text-xs font-semibold text-white/70 truncate">{def.title}</p>
+                <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border ml-2 shrink-0", style.badge)}>
+                  {Math.round(pct * 100)}%
+                </span>
+              </div>
+              <div className="h-1 bg-white/8 rounded-full overflow-hidden">
+                <motion.div
+                  className={cn("h-full rounded-full", barColor)}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${pct * 100}%` }}
+                  transition={{ duration: 0.55, ease: "easeOut", delay: 0.15 + i * 0.05 }}
+                />
+              </div>
+            </div>
+          </motion.div>
+        );
+      })}
+    </motion.div>
+  );
+}
 
 // ─── Achievement card ─────────────────────────────────────────────────────────
 
@@ -198,7 +305,8 @@ function TierSection({
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AchievementsPage() {
-  const { unlocked } = useAchievementStore();
+  const { unlocked, prCount, totalVolumeKg, physioSessionCount } = useAchievementStore();
+  const { recentSessions, allExerciseLogs } = useSessionStore();
 
   const totalCount = Object.keys(ACHIEVEMENT_DEFS).length;
   const unlockedCount = Object.keys(unlocked).length;
@@ -210,6 +318,20 @@ export default function AchievementsPage() {
     }),
     [unlocked]
   );
+
+  const comingUpNext = useMemo(() => {
+    const sessionCount = recentSessions.length;
+    const streak = computeCurrentStreak(recentSessions);
+    const uniqueExercises = new Set(allExerciseLogs.map((l) => l.exerciseId)).size;
+    const stats = { sessionCount, streak, prCount, totalVolumeKg, physioCount: physioSessionCount, uniqueExercises };
+
+    return (Object.keys(ACHIEVEMENT_DEFS) as AchievementId[])
+      .filter((id) => !unlocked[id])
+      .map((id) => ({ id, pct: getAchievementProgress(id, stats) }))
+      .filter(({ pct }) => pct > 0 && pct < 1)
+      .sort((a, b) => b.pct - a.pct)
+      .slice(0, 3);
+  }, [unlocked, recentSessions, allExerciseLogs, prCount, totalVolumeKg, physioSessionCount]);
 
   let globalIdx = 0;
 
@@ -256,6 +378,13 @@ export default function AchievementsPage() {
           })}
         </div>
       </motion.div>
+
+      {/* Coming up next */}
+      {comingUpNext.length > 0 && (
+        <div className="px-5 pb-2">
+          <ComingUpNext items={comingUpNext} />
+        </div>
+      )}
 
       {/* Tier sections */}
       <div className="flex flex-col gap-8 px-5">

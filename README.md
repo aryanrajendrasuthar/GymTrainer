@@ -1,5 +1,8 @@
 # Trainer
 
+**Author:** Aryan Rajendra Suthar  
+**License:** MIT — see [LICENSE](./LICENSE)
+
 A premium, evidence-based fitness + physiotherapy web app. Offline-first architecture, real-time data sync, and clinical-level exercise science — built as a production-grade full-stack portfolio project.
 
 ---
@@ -327,3 +330,15 @@ Work through this checklist after deploying:
 GitHub Actions runs TypeScript type checks on every push and pull request to `main` for both frontend and backend. See [`.github/workflows/ci.yml`](.github/workflows/ci.yml).
 
 Render and Vercel both auto-deploy on push to `main` — no manual deploy step needed after the initial setup.
+
+---
+
+## Author
+
+**Aryan Rajendra Suthar**
+
+---
+
+## License
+
+MIT © 2025 Aryan Rajendra Suthar — see [LICENSE](./LICENSE) for full text.
