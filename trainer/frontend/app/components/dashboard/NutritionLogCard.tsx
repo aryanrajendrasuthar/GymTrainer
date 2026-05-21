@@ -290,7 +290,9 @@ export function NutritionLogCard() {
           <p className="text-sm font-bold text-white">Today&apos;s Nutrition</p>
           <p className="text-[11px] text-white/35 mt-0.5">
             {todayLog
-              ? `${todayLog.calories} kcal logged`
+              ? calOver
+                ? `${todayLog.calories} kcal · ${todayLog.calories - targets.dailyCalories} over`
+                : `${todayLog.calories} kcal · ${targets.dailyCalories - todayLog.calories} remaining`
               : `Target: ${targets.dailyCalories} kcal`}
           </p>
         </div>

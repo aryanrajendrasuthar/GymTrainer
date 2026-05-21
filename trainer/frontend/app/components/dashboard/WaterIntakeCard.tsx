@@ -100,10 +100,26 @@ export function WaterIntakeCard() {
         {pct}%
         <span className="text-sm font-normal text-white/35 ml-1.5">of daily goal</span>
       </p>
-      <p className={cn("text-[10px] mb-3", pct >= 100 ? "text-trainer-success/60" : "text-white/25")}>
+      <p className={cn("text-[10px] mb-3 flex items-center gap-1.5", pct >= 100 ? "text-trainer-success/60" : "text-white/25")}>
         {pct >= 100
           ? "Daily goal achieved ✓"
-          : `~${(dailyGoalMl - effectiveIntake).toLocaleString()}ml to go · ~${Math.ceil((dailyGoalMl - effectiveIntake) / 250)} glasses`}
+          : <>
+              {`~${(dailyGoalMl - effectiveIntake).toLocaleString()}ml to go · ~${Math.ceil((dailyGoalMl - effectiveIntake) / 250)} glasses`}
+              {(() => {
+                const hourFraction = new Date().getHours() / 24;
+                const onPace = pct / 100 >= hourFraction;
+                return (
+                  <span className={cn(
+                    "text-[9px] font-bold px-1.5 py-0.5 rounded-full border shrink-0",
+                    onPace
+                      ? "text-trainer-success bg-trainer-success/10 border-trainer-success/20"
+                      : "text-amber-400 bg-amber-400/8 border-amber-400/20"
+                  )}>
+                    {onPace ? "On pace" : "Behind"}
+                  </span>
+                );
+              })()}
+            </>}
       </p>
 
       {/* Quick-add buttons */}

@@ -122,9 +122,19 @@ export function SplitAdherenceCard({ sessions, daysPerWeek }: Props) {
             {streak} week{streak > 1 ? "s" : ""} consistent ✓
           </p>
         ) : <span />}
-        <p className="text-[10px] text-white/20">
-          Planned: {daysPerWeek}×/week · current week pro-rated
-        </p>
+        <div className="flex items-center gap-2">
+          {(() => {
+            const best = Math.max(...weeks.map((w) => w.pct));
+            return best > 0 ? (
+              <span className="text-[9px] font-bold text-trainer-indigo/60 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                Best {best}%
+              </span>
+            ) : null;
+          })()}
+          <p className="text-[10px] text-white/20">
+            {daysPerWeek}×/week · pro-rated
+          </p>
+        </div>
       </div>
     </motion.div>
   );

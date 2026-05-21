@@ -124,8 +124,9 @@ export function LifetimeStatsCard() {
     const weeksSince = Math.max(1, (Date.now() - new Date(firstDate).getTime()) / (7 * 86400000));
     const avgPerWeek = Math.round((totalSessions / weeksSince) * 10) / 10;
     const avgSessionMin = Math.round(totalMinutes / totalSessions);
+    const firstDateLabel = new Date(firstDate).toLocaleDateString("en-US", { month: "short", year: "numeric" });
 
-    return { totalSessions, totalVolumeKg, totalMinutes, totalCalories, totalPRs, longestStreak, avgPerWeek, avgSessionMin };
+    return { totalSessions, totalVolumeKg, totalMinutes, totalCalories, totalPRs, longestStreak, avgPerWeek, avgSessionMin, firstDateLabel };
   }, [recentSessions, allExerciseLogs, userWeightKg]);
 
   if (!stats) return null;
@@ -190,11 +191,14 @@ export function LifetimeStatsCard() {
       transition={{ delay: 0.07 }}
       className="bg-trainer-surface border border-white/8 rounded-[16px] p-4"
     >
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-7 h-7 rounded-[8px] bg-trainer-gold/12 flex items-center justify-center">
-          <Trophy size={13} className="text-trainer-gold" />
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <div className="w-7 h-7 rounded-[8px] bg-trainer-gold/12 flex items-center justify-center">
+            <Trophy size={13} className="text-trainer-gold" />
+          </div>
+          <p className="text-sm font-bold text-white">Lifetime Stats</p>
         </div>
-        <p className="text-sm font-bold text-white">Lifetime Stats</p>
+        <span className="text-[10px] text-white/25">since {stats.firstDateLabel}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-2">

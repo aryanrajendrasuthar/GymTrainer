@@ -1,7 +1,7 @@
 # Trainer — Frontend
 
 **Author:** Aryan Rajendra Suthar  
-**License:** MIT — see [LICENSE](../../LICENSE)
+**License:** Proprietary — All rights reserved. See [LICENSE](../../LICENSE)
 
 Next.js 14 (App Router) frontend for the Trainer fitness PWA. See the [root README](../../README.md) for full project documentation, architecture overview, and deployment instructions.
 

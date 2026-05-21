@@ -101,9 +101,13 @@ export function MuscleHeatmapCard() {
           </div>
           <p className="text-sm font-bold text-white">Muscle Recovery</p>
         </div>
-        {!hasRecentActivity && (
+        {!hasRecentActivity ? (
           <span className="text-[10px] text-trainer-success font-semibold bg-trainer-success/10 px-2 py-0.5 rounded-full">
             All recovered
+          </span>
+        ) : (
+          <span className="text-[10px] text-trainer-danger/80 font-semibold bg-trainer-danger/8 border border-trainer-danger/20 px-2 py-0.5 rounded-full tabular-nums">
+            {groups.filter((g) => g.hoursAgo !== null && g.hoursAgo < 48).length}/{groups.length} fatigued
           </span>
         )}
       </div>

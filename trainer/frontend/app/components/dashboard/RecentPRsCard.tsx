@@ -79,6 +79,9 @@ export function RecentPRsCard() {
             <Zap size={12} className="text-yellow-400" />
           </div>
           <p className="text-sm font-bold text-white">Personal Records</p>
+          <span className="text-[10px] font-bold text-yellow-400/70 bg-yellow-400/8 border border-yellow-400/15 px-1.5 py-0.5 rounded-full tabular-nums">
+            {prs.length}
+          </span>
         </div>
         <Link
           href="/progress"

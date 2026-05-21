@@ -58,6 +58,9 @@ export function PreviousPerformancePanel({
           <span className="text-[11px] font-medium text-white/40 uppercase tracking-wider">
             Last Session
           </span>
+          <span className="text-[9px] text-white/20 tabular-nums">
+            {data.lastSession.sets.length} sets
+          </span>
         </div>
         <span className="text-[11px] text-white/30">
           {formatRelativeDate(data.lastSession.date)}

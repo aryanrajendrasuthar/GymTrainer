@@ -221,6 +221,16 @@ export function TodayWorkoutCard({ split, splitDay, dayIndex, progressionHints, 
             <span className="text-sm font-bold text-white">{split.daysPerWeek}</span>
             <span className="text-xs text-white/40">days/week</span>
           </motion.div>
+          <motion.div
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.38 }}
+            className="flex items-center gap-1.5"
+          >
+            <span className="text-[10px] font-bold text-trainer-indigo/60 bg-trainer-indigo/10 px-2 py-0.5 rounded-full tabular-nums">
+              Day {dayIndex + 1}/{split.days.length}
+            </span>
+          </motion.div>
 
           {estimate && (
             <>

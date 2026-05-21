@@ -2,7 +2,7 @@
   "name": "trainer-frontend",
   "version": "0.1.0",
   "author": "Aryan Rajendra Suthar",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "dev": "next dev",

@@ -118,6 +118,11 @@ export function GoalWeightCard({ logs, goalWeightKg, unit }: GoalWeightCardProps
               {rateAssessment.label}
             </span>
           )}
+          {Math.abs(weeklyRate) >= 0.1 && !isAchieved && (
+            <span className="text-[9px] text-white/20 tabular-nums">
+              ~{Math.round(Math.abs(weeklyRate) * 7700 / 7)} kcal/day {weeklyRate < 0 ? "deficit" : "surplus"}
+            </span>
+          )}
         </div>
       </div>
 

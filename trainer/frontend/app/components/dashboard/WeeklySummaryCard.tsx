@@ -184,7 +184,7 @@ export function WeeklySummaryCard({ sessions, accessToken, goal, streak }: Weekl
           <>
             <span>·</span>
             <span className={trend === "up" ? "text-trainer-success" : "text-trainer-danger"}>
-              {trend === "up" ? "↑" : "↓"} vs last week
+              {trend === "up" ? "↑" : "↓"} {Math.round(Math.abs((thisVol - lastVol) / lastVol) * 100)}% vol
             </span>
           </>
         )}

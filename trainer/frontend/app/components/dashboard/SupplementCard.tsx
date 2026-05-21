@@ -57,9 +57,16 @@ export function SupplementCard() {
 
         <div className="flex-1 min-w-0">
           <p className="text-sm font-bold text-white">Supplements</p>
-          <p className="text-[11px] text-white/35 mt-0.5">
-            {allDone ? "All taken today ✓" : `${total - takenCount} remaining`}
-          </p>
+          <div className="flex items-center gap-1.5 mt-0.5">
+            <p className="text-[11px] text-white/35">
+              {allDone ? "All taken today ✓" : `${total - takenCount} remaining`}
+            </p>
+            {takenCount > 0 && (
+              <span className="text-[10px] font-bold text-sky-400/70 bg-sky-400/8 border border-sky-400/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                {Math.round((takenCount / total) * 100)}% today
+              </span>
+            )}
+          </div>
         </div>
         {expanded
           ? <ChevronUp size={14} className="text-white/30 shrink-0" />

@@ -2,7 +2,7 @@
   "name": "trainer-backend",
   "version": "1.0.0",
   "author": "Aryan Rajendra Suthar",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "private": true,
   "scripts": {
     "dev": "tsx watch src/app.ts",
