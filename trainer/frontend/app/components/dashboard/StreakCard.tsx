@@ -191,6 +191,22 @@ export function WeekGridCard({ sessionDates }: WeekGridCardProps) {
           );
         })}
       </div>
+      {(() => {
+        const trainedThisWeek = weekDays.reduce((count, _, i) => {
+          const d = new Date(startOfWeek);
+          d.setDate(startOfWeek.getDate() + i);
+          return count + (trainedSet.has(d.getTime()) ? 1 : 0);
+        }, 0);
+        const daysPassed = dayOfWeek + 1;
+        return (
+          <div className="mt-2.5 pt-2.5 border-t border-white/5 flex items-center justify-between">
+            <span className="text-[10px] text-white/25">so far this week</span>
+            <span className={cn("text-[10px] font-bold tabular-nums", trainedThisWeek >= daysPassed * 0.6 ? "text-trainer-indigo" : "text-white/35")}>
+              {trainedThisWeek}/{daysPassed} days
+            </span>
+          </div>
+        );
+      })()}
     </motion.div>
   );
 }

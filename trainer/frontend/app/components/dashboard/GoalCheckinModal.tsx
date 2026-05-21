@@ -167,9 +167,16 @@ export function GoalCheckinModal({ open, onClose, sessionCount }: GoalCheckinMod
                       <p className="text-base font-bold text-white mb-1">
                         How&apos;s {goalLabel} going?
                       </p>
-                      <p className="text-sm text-white/40">
-                        {sessionCount} sessions logged since you started.
-                      </p>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="text-sm text-white/40">
+                          {sessionCount} sessions logged.
+                        </p>
+                        {sessionCount > 0 && (
+                          <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/10 border border-trainer-indigo/20 px-2 py-0.5 rounded-full tabular-nums">
+                            ~{Math.max(1, Math.round(sessionCount / 4))}/wk avg
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <div className="space-y-2.5">

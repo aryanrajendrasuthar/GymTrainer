@@ -191,6 +191,13 @@ export function SessionComplete({
       ? estimateCaloriesBurned(userWeightKg, session.durationMinutes, session.exercisesCompleted ?? [])
       : 0;
 
+  const totalReps =
+    session.exercisesCompleted?.reduce(
+      (a, ex) => a + ex.sets.reduce((b, s) => b + s.repsCompleted, 0),
+      0
+    ) ?? 0;
+  const avgRepsPerSet = totalSets > 0 ? Math.round(totalReps / totalSets) : 0;
+
   const animatedSets = useCountUp(totalSets, 600, 400);
   const animatedExercises = useCountUp(exerciseCount, 500, 300);
 
@@ -285,6 +292,14 @@ export function SessionComplete({
               label="Est. Calories"
               value={`~${estimatedCals} kcal`}
               delay={0.35}
+            />
+          )}
+          {avgRepsPerSet > 0 && (
+            <StatCard
+              icon={BarChart3}
+              label="Avg Reps / Set"
+              value={`${avgRepsPerSet}`}
+              delay={0.4}
             />
           )}
         </div>

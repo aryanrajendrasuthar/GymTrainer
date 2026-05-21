@@ -20,6 +20,13 @@ export function NotesJournalSheet({ sessions }: Props) {
       .sort((a, b) => b.date.localeCompare(a.date));
   }, [sessions]);
 
+  const totalWords = useMemo(() => {
+    return notedSessions.reduce(
+      (sum, s) => sum + (s.sessionNotes?.split(/\s+/).filter(Boolean).length ?? 0),
+      0
+    );
+  }, [notedSessions]);
+
   const filtered = useMemo(() => {
     if (!query.trim()) return notedSessions;
     const q = query.toLowerCase();
@@ -80,6 +87,9 @@ export function NotesJournalSheet({ sessions }: Props) {
                   <ScrollText size={15} className="text-trainer-indigo" />
                   <p className="text-base font-bold text-white">Session Notes</p>
                   <span className="text-xs text-white/35">{notedSessions.length} entries</span>
+                  {totalWords > 0 && (
+                    <span className="text-[10px] text-white/20 tabular-nums">{totalWords} words</span>
+                  )}
                 </div>
                 <button
                   onClick={() => setOpen(false)}

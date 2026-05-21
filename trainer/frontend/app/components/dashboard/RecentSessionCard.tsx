@@ -89,7 +89,7 @@ export function RecentSessionCard({ sessions, weightUnit }: RecentSessionCardPro
                   </p>
                   {session.exercisesCompleted.length > 0 && (
                     <span className="text-[10px] text-white/22 font-medium tabular-nums">
-                      · {session.exercisesCompleted.length} exs
+                      · {session.exercisesCompleted.length} exs · {session.exercisesCompleted.reduce((s, e) => s + e.sets.length, 0)} sets
                     </span>
                   )}
                   {session.rating && (
