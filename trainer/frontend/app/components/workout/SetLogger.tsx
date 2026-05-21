@@ -156,6 +156,7 @@ function CompletedSetRow({
           transition={{ delay: 0.08 }}
         >
           {repsCompleted} × {weightUsed}{unit}
+          <span className="text-white/25 font-normal ml-1.5">= {Math.round(repsCompleted * weightUsed)}{unit}</span>
           {rpe && <span className="text-white/40 font-normal ml-1.5">RPE {rpe}</span>}
         </motion.span>
         {onEdit && <Pencil size={11} className="text-white/20 shrink-0" />}
@@ -405,6 +406,14 @@ export function SetLogger({
               </motion.button>
             ))}
           </div>
+        </div>
+      )}
+
+      {/* Live set volume */}
+      {weight > 0 && reps > 0 && (
+        <div className="flex items-center justify-center gap-1.5 -mt-1">
+          <span className="text-[10px] text-white/25">Set volume:</span>
+          <span className="text-[10px] font-bold text-trainer-indigo/70 tabular-nums">{Math.round(weight * reps)} {unit}</span>
         </div>
       )}
 

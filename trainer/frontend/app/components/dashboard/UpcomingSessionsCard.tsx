@@ -98,6 +98,16 @@ export function UpcomingSessionsCard() {
               {split.days.filter((d) => !d.isRestDay).length}/{split.days.length}d
             </span>
           )}
+          {(() => {
+            const totalEx = upcomingDays
+              .filter((d) => !d.isRestDay)
+              .reduce((s, d) => s + d.exerciseCount, 0);
+            return totalEx > 0 ? (
+              <span className="text-[10px] text-white/25 font-semibold tabular-nums">
+                {totalEx} ex upcoming
+              </span>
+            ) : null;
+          })()}
         </div>
         <Link
           href="/splits"

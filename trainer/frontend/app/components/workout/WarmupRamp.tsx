@@ -38,6 +38,11 @@ export function WarmupRamp({ workingWeightKg, unit }: WarmupRampProps) {
 
   if (displayWorking <= 0) return null;
 
+  const lightestW = round(
+    unit === "lb" ? workingWeightKg * 0.5 * 2.20462 : workingWeightKg * 0.5,
+    unit
+  );
+
   return (
     <div className="mb-3">
       <button
@@ -56,7 +61,7 @@ export function WarmupRamp({ workingWeightKg, unit }: WarmupRampProps) {
               Warm-up Ramp
             </span>
             {!open && (
-              <span className="text-[10px] text-white/25 ml-1.5">{RAMP.length} sets · ~{Math.ceil(RAMP.length * 0.6)}min</span>
+              <span className="text-[10px] text-white/25 ml-1.5">{RAMP.length} sets · ~{Math.ceil(RAMP.length * 0.6)}min · from {lightestW}{unit}</span>
             )}
           </div>
         </div>

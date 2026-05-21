@@ -34,7 +34,7 @@ function weekLabel(iso: string): string {
 }
 
 export function TrainingLoadCard({ sessions, unit }: TrainingLoadCardProps) {
-  const { weeks, thisWeekLoad, lastWeekLoad, trend, acuteLoad, chronicLoad, acwr } = useMemo(() => {
+  const { weeks, thisWeekLoad, lastWeekLoad, peakWeekLoad, trend, acuteLoad, chronicLoad, acwr } = useMemo(() => {
     // Group volume by week
     const byWeek: Record<string, number> = {};
     for (const s of sessions) {
@@ -53,6 +53,7 @@ export function TrainingLoadCard({ sessions, unit }: TrainingLoadCardProps) {
 
     const thisWeekLoad = weeks[weeks.length - 1]?.volume ?? 0;
     const lastWeekLoad = weeks[weeks.length - 2]?.volume ?? 0;
+    const peakWeekLoad = Math.max(0, ...weeks.map((w) => w.volume));
 
     const pctChange = lastWeekLoad > 0 ? ((thisWeekLoad - lastWeekLoad) / lastWeekLoad) * 100 : 0;
     const trend: "build" | "maintain" | "deload" =
@@ -64,7 +65,7 @@ export function TrainingLoadCard({ sessions, unit }: TrainingLoadCardProps) {
     const chronicLoad = last4.length > 0 ? last4.reduce((a, b) => a + b, 0) / last4.length : 0;
     const acwr = chronicLoad > 0 ? Math.round((acuteLoad / chronicLoad) * 100) / 100 : 0;
 
-    return { weeks, thisWeekLoad, lastWeekLoad, trend, acuteLoad, chronicLoad, acwr };
+    return { weeks, thisWeekLoad, lastWeekLoad, peakWeekLoad, trend, acuteLoad, chronicLoad, acwr };
   }, [sessions, unit]);
 
   if (weeks.length < 2) return null;
@@ -104,6 +105,11 @@ export function TrainingLoadCard({ sessions, unit }: TrainingLoadCardProps) {
               : thisWeekLoad}
             <span className="text-[10px] font-normal text-white/30 ml-0.5">{unit}</span>
           </p>
+          {peakWeekLoad > thisWeekLoad && (
+            <p className="text-[9px] text-white/20 tabular-nums">
+              peak {peakWeekLoad >= 1000 ? `${(peakWeekLoad / 1000).toFixed(1)}k` : peakWeekLoad}
+            </p>
+          )}
         </div>
         <div>
           <p className="text-[10px] text-white/30 mb-0.5">Trend</p>

@@ -51,6 +51,11 @@ export function SessionDetailSheet({ session, open, onClose }: Props) {
   const exerciseIds = session.exercisesCompleted.map((e) => e.exerciseId);
   const cals = estimateCals(userWeightKg, session.durationMinutes, exerciseIds);
   const totalSets = session.exercisesCompleted.reduce((s, log) => s + log.sets.length, 0);
+  const totalReps = session.exercisesCompleted.reduce(
+    (s, log) => s + log.sets.reduce((r, set) => r + set.repsCompleted, 0),
+    0
+  );
+  const avgRepsPerSet = totalSets > 0 ? Math.round(totalReps / totalSets) : null;
 
   const formattedDate = new Date(session.date).toLocaleDateString("en-US", {
     weekday: "long", month: "long", day: "numeric", year: "numeric",
@@ -100,7 +105,7 @@ export function SessionDetailSheet({ session, open, onClose }: Props) {
                 {[
                   { icon: TrendingUp, label: "Volume",    value: formatVolume(session.totalVolumeKg, unit),    color: "text-trainer-success" },
                   { icon: Clock,      label: "Duration",  value: timeStr,                                       color: "text-trainer-warning" },
-                  { icon: Dumbbell,   label: "Sets",       value: `${totalSets}`,                               color: "text-trainer-indigo"  },
+                  { icon: Dumbbell,   label: avgRepsPerSet ? `~${avgRepsPerSet} reps/set` : "Sets", value: `${totalSets}`,         color: "text-trainer-indigo"  },
                   ...(cals > 0 ? [{ icon: Flame, label: "Est. Cals", value: `~${cals}`, color: "text-orange-400" }] : []),
                 ].map(({ icon: Icon, label, value, color }) => (
                   <div key={label} className="flex-1 bg-trainer-surface rounded-[10px] p-2.5 text-center">

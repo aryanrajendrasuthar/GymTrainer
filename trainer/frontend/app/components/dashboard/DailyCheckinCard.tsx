@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Scale, Minus, Plus, Check, X } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
@@ -23,6 +23,25 @@ export function DailyCheckinCard() {
     bodyWeightLogs[0]?.weightKg ?? profile?.weightKg ?? 70;
 
   const displayInitial = unit === "lb" ? Math.round(kgToLbs(lastKg)) : lastKg;
+
+  const logStreak = useMemo(() => {
+    const sorted = [...bodyWeightLogs].sort((a, b) => b.date.localeCompare(a.date));
+    let streak = 0;
+    const expected = new Date(today);
+    expected.setDate(expected.getDate() - 1);
+    for (const log of sorted) {
+      const d = new Date(log.date);
+      d.setHours(0, 0, 0, 0);
+      expected.setHours(0, 0, 0, 0);
+      if (d.getTime() === expected.getTime()) {
+        streak++;
+        expected.setDate(expected.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }, [bodyWeightLogs, today]);
 
   const [weight, setWeight] = useState(displayInitial);
   const [done, setDone] = useState(false);
@@ -78,7 +97,12 @@ export function DailyCheckinCard() {
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-white">Daily check-in</p>
-                  <p className="text-[11px] text-white/35">Log today&apos;s weight</p>
+                  <p className="text-[11px] text-white/35">
+                    Log today&apos;s weight
+                    {logStreak > 0 && (
+                      <span className="ml-1.5 text-trainer-indigo/70">&middot; {logStreak}d streak</span>
+                    )}
+                  </p>
                 </div>
               </div>
               <button

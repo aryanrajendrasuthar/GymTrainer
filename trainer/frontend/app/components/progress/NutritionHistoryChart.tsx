@@ -71,9 +71,28 @@ export function NutritionHistoryChart({ logs, targetCalories, targetProteinG }: 
       className="bg-trainer-surface border border-white/8 rounded-[16px] p-4"
     >
       <div className="flex items-center justify-between mb-3">
-        <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">
-          7-Day Nutrition
-        </p>
+        <div className="flex items-center gap-2">
+          <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">
+            7-Day Nutrition
+          </p>
+          {avg > 0 && target > 0 && (() => {
+            const delta = avg - target;
+            const pct = Math.round((delta / target) * 100);
+            const positive = delta > 0;
+            return (
+              <span className={cn(
+                "text-[9px] font-bold px-1.5 py-0.5 rounded-full border tabular-nums",
+                Math.abs(pct) <= 5
+                  ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
+                  : positive
+                  ? "text-amber-400 bg-amber-400/8 border-amber-400/20"
+                  : "text-red-400 bg-red-400/8 border-red-400/20"
+              )}>
+                {positive ? "+" : ""}{pct}% vs target
+              </span>
+            );
+          })()}
+        </div>
         <div className="flex gap-0.5 p-0.5 bg-trainer-elevated rounded-[8px]">
           {(["calories", "protein"] as const).map((v) => (
             <button

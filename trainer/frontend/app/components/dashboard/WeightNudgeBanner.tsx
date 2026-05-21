@@ -37,7 +37,12 @@ export function WeightNudgeBanner({ trackedKg, profileKg, unit }: WeightNudgeBan
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-white leading-tight">
-            You&apos;ve {direction} {fmt(diffKg, unit)} since your profile
+            You&apos;ve {direction}{" "}
+            {fmt(diffKg, unit)}
+            <span className="text-amber-400/60 font-normal text-xs ml-1">
+              ({profileKg > 0 ? `${((diffKg / profileKg) * 100).toFixed(1)}%` : ""})
+            </span>
+            {" "}since your profile
           </p>
           <p className="text-xs text-white/40 mt-0.5">
             {fmt(trackedKg, unit)} tracked vs {fmt(profileKg, unit)} on profile — update to recalibrate targets

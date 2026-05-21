@@ -15,7 +15,7 @@ interface WorkoutCalendarProps {
 export function WorkoutCalendar({ sessions }: WorkoutCalendarProps) {
   const [offset, setOffset] = useState(0); // months back from today
 
-  const { year, month, label, days, sessionVolumeMap, maxVolume } = useMemo(() => {
+  const { year, month, label, days, sessionVolumeMap, maxVolume, longestStreak } = useMemo(() => {
     const ref = new Date();
     ref.setDate(1);
     ref.setMonth(ref.getMonth() - offset);
@@ -52,7 +52,21 @@ export function WorkoutCalendar({ sessions }: WorkoutCalendarProps) {
     const volumes = Object.values(sessionVolumeMap);
     const maxVolume = volumes.length > 0 ? Math.max(...volumes) : 0;
 
-    return { year: y, month: m, label, days, sessionVolumeMap, maxVolume };
+    const sortedDates = Object.keys(sessionVolumeMap).sort();
+    let longestStreak = sortedDates.length > 0 ? 1 : 0;
+    let curStreak = sortedDates.length > 0 ? 1 : 0;
+    for (let i = 1; i < sortedDates.length; i++) {
+      const prev = new Date(sortedDates[i - 1]!).getTime();
+      const curr = new Date(sortedDates[i]!).getTime();
+      if (curr - prev === 86400000) {
+        curStreak++;
+        if (curStreak > longestStreak) longestStreak = curStreak;
+      } else {
+        curStreak = 1;
+      }
+    }
+
+    return { year: y, month: m, label, days, sessionVolumeMap, maxVolume, longestStreak };
   }, [offset, sessions]);
 
   const today = new Date();
@@ -134,7 +148,12 @@ export function WorkoutCalendar({ sessions }: WorkoutCalendarProps) {
       {Object.keys(sessionVolumeMap).length > 0 && (
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5 text-[10px] text-white/30">
           <span>{Object.keys(sessionVolumeMap).length} session{Object.keys(sessionVolumeMap).length !== 1 ? "s" : ""} this month</span>
-          <span className="tabular-nums">{Math.round(Object.values(sessionVolumeMap).reduce((a, b) => a + b, 0)).toLocaleString()} kg vol</span>
+          <div className="flex items-center gap-2">
+            {longestStreak >= 2 && (
+              <span className="text-trainer-indigo/60 tabular-nums">{longestStreak}d streak</span>
+            )}
+            <span className="tabular-nums">{Math.round(Object.values(sessionVolumeMap).reduce((a, b) => a + b, 0)).toLocaleString()} kg vol</span>
+          </div>
         </div>
       )}
 

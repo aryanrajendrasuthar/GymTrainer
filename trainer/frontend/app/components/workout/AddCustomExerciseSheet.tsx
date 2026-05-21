@@ -200,7 +200,12 @@ export function AddCustomExerciseSheet({ open, onClose, onCreated }: Props) {
 
               {/* Name */}
               <div>
-                <p className="text-[10px] text-white/30 uppercase tracking-widest font-semibold mb-2">Exercise Name</p>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Exercise Name</p>
+                  {name.length > 0 && (
+                    <span className="text-[10px] text-white/25 tabular-nums">{name.length}/60</span>
+                  )}
+                </div>
                 <input
                   type="text"
                   value={name}
@@ -276,9 +281,26 @@ export function AddCustomExerciseSheet({ open, onClose, onCreated }: Props) {
               </motion.button>
 
               {!canSave && (
-                <p className="text-[11px] text-white/20 text-center -mt-2">
-                  Fill in name, category, muscles, and equipment to continue
-                </p>
+                <div className="flex flex-wrap gap-2 justify-center -mt-2">
+                  {[
+                    { label: "Name", done: name.trim().length >= 2 },
+                    { label: "Category", done: category !== null },
+                    { label: "Muscles", done: muscles.length > 0 },
+                    { label: "Equipment", done: equipment.length > 0 },
+                  ].map(({ label, done }) => (
+                    <span
+                      key={label}
+                      className={cn(
+                        "text-[10px] font-semibold px-2 py-0.5 rounded-full border",
+                        done
+                          ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
+                          : "text-white/25 bg-white/4 border-white/8"
+                      )}
+                    >
+                      {done ? "✓" : "○"} {label}
+                    </span>
+                  ))}
+                </div>
               )}
             </div>
           </motion.div>

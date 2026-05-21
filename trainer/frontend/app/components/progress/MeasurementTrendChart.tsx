@@ -84,9 +84,14 @@ export function MeasurementTrendChart({ logs }: MeasurementTrendChartProps) {
       animate={{ opacity: 1, y: 0 }}
       className="bg-trainer-surface border border-white/8 rounded-[16px] p-4"
     >
-      <p className="text-xs text-white/35 uppercase tracking-widest font-semibold mb-3">
-        Measurement Trends (cm)
-      </p>
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">
+          Measurement Trends (cm)
+        </p>
+        <span className="text-[10px] font-bold text-trainer-indigo/60 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+          {activeMetrics.size} shown · {logs.length} entries
+        </span>
+      </div>
 
       {/* Metric toggle chips */}
       <div className="flex flex-wrap gap-1.5 mb-4">

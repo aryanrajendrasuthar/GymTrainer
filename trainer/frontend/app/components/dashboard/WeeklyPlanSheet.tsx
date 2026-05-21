@@ -83,9 +83,27 @@ function ExerciseSheet({
 
             {/* Exercise list */}
             <div className="overflow-y-auto flex-1 px-5 py-4">
-              <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-3">
-                {exercises.length} Exercises · {getWeekLabel()}
-              </p>
+              {(() => {
+                const compoundCount = exercises.filter((id) => exerciseMap[id]?.movementType === "compound").length;
+                const isolationCount = exercises.filter((id) => exerciseMap[id]?.movementType === "isolation").length;
+                return (
+                  <div className="flex items-center gap-2 mb-3">
+                    <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest">
+                      {exercises.length} Exercises · {getWeekLabel()}
+                    </p>
+                    {compoundCount > 0 && (
+                      <span className="text-[9px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                        {compoundCount}C
+                      </span>
+                    )}
+                    {isolationCount > 0 && (
+                      <span className="text-[9px] font-bold text-white/30 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-full tabular-nums">
+                        {isolationCount}I
+                      </span>
+                    )}
+                  </div>
+                );
+              })()}
               <div className="flex flex-col gap-2">
                 {exercises.map((exId, idx) => {
                   const ex = exerciseMap[exId];

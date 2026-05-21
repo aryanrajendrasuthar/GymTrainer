@@ -312,6 +312,11 @@ export function ExercisePickerSheet({
                     <p className="text-sm text-white/30 text-center py-8">No exercises found</p>
                   ) : (
                     <div className="flex flex-col gap-1.5">
+                      {query.trim().length > 0 && (
+                        <p className="text-[10px] text-white/25 mb-2 pt-1 tabular-nums">
+                          {filteredExercises.length} result{filteredExercises.length !== 1 ? "s" : ""}
+                        </p>
+                      )}
                       {query.length === 0 && recentIds.length > 0 && category === "all" && (
                         <p className="text-[10px] text-white/25 font-semibold uppercase tracking-widest mb-1 pt-1">
                           Recently used

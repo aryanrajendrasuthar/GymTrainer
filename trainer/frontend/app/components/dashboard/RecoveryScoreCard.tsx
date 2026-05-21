@@ -229,7 +229,9 @@ export function RecoveryScoreCard() {
         <SubIndicator
           icon={Activity}
           label="Load"
-          value={acwr > 0 ? acwr.toFixed(2) : "—"}
+          value={acwr > 0
+            ? `${acwr.toFixed(2)} ${acwr >= 0.8 && acwr <= 1.3 ? "✓" : acwr > 1.5 ? "↑↑" : acwr > 1.3 ? "↑" : "↓"}`
+            : "—"}
           score={loadScore}
           maxScore={30}
         />

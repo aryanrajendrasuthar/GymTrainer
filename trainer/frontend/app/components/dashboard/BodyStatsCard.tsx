@@ -100,8 +100,8 @@ export function BodyStatsCard() {
 
   const unit = (settings.weightUnit ?? profile?.units ?? "kg") as "kg" | "lb";
 
-  const { current, trend7d, sparkValues, lastLogDate } = useMemo(() => {
-    if (bodyWeightLogs.length === 0) return { current: null, trend7d: null, sparkValues: [], lastLogDate: null };
+  const { current, trend7d, sparkValues, lastLogDate, totalChange } = useMemo(() => {
+    if (bodyWeightLogs.length === 0) return { current: null, trend7d: null, sparkValues: [], lastLogDate: null, totalChange: null };
 
     const sorted = [...bodyWeightLogs].sort((a, b) => b.date.localeCompare(a.date));
     const now = sorted[0].weightKg;
@@ -112,7 +112,9 @@ export function BodyStatsCard() {
     const diff = week7 ? Math.round((now - week7.weightKg) * 10) / 10 : null;
 
     const sparkValues = sorted.slice(0, 8).reverse().map((l) => l.weightKg);
-    return { current: now, trend7d: diff, sparkValues, lastLogDate: sorted[0].date };
+    const first = sorted[sorted.length - 1].weightKg;
+    const totalChange = sorted.length >= 2 ? Math.round((now - first) * 10) / 10 : null;
+    return { current: now, trend7d: diff, sparkValues, lastLogDate: sorted[0].date, totalChange };
   }, [bodyWeightLogs]);
 
   const bmiValue = useMemo(
@@ -389,10 +391,18 @@ export function BodyStatsCard() {
           {lastLogDate && (
             <p className="text-[10px] text-white/20 mt-0.5">{formatRelativeDate(lastLogDate)}</p>
           )}
+          {totalChange !== null && (
+            <p className={cn("text-[10px] font-semibold tabular-nums mt-0.5", totalChange > 0 ? "text-red-400/60" : totalChange < 0 ? "text-trainer-success/60" : "text-white/20")}>
+              {totalChange > 0 ? "+" : ""}{unit === "lb" ? Math.round(totalChange * 2.20462 * 10) / 10 : totalChange} {unit} all-time
+            </p>
+          )}
         </div>
 
-        {/* Sparkline */}
-        <WeightSparkline values={sparkValues} />
+        {/* Sparkline + log count */}
+        <div className="flex flex-col items-end gap-1 shrink-0">
+          <WeightSparkline values={sparkValues} />
+          <span className="text-[9px] text-white/20 tabular-nums">{bodyWeightLogs.length} logs</span>
+        </div>
       </div>
 
       {/* BMI + BF% row */}

@@ -38,11 +38,13 @@ export function VolumeLandmarkCard({ setsPerMuscle }: VolumeLandmarkCardProps) {
     .filter(([muscle]) => LANDMARKS[muscle])
     .filter(([, sets]) => sets > 0)
     .map(([muscle, sets]) => {
-      const lm = LANDMARKS[muscle];
+      const lm = LANDMARKS[muscle]!;
       const status = getStatus(sets, lm.mev, lm.mav, lm.mrv);
       return { muscle, sets, ...lm, ...status };
     })
     .sort((a, b) => b.pct - a.pct);
+
+  const belowMevCount = rows.filter((r) => r.sets < r.mev).length;
 
   if (rows.length === 0) return null;
 
@@ -59,9 +61,16 @@ export function VolumeLandmarkCard({ setsPerMuscle }: VolumeLandmarkCardProps) {
             Volume Landmarks
           </p>
         </div>
-        <span className="text-[10px] text-white/25 tabular-nums">
-          {rows.reduce((s, r) => s + r.sets, 0)} sets total
-        </span>
+        <div className="flex items-center gap-1.5">
+          {belowMevCount > 0 && (
+            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border text-amber-400 bg-amber-400/8 border-amber-400/20 tabular-nums">
+              {belowMevCount} below MEV
+            </span>
+          )}
+          <span className="text-[10px] text-white/25 tabular-nums">
+            {rows.reduce((s, r) => s + r.sets, 0)} sets
+          </span>
+        </div>
       </div>
 
       <div className="flex flex-col gap-3">

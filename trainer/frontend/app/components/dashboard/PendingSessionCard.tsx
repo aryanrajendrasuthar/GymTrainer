@@ -84,15 +84,24 @@ export function PendingSessionCard() {
 
   if (sessions.length === 0) return null;
 
+  const totalExercises = sessions.reduce((s, sess) => s + sess.exercises.length, 0);
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className="flex flex-col gap-2.5"
     >
-      <p className="text-[11px] font-semibold text-white/35 uppercase tracking-widest px-0.5">
-        Scheduled for later today
-      </p>
+      <div className="flex items-center gap-2 px-0.5">
+        <p className="text-[11px] font-semibold text-white/35 uppercase tracking-widest flex-1">
+          Scheduled for later today
+        </p>
+        {totalExercises > 0 && (
+          <span className="text-[10px] font-bold text-trainer-indigo/60 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+            {totalExercises} exercises
+          </span>
+        )}
+      </div>
       <AnimatePresence>
         {sessions.map((session) => (
           <SessionChip

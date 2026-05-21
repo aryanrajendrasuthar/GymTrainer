@@ -62,6 +62,11 @@ export function SessionRatingChart({ sessions }: Props) {
               {ratingTrend === "up" ? "↑" : "↓"}
             </span>
           )}
+          {dist[5] > 0 && (
+            <span className="text-[9px] font-bold text-trainer-gold/70 bg-trainer-gold/8 border border-trainer-gold/20 px-1.5 py-0.5 rounded-full tabular-nums">
+              {dist[5]}×★★★★★
+            </span>
+          )}
           <Star size={10} className="text-trainer-gold fill-trainer-gold" />
           <span
             className={cn(

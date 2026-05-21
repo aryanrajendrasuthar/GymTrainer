@@ -80,68 +80,90 @@ export function BodyWeightChart({ data, unit, goalWeightKg, className }: BodyWei
   const padding = (maxW - minW) * 0.3 || 2;
   const avgW = Math.round((weights.reduce((a, b) => a + b, 0) / weights.length) * 10) / 10;
 
+  const ratePerWeek = (() => {
+    const sorted = [...data].sort((a, b) => a.date.localeCompare(b.date));
+    if (sorted.length < 2) return null;
+    const first = sorted[0]!;
+    const last = sorted[sorted.length - 1]!;
+    const weeks = (new Date(last.date).getTime() - new Date(first.date).getTime()) / (7 * 86400000);
+    if (weeks < 0.5) return null;
+    const deltaKg = last.weightKg - first.weightKg;
+    const rate = deltaKg / weeks;
+    return unit === "lb" ? Math.round(rate * 2.20462 * 10) / 10 : Math.round(rate * 10) / 10;
+  })();
+
   return (
-    <div className={cn("h-36", className)}>
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart data={displayData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
-          <CartesianGrid
-            strokeDasharray="3 3"
-            stroke="rgba(255,255,255,0.05)"
-            vertical={false}
-          />
-          <XAxis
-            dataKey="date"
-            tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
-            axisLine={false}
-            tickLine={false}
-            interval="preserveStartEnd"
-          />
-          <YAxis
-            domain={[minW - padding, maxW + padding]}
-            tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 10 }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip
-            content={<CustomTooltip unit={unit} />}
-            cursor={{ stroke: "rgba(0,212,170,0.25)", strokeWidth: 1 }}
-          />
-          <ReferenceLine
-            y={avgW}
-            stroke="rgba(0,212,170,0.2)"
-            strokeDasharray="4 4"
-            label={{
-              value: `avg ${avgW}${unit}`,
-              position: "insideTopLeft",
-              fill: "rgba(0,212,170,0.35)",
-              fontSize: 9,
-              fontWeight: 600,
-            }}
-          />
-          {goalDisplay !== null && (
+    <div className={cn(className)}>
+      <div className="h-36">
+        <ResponsiveContainer width="100%" height="100%">
+          <LineChart data={displayData} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              stroke="rgba(255,255,255,0.05)"
+              vertical={false}
+            />
+            <XAxis
+              dataKey="date"
+              tick={{ fill: "rgba(255,255,255,0.3)", fontSize: 10 }}
+              axisLine={false}
+              tickLine={false}
+              interval="preserveStartEnd"
+            />
+            <YAxis
+              domain={[minW - padding, maxW + padding]}
+              tick={{ fill: "rgba(255,255,255,0.25)", fontSize: 10 }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip
+              content={<CustomTooltip unit={unit} />}
+              cursor={{ stroke: "rgba(0,212,170,0.25)", strokeWidth: 1 }}
+            />
             <ReferenceLine
-              y={goalDisplay}
-              stroke="rgba(108,99,255,0.55)"
-              strokeDasharray="5 3"
+              y={avgW}
+              stroke="rgba(0,212,170,0.2)"
+              strokeDasharray="4 4"
               label={{
-                value: `Goal ${goalDisplay}${unit}`,
-                position: "insideTopRight",
-                fill: "rgba(108,99,255,0.7)",
+                value: `avg ${avgW}${unit}`,
+                position: "insideTopLeft",
+                fill: "rgba(0,212,170,0.35)",
                 fontSize: 9,
                 fontWeight: 600,
               }}
             />
-          )}
-          <Line
-            type="monotone"
-            dataKey="weight"
-            stroke="#00D4AA"
-            strokeWidth={2}
-            dot={{ r: 3, fill: "#00D4AA", stroke: "#0A0A0F", strokeWidth: 2 }}
-            activeDot={{ r: 5, fill: "#00D4AA", stroke: "#0A0A0F", strokeWidth: 2 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
+            {goalDisplay !== null && (
+              <ReferenceLine
+                y={goalDisplay}
+                stroke="rgba(108,99,255,0.55)"
+                strokeDasharray="5 3"
+                label={{
+                  value: `Goal ${goalDisplay}${unit}`,
+                  position: "insideTopRight",
+                  fill: "rgba(108,99,255,0.7)",
+                  fontSize: 9,
+                  fontWeight: 600,
+                }}
+              />
+            )}
+            <Line
+              type="monotone"
+              dataKey="weight"
+              stroke="#00D4AA"
+              strokeWidth={2}
+              dot={{ r: 3, fill: "#00D4AA", stroke: "#0A0A0F", strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: "#00D4AA", stroke: "#0A0A0F", strokeWidth: 2 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="flex items-center justify-between mt-1.5 px-1">
+        <span className="text-[10px] text-white/25 tabular-nums">{data.length} weigh-ins</span>
+        {ratePerWeek !== null && (
+          <span className={cn("text-[10px] font-bold tabular-nums", ratePerWeek > 0 ? "text-red-400/60" : ratePerWeek < 0 ? "text-trainer-success/60" : "text-white/25")}>
+            {ratePerWeek > 0 ? "+" : ""}{ratePerWeek} {unit}/wk
+          </span>
+        )}
+      </div>
     </div>
   );
 }

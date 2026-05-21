@@ -85,9 +85,14 @@ export function MuscleBalanceChart({ sessions, allLogs }: Props) {
       animate={{ opacity: 1, y: 0 }}
       className="bg-trainer-surface border border-white/8 rounded-[16px] p-4"
     >
-      <div className="flex items-center gap-2 mb-1">
-        <Activity size={13} className="text-trainer-indigo" />
-        <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">Muscle Balance</p>
+      <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center gap-2">
+          <Activity size={13} className="text-trainer-indigo" />
+          <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">Muscle Balance</p>
+        </div>
+        <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-2 py-0.5 rounded-full tabular-nums">
+          {totalSets} sets
+        </span>
       </div>
       <p className="text-[10px] text-white/20 mb-4">Sets per muscle group — selected period</p>
 

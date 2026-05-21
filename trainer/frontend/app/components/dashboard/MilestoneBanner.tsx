@@ -255,12 +255,20 @@ export function MilestoneBanner({ sessions, allLogs, streak }: MilestoneBannerPr
               const milestoneSteps = [1, 5, 10, 25, 50];
               const total = sessions.length;
               const next = milestoneSteps.find((n) => n > total);
-              if (!next) return null;
-              const toGo = next - total;
+              const toGo = next ? next - total : null;
               return (
-                <p className="text-[10px] text-white/25 mt-1.5">
-                  Next: {next} sessions · {toGo} to go
-                </p>
+                <div className="flex items-center gap-2 mt-1.5">
+                  {next && toGo !== null && (
+                    <p className="text-[10px] text-white/25">
+                      Next: {next} sessions · {toGo} to go
+                    </p>
+                  )}
+                  {visible.length > 1 && (
+                    <span className="text-[10px] font-bold text-white/30 bg-white/6 border border-white/10 px-1.5 py-0.5 rounded-full tabular-nums">
+                      +{visible.length - 1} more
+                    </span>
+                  )}
+                </div>
               );
             })()}
           </div>

@@ -173,6 +173,11 @@ export function RestTimer({ open, seconds, onClose }: RestTimerProps) {
                 <p className="text-[10px] text-white/30 uppercase tracking-widest">
                   {remaining === 0 ? "Rest complete" : "remaining"}
                 </p>
+                {total > 0 && remaining > 0 && remaining < total && (
+                  <p className="text-[9px] text-white/20 tabular-nums mt-0.5">
+                    {formatTime(total - remaining)} elapsed
+                  </p>
+                )}
               </div>
             </div>
 

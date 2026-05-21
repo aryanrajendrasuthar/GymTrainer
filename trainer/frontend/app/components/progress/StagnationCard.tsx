@@ -141,6 +141,7 @@ export function StagnationCard() {
           <p className="text-sm font-bold text-white">Plateau Detected</p>
           <p className="text-[10px] text-white/35 mt-0.5">
             {stagnant.length} exercise{stagnant.length !== 1 ? "s" : ""} with no recent progress
+            <span className="text-white/20"> · avg {Math.round(stagnant.reduce((s, e) => s + e.staleDays, 0) / stagnant.length)}d stale</span>
           </p>
         </div>
       </div>

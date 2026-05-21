@@ -93,12 +93,27 @@ export function WeekComparisonCard() {
       transition={{ delay: 0.05 }}
       className="bg-trainer-surface border border-white/8 rounded-[16px] p-4"
     >
-      <div className="flex items-center gap-2 mb-3">
-        <div className="w-7 h-7 rounded-[8px] bg-trainer-indigo/15 flex items-center justify-center">
-          <BarChart2 size={13} className="text-trainer-indigo" />
-        </div>
-        <p className="text-sm font-bold text-white">Week vs Last Week</p>
-      </div>
+      {(() => {
+        const upCount = [sessionsPct, volumePct, durationPct, setsPct].filter((p) => p !== null && p > 0).length;
+        const downCount = [sessionsPct, volumePct, durationPct, setsPct].filter((p) => p !== null && p < 0).length;
+        const trendLabel = upCount > downCount ? "Trending up" : downCount > upCount ? "Trending down" : null;
+        const trendStyle = upCount > downCount
+          ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
+          : "text-red-400 bg-red-400/8 border-red-400/20";
+        return (
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-7 h-7 rounded-[8px] bg-trainer-indigo/15 flex items-center justify-center">
+              <BarChart2 size={13} className="text-trainer-indigo" />
+            </div>
+            <p className="text-sm font-bold text-white flex-1">Week vs Last Week</p>
+            {trendLabel && (
+              <span className={cn("text-[9px] font-bold px-1.5 py-0.5 rounded-full border", trendStyle)}>
+                {trendLabel}
+              </span>
+            )}
+          </div>
+        );
+      })()}
 
       <div className="grid grid-cols-2 gap-2">
         {/* Sessions */}

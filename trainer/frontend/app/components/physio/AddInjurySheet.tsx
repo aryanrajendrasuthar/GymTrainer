@@ -211,7 +211,10 @@ export function AddInjurySheet({ open, onClose }: AddInjurySheetProps) {
             <div className="flex items-center justify-between px-5 pb-4 shrink-0">
               <div>
                 <p className="text-base font-bold text-white">Add Condition</p>
-                <p className="text-xs text-white/35 mt-0.5">Select a condition to begin rehab</p>
+                <p className="text-xs text-white/35 mt-0.5">
+                  Select a condition to begin rehab
+                  <span className="text-white/20"> · {Object.keys(CONDITION_NAMES).length} conditions</span>
+                </p>
               </div>
               <button
                 onClick={handleClose}
@@ -237,6 +240,11 @@ export function AddInjurySheet({ open, onClose }: AddInjurySheetProps) {
 
             {/* Condition list */}
             <div className="overflow-y-auto flex-1 px-5 pb-4">
+              {search.trim().length > 0 && filtered.length > 0 && (
+                <p className="text-[10px] text-white/25 mb-3 tabular-nums">
+                  {filtered.reduce((t, g) => t + g.conditions.length, 0)} result{filtered.reduce((t, g) => t + g.conditions.length, 0) !== 1 ? "s" : ""}
+                </p>
+              )}
               {filtered.length === 0 ? (
                 <p className="text-sm text-white/30 text-center py-8">No matching conditions.</p>
               ) : (

@@ -119,6 +119,7 @@ export function MuscleVolumeChart({ sessions, allLogs, unit }: MuscleVolumeChart
         <div className="flex items-center justify-between pt-2 border-t border-white/5 mt-1">
           <span className="text-[10px] text-white/25">
             Total: {formatVol(totalVol)} {unit}
+            <span className="text-white/18"> · {entries.length} muscles</span>
           </span>
           <span className="text-[10px] text-white/25">
             {entries[0]!.label} {Math.round((entries[0]!.volume / totalVol) * 100)}% of volume

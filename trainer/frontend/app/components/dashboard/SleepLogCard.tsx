@@ -85,6 +85,9 @@ export function SleepLogCard() {
               )}>
                 {QUALITY_OPTIONS.find((o) => o.value === Math.round(avg.quality) as SleepEntry["quality"])?.emoji}
               </span>
+              <span className="text-[10px] text-white/20 tabular-nums">
+                {last7.length}/7 nights
+              </span>
               {avg.hours < 7 && (
                 <span className="text-[10px] text-amber-400/60 font-medium">
                   −{((7 - avg.hours)).toFixed(1)}h/night

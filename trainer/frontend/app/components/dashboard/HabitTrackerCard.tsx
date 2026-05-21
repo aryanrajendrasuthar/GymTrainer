@@ -19,6 +19,7 @@ export function HabitTrackerCard() {
 
   const enabledHabits = habits.filter((h) => h.enabled);
   const todayDone = getTodayCompleted();
+  const bestStreak = enabledHabits.reduce((max, h) => Math.max(max, getStreak(h.id)), 0);
 
   // Last 7 calendar days (oldest → newest)
   const last7Dates = (() => {
@@ -93,6 +94,11 @@ export function HabitTrackerCard() {
             {total > 0 && (
               <span className="text-[10px] text-white/20 tabular-nums">
                 · {compliantDays}/7d ✓
+              </span>
+            )}
+            {bestStreak > 1 && (
+              <span className="text-[10px] text-amber-400/60 font-bold tabular-nums">
+                · {bestStreak}d best
               </span>
             )}
           </div>

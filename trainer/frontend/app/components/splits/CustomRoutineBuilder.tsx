@@ -334,6 +334,8 @@ export function CustomRoutineBuilder({ open, onClose, onSaved }: CustomRoutineBu
   }
 
   const canSave = name.trim().length > 0 && days.length > 0;
+  const workoutDayCount = days.filter((d) => !d.isRestDay).length;
+  const restDayCount = days.filter((d) => d.isRestDay).length;
 
   return (
     <AnimatePresence>
@@ -390,9 +392,16 @@ export function CustomRoutineBuilder({ open, onClose, onSaved }: CustomRoutineBu
               {/* Days */}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <p className="text-xs text-white/40 font-semibold uppercase tracking-wider">
-                    Days ({days.length})
-                  </p>
+                  <div className="flex items-center gap-2">
+                    <p className="text-xs text-white/40 font-semibold uppercase tracking-wider">
+                      Days ({days.length})
+                    </p>
+                    {workoutDayCount > 0 && (
+                      <span className="text-[10px] font-semibold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                        {workoutDayCount}× training{restDayCount > 0 ? ` · ${restDayCount} rest` : ""}
+                      </span>
+                    )}
+                  </div>
                   {days.length < 7 && (
                     <button
                       onClick={addDay}
@@ -428,7 +437,7 @@ export function CustomRoutineBuilder({ open, onClose, onSaved }: CustomRoutineBu
                     : "bg-white/8 text-white/25 cursor-not-allowed"
                 )}
               >
-                <Save size={16} /> Save Routine
+                <Save size={16} /> Save Routine{workoutDayCount > 0 ? ` · ${workoutDayCount}×/wk` : ""}
               </button>
             </div>
           </motion.div>

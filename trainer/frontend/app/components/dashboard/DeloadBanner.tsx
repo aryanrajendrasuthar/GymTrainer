@@ -9,6 +9,7 @@ import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
 import { analyseRoutine, detectDeloadSignal } from "@/app/lib/progression-engine";
 import { exerciseMap } from "@/app/data/exercises";
+import { cn } from "@/app/lib/utils";
 
 interface DeloadBannerProps {
   exerciseIds: string[];
@@ -58,7 +59,17 @@ export function DeloadBanner({ exerciseIds }: DeloadBannerProps) {
             <AlertTriangle size={16} className="text-trainer-warning" />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-trainer-warning">Deload week suggested</p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-bold text-trainer-warning">Deload week suggested</p>
+              <span className={cn(
+                "text-[9px] font-bold px-1.5 py-0.5 rounded-full border",
+                deloadSignal.affectedExercises.length >= 3
+                  ? "text-red-400 bg-red-400/10 border-red-400/25"
+                  : "text-trainer-warning bg-trainer-warning/10 border-trainer-warning/25"
+              )}>
+                {deloadSignal.affectedExercises.length >= 3 ? "High" : "Moderate"}
+              </span>
+            </div>
             <p className="text-xs text-white/50 mt-0.5 leading-relaxed">
               High RPE logged for {deloadSignal.affectedExercises.length} exercise
               {deloadSignal.affectedExercises.length !== 1 ? "s" : ""} over multiple sessions

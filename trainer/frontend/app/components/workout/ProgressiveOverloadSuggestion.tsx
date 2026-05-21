@@ -27,6 +27,8 @@ export function ProgressiveOverloadSuggestion({
   const [customWeight, setCustomWeight] = useState(suggestion.suggestedWeight.toString());
   const [dismissed, setDismissed] = useState(false);
 
+  const prevWeight = suggestion.suggestedWeight - suggestion.increaseAmountKg;
+
   if (dismissed) return null;
 
   const handleAccept = () => {
@@ -67,10 +69,11 @@ export function ProgressiveOverloadSuggestion({
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-white">You nailed it last time!</p>
               <p className="text-xs text-white/50 mt-0.5">
-                Try <span className="text-trainer-indigo font-semibold">
+                <span className="text-white/30">from {prevWeight}{unit}</span>{" → "}Try{" "}
+                <span className="text-trainer-indigo font-semibold">
                   +{suggestion.increaseAmountKg}{unit}
                 </span>{" "}
-                today → <span className="font-semibold text-white/80">
+                → <span className="font-semibold text-white/80">
                   {suggestion.suggestedWeight}{unit}
                 </span>
                 {suggestion.suggestedWeight - suggestion.increaseAmountKg > 0 && (

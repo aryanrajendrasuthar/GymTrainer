@@ -146,6 +146,9 @@ export function OneRMCalculatorSheet({ unit }: Props) {
                       <div className="text-right">
                         <p className="text-[10px] text-white/30">Input</p>
                         <p className="text-sm font-bold text-white/60 tabular-nums">{weight}{unit} × {reps}</p>
+                        <p className="text-[10px] font-bold text-trainer-indigo/60 tabular-nums mt-0.5">
+                          {Math.round((w / e1rm) * 100)}% of 1RM
+                        </p>
                       </div>
                     </div>
 

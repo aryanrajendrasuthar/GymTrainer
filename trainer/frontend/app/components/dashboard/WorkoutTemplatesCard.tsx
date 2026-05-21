@@ -60,7 +60,14 @@ export function WorkoutTemplatesCard() {
           <Bookmark size={13} className="text-trainer-indigo" />
         </div>
         <p className="text-sm font-bold text-white">Saved Routines</p>
-        <span className="ml-auto text-[10px] text-white/25 tabular-nums">{templates.length} saved</span>
+        <div className="ml-auto flex items-center gap-1.5">
+          {templates.length > sorted.length && (
+            <span className="text-[9px] text-white/20 tabular-nums">
+              {sorted.length}/{templates.length}
+            </span>
+          )}
+          <span className="text-[10px] text-white/25 tabular-nums">{templates.length} saved</span>
+        </div>
       </div>
 
       {/* Template rows */}

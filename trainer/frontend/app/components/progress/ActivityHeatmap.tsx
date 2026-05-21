@@ -202,7 +202,12 @@ export function ActivityHeatmap({ sessions }: ActivityHeatmapProps) {
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
         <div className="flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
-            <p className="text-[10px] text-white/25">{totalWorkouts} workouts logged</p>
+            <p className="text-[10px] text-white/25">
+            {totalWorkouts} workouts logged
+            {totalWorkouts > 0 && (
+              <span className="text-white/18"> · avg {(totalWorkouts / 13).toFixed(1)}/wk</span>
+            )}
+          </p>
             {(() => {
               const today = new Date();
               today.setHours(0, 0, 0, 0);

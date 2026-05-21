@@ -113,6 +113,7 @@ export function StrengthStandardsCard({
         loggedRows.forEach((r) => { if (r.levelIdx >= 0) levelCounts[r.levelIdx]++; });
         const topLevelIdx = levelCounts.reduce((best, count, i) => count > levelCounts[best] ? i : best, 0);
         const overallLabel = loggedRows.length > 0 && levelCounts[topLevelIdx] > 0 ? LEVELS[topLevelIdx] : null;
+        const aboveIntCount = loggedRows.filter((r) => r.levelIdx >= 2).length;
         return (
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -121,11 +122,18 @@ export function StrengthStandardsCard({
                 Strength Standards
               </p>
             </div>
-            {overallLabel && (
-              <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", TEXT_COLORS[topLevelIdx], "bg-white/5 border-white/10")}>
-                Overall: {overallLabel}
-              </span>
-            )}
+            <div className="flex items-center gap-1.5">
+              {loggedRows.length > 0 && (
+                <span className="text-[10px] font-bold text-white/30 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-full tabular-nums">
+                  {aboveIntCount}/{loggedRows.length} ≥ Int
+                </span>
+              )}
+              {overallLabel && (
+                <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border", TEXT_COLORS[topLevelIdx], "bg-white/5 border-white/10")}>
+                  Overall: {overallLabel}
+                </span>
+              )}
+            </div>
           </div>
         );
       })()}

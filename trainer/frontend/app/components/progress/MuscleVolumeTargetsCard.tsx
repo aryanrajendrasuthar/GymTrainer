@@ -132,15 +132,23 @@ export function MuscleVolumeTargetsCard({ sessions, allLogs }: Props) {
         </div>
         {anyData && (() => {
           const onTrack = rows.filter((r) => r.sets >= r.mev).length;
+          const exceedsMRV = rows.filter((r) => r.sets > r.mrv).length;
           return (
-            <span className={cn(
-              "text-[10px] font-bold px-2 py-0.5 rounded-full border",
-              onTrack >= rows.length * 0.7
-                ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
-                : "text-amber-400 bg-amber-400/8 border-amber-400/20"
-            )}>
-              {onTrack}/{rows.length} on track
-            </span>
+            <div className="flex items-center gap-1.5">
+              {exceedsMRV > 0 && (
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full border text-red-400 bg-red-400/8 border-red-400/20">
+                  {exceedsMRV} &gt;MRV
+                </span>
+              )}
+              <span className={cn(
+                "text-[10px] font-bold px-2 py-0.5 rounded-full border",
+                onTrack >= rows.length * 0.7
+                  ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
+                  : "text-amber-400 bg-amber-400/8 border-amber-400/20"
+              )}>
+                {onTrack}/{rows.length} on track
+              </span>
+            </div>
           );
         })()}
       </div>

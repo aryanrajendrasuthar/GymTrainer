@@ -110,9 +110,12 @@ export function SleepPerformanceChart({ sessions, unit }: Props) {
       animate={{ opacity: 1, y: 0 }}
       className="bg-trainer-surface border border-white/8 rounded-[16px] p-4"
     >
-      <div className="flex items-center gap-2 mb-3">
-        <Moon size={13} className="text-indigo-400" />
-        <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">Sleep × Volume</p>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          <Moon size={13} className="text-indigo-400" />
+          <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">Sleep × Volume</p>
+        </div>
+        <span className="text-[10px] text-white/20 tabular-nums">{data.length} sessions</span>
       </div>
 
       {/* Correlation summary */}

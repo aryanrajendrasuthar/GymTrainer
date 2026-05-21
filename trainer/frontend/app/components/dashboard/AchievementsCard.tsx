@@ -46,6 +46,9 @@ export function AchievementsCard() {
     { tier: "platinum", color: "text-cyan-300 bg-cyan-900/20 border-cyan-300/25"       },
   ].filter((t) => tierCounts[t.tier as keyof typeof tierCounts] > 0);
 
+  const nextLockedId = ORDERED.find((id) => !unlocked[id]);
+  const nextDef = nextLockedId ? ACHIEVEMENT_DEFS[nextLockedId] : null;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -123,6 +126,14 @@ export function AchievementsCard() {
           );
         })}
       </div>
+
+      {nextDef && (
+        <div className="mt-3 pt-3 border-t border-white/5 flex items-center gap-2">
+          <span className="text-[10px] text-white/25">Next:</span>
+          <span className="text-base leading-none">{nextDef.icon}</span>
+          <span className="text-[10px] text-white/45 font-medium">{nextDef.title}</span>
+        </div>
+      )}
     </motion.div>
   );
 }

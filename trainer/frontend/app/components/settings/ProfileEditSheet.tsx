@@ -222,6 +222,26 @@ export function ProfileEditSheet({ open, onClose }: ProfileEditSheetProps) {
                 onChange={setWeightKg}
               />
 
+              {/* Live BMI */}
+              {(() => {
+                const kgNorm = unit === "lb" ? weightKg / 2.20462 : weightKg;
+                const bmi = heightCm > 0 ? Math.round((kgNorm / ((heightCm / 100) ** 2)) * 10) / 10 : 0;
+                if (bmi <= 0) return null;
+                const label = bmi < 18.5 ? "Underweight" : bmi < 25 ? "Normal" : bmi < 30 ? "Overweight" : "Obese";
+                const color = bmi < 18.5 ? "text-sky-400 bg-sky-400/8 border-sky-400/20"
+                  : bmi < 25 ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
+                  : bmi < 30 ? "text-amber-400 bg-amber-400/8 border-amber-400/20"
+                  : "text-red-400 bg-red-400/8 border-red-400/20";
+                return (
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] text-white/25">BMI:</span>
+                    <span className={cn("text-[10px] font-bold px-2 py-0.5 rounded-full border tabular-nums", color)}>
+                      {bmi} — {label}
+                    </span>
+                  </div>
+                );
+              })()}
+
               {/* Body fat */}
               <NumericField
                 label="Body Fat % (optional)"

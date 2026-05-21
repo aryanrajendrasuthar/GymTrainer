@@ -71,9 +71,13 @@ export function OneRMChart({ data, unit, className }: OneRMChartProps) {
   const maxE1RM = Math.max(...data.map((d) => d.estimated1RM));
   const minE1RM = Math.min(...data.map((d) => d.estimated1RM));
   const padding = (maxE1RM - minE1RM) * 0.2 || 5;
+  const delta = data.length >= 2
+    ? Math.round(((data[data.length - 1]!.estimated1RM - data[0]!.estimated1RM) / data[0]!.estimated1RM) * 100)
+    : null;
 
   return (
-    <div className={cn("h-36", className)}>
+    <div className={className}>
+      <div className="h-36">
       <ResponsiveContainer width="100%" height="100%">
         <LineChart data={data} margin={{ top: 4, right: 8, left: -20, bottom: 0 }}>
           <CartesianGrid
@@ -120,6 +124,15 @@ export function OneRMChart({ data, unit, className }: OneRMChartProps) {
           />
         </LineChart>
       </ResponsiveContainer>
+      </div>
+      {delta !== null && (
+        <div className="flex items-center justify-between mt-1.5 px-1">
+          <span className="text-[10px] text-white/25 tabular-nums">{data.length} sessions</span>
+          <span className={cn("text-[10px] font-bold tabular-nums", delta >= 0 ? "text-trainer-success" : "text-red-400")}>
+            {delta >= 0 ? "+" : ""}{delta}% overall
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -73,9 +73,17 @@ export function BodyFatTrendChart({ logs, gender, heightCm }: Props) {
 
   return (
     <div className="bg-trainer-surface border border-white/8 rounded-[16px] p-4">
-      <p className="text-xs text-white/35 uppercase tracking-widest font-semibold mb-4">
-        Body Fat % Trend
-      </p>
+      <div className="flex items-center justify-between mb-4">
+        <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">
+          Body Fat % Trend
+        </p>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[10px] font-bold text-trainer-indigo/70 tabular-nums">
+            {data[data.length - 1]!.bf}%
+          </span>
+          <span className="text-[9px] text-white/20 tabular-nums">{data.length} entries</span>
+        </div>
+      </div>
       <ResponsiveContainer width="100%" height={140}>
         <LineChart data={data} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" />

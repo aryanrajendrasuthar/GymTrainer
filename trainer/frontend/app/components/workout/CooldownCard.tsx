@@ -129,6 +129,9 @@ export function CooldownCard({ musclesTrained }: CooldownCardProps) {
       return sum + secs;
     }, 0) / 60
   );
+  const uniqueMuscleCount = new Set(
+    (musclesTrained as string[]).map((m) => resolveKey(m)).filter((k) => STRETCH_MAP[k])
+  ).size;
 
   return (
     <motion.div
@@ -149,13 +152,8 @@ export function CooldownCard({ musclesTrained }: CooldownCardProps) {
             <p className="text-sm font-bold text-white">Cooldown Stretches</p>
             <p className="text-[11px] text-white/35 mt-0.5">
               {stretches.length} stretches · ~{totalMins} min
-              {musclesTrained.length > 0 && (
-                <span className="text-white/20">
-                  {" · "}{(musclesTrained as string[]).slice(0, 3).map((m) => {
-                    const key = resolveKey(m);
-                    return key.charAt(0).toUpperCase() + key.slice(1);
-                  }).join(", ")}
-                </span>
+              {uniqueMuscleCount > 0 && (
+                <span className="text-white/20"> · {uniqueMuscleCount} muscles</span>
               )}
             </p>
           </div>

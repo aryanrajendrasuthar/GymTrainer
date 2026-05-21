@@ -141,14 +141,22 @@ export function PlateCalculator({ weightKg, unit }: PlateCalculatorProps) {
         </div>
 
         {/* Total */}
-        <p className="text-[10px] text-white/30 text-center">
-          Bar {barWeight} + plates {platesNeeded.reduce((s, p) => s + p.plate * p.count * 2, 0)}{unit}
-          {" = "}
-          <span className={isExact ? "text-trainer-success" : "text-amber-400"}>
-            {Math.round(totalLoaded * 100) / 100}{unit}
-          </span>
-          {!isExact && <span className="text-amber-400"> (closest possible)</span>}
-        </p>
+        {(() => {
+          const platesPerSide = platesNeeded.reduce((s, p) => s + p.count, 0);
+          return (
+            <p className="text-[10px] text-white/30 text-center">
+              Bar {barWeight} + plates {platesNeeded.reduce((s, p) => s + p.plate * p.count * 2, 0)}{unit}
+              {" = "}
+              <span className={isExact ? "text-trainer-success" : "text-amber-400"}>
+                {Math.round(totalLoaded * 100) / 100}{unit}
+              </span>
+              {!isExact && <span className="text-amber-400"> (closest possible)</span>}
+              <span className="text-white/20">
+                {" · "}{platesPerSide} plate{platesPerSide !== 1 ? "s" : ""}/side
+              </span>
+            </p>
+          );
+        })()}
 
         {/* Warm-up suggestions */}
         <div className="pt-2 border-t border-white/5">

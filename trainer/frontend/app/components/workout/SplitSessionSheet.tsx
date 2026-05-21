@@ -269,6 +269,22 @@ export function SplitSessionSheet({
                 <p className="text-xs text-white/40 mt-0.5">
                   Choose what to do now vs. schedule for later
                 </p>
+                {(() => {
+                  const nowCount = Object.values(assignments).filter((a) => a === "now").length
+                    + added.filter((a) => a.assignment === "now").length;
+                  return (
+                    <div className="flex items-center gap-1.5 mt-1.5">
+                      <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                        {nowCount} now
+                      </span>
+                      {laterCount > 0 && (
+                        <span className="text-[10px] font-bold text-trainer-warning/70 bg-trainer-warning/8 border border-trainer-warning/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                          {laterCount} later
+                        </span>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
               <button
                 onClick={onClose}

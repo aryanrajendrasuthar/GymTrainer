@@ -237,8 +237,25 @@ export function InsightsPanel({ sessions, allLogs, unit }: Props) {
     );
   }
 
+  const insightCount = [
+    volumeTrend,
+    bestDay,
+    topImproving,
+    avgPerWeek !== null,
+    longestStreak >= 2,
+    bestTimeOfDay,
+  ].filter(Boolean).length;
+
   return (
     <div className="flex flex-col gap-3">
+      {insightCount > 0 && (
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-bold text-white">Training Insights</p>
+          <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-2 py-0.5 rounded-full tabular-nums">
+            {insightCount} insights
+          </span>
+        </div>
+      )}
       {/* Volume trend */}
       {volumeTrend && (
         <VolumeTrendInsight pct={volumeTrend.pct} direction={volumeTrend.direction} recentVol={volumeTrend.recentVol} earlierVol={volumeTrend.earlierVol} unit={unit} />

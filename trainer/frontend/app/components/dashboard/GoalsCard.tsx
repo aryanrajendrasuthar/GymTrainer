@@ -387,6 +387,9 @@ export function GoalsCard() {
 
   const activeGoals = goals.filter((g) => !g.achieved);
   const achievedGoals = goals.filter((g) => g.achieved);
+  const overdueCount = activeGoals.filter(
+    (g) => g.deadline && new Date(g.deadline).getTime() < Date.now()
+  ).length;
 
   return (
     <>
@@ -410,6 +413,11 @@ export function GoalsCard() {
             {achievedGoals.length > 0 && (
               <span className="text-[10px] text-trainer-success font-bold bg-trainer-success/12 px-2 py-0.5 rounded-full">
                 {achievedGoals.length} achieved
+              </span>
+            )}
+            {overdueCount > 0 && (
+              <span className="text-[10px] text-red-400 font-bold bg-red-400/10 border border-red-400/20 px-2 py-0.5 rounded-full">
+                {overdueCount} overdue
               </span>
             )}
           </div>

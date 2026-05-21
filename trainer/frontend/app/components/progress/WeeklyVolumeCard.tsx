@@ -128,6 +128,7 @@ export function WeeklyVolumeCard() {
   const totalSets = rows.reduce((s, r) => s + r.sets, 0);
   const inZoneCount = rows.filter((r) => r.zone !== "below").length;
   const mrvCount = rows.filter((r) => r.zone === "mrv").length;
+  const belowMEVCount = rows.filter((r) => r.zone === "below").length;
 
   return (
     <div className="bg-trainer-surface border border-white/8 rounded-[16px] overflow-hidden">
@@ -146,6 +147,11 @@ export function WeeklyVolumeCard() {
                 ? `${totalSets} sets · ${inZoneCount}/${rows.length} on track`
                 : "No sessions logged this week"}
             </p>
+            {belowMEVCount > 0 && totalSets > 0 && (
+              <span className="shrink-0 text-[9px] font-bold text-white/40 bg-white/6 border border-white/10 px-1.5 py-0.5 rounded-full">
+                {belowMEVCount} need volume
+              </span>
+            )}
             {mrvCount > 0 && (
               <span className="shrink-0 text-[9px] font-bold text-red-400/80 bg-red-400/8 border border-red-400/20 px-1.5 py-0.5 rounded-full">
                 {mrvCount} at MRV

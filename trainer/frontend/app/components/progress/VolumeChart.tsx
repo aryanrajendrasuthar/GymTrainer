@@ -71,9 +71,10 @@ export function VolumeChart({ data, unit, className }: VolumeChartProps) {
   const avgVol = nonZeroData.length > 1
     ? Math.round(nonZeroData.reduce((a, d) => a + d.volume, 0) / nonZeroData.length)
     : 0;
+  const totalSessions = data.reduce((s, d) => s + d.sessions, 0);
 
   return (
-    <div className={cn("h-44", className)}>
+    <div className={className}><div className="h-44">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
           <defs>
@@ -124,6 +125,17 @@ export function VolumeChart({ data, unit, className }: VolumeChartProps) {
           )}
         </AreaChart>
       </ResponsiveContainer>
+      </div>
+      {totalSessions > 0 && (
+        <div className="flex items-center justify-between mt-1.5 px-1">
+          <span className="text-[10px] text-white/25 tabular-nums">{totalSessions} sessions</span>
+          {avgVol > 0 && (
+            <span className="text-[10px] text-trainer-indigo/60 tabular-nums">
+              ~{avgVol.toLocaleString()} {unit} avg/wk
+            </span>
+          )}
+        </div>
+      )}
     </div>
   );
 }
