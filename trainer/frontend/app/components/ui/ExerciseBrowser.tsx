@@ -3,7 +3,7 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, X, ChevronRight, Wind } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight, Wind } from "lucide-react";
 import { allExercises } from "@/app/data/exercises";
 import { ExerciseMediaTabs } from "@/app/components/ui/ExerciseMediaTabs";
 import { type Exercise, type ExerciseCategory } from "@/app/types";
@@ -167,37 +167,26 @@ function ExerciseDetailSheet({ exercise, onClose }: { exercise: Exercise | null;
   return createPortal(
     <AnimatePresence>
       {isOpen && exercise && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm"
-            onClick={onClose}
-          />
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 380, damping: 42 }}
-            className="fixed bottom-0 inset-x-0 z-50 bg-trainer-surface border-t border-white/10 rounded-t-[24px] max-h-[92vh] flex flex-col"
-          >
-            <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mt-3 mb-1 shrink-0" />
-            <div className="flex items-center justify-between px-4 pb-3 shrink-0">
-              <p className="text-base font-bold text-white truncate pr-2">{exercise.name}</p>
-              <button
-                onClick={onClose}
-                className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/40 shrink-0"
-              >
-                <X size={16} />
-              </button>
-            </div>
-            <div className="overflow-y-auto flex-1 px-4 pb-10">
-              <ExerciseDetailView exercise={exercise} />
-            </div>
-          </motion.div>
-        </>
+        <motion.div
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "100%" }}
+          transition={{ type: "spring", stiffness: 380, damping: 42 }}
+          className="fixed inset-0 z-50 bg-trainer-black flex flex-col"
+        >
+          <div className="flex items-center gap-3 px-4 pt-14 pb-4 border-b border-white/8 shrink-0">
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 shrink-0"
+            >
+              <ChevronLeft size={18} />
+            </button>
+            <p className="text-base font-bold text-white truncate flex-1">{exercise.name}</p>
+          </div>
+          <div className="overflow-y-auto flex-1 px-4 py-5 pb-16">
+            <ExerciseDetailView exercise={exercise} />
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>,
     document.body
