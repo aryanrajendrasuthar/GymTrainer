@@ -730,6 +730,14 @@ function ExerciseView({
                   wgerExerciseId={exercise.wgerExerciseId}
                   instructions={exercise.instructions}
                   defaultTab="video"
+                  localDetails={{
+                    equipment: exercise.equipment,
+                    movementType: exercise.movementType,
+                    forceType: exercise.forceType,
+                    mechanic: exercise.mechanic,
+                    tags: exercise.tags,
+                    contraindications: exercise.contraindications,
+                  }}
                 />
               </div>
             </motion.div>

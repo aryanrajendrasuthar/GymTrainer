@@ -250,6 +250,14 @@ function ExerciseDetail({ exercise }: { exercise: Exercise }) {
         wgerExerciseId={exercise.wgerExerciseId}
         defaultTab="muscles"
         instructions={exercise.instructions}
+        localDetails={{
+          equipment: exercise.equipment,
+          movementType: exercise.movementType,
+          forceType: exercise.forceType,
+          mechanic: exercise.mechanic,
+          tags: exercise.tags,
+          contraindications: exercise.contraindications,
+        }}
       />
 
       {/* Instructions */}

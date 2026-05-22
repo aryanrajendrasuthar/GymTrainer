@@ -20,6 +20,7 @@ const CATEGORY_CHIPS: { label: string; value: ExerciseCategory | null }[] = [
   { label: "Core", value: "core" },
   { label: "Full Body", value: "full-body" },
   { label: "Cardio", value: "cardio" },
+  { label: "Mobility", value: "mobility" },
 ];
 
 const DIFFICULTY_COLORS = {
@@ -66,6 +67,14 @@ function ExerciseDetailView({ exercise }: { exercise: Exercise }) {
         wgerExerciseId={exercise.wgerExerciseId}
         defaultTab="muscles"
         instructions={exercise.instructions}
+        localDetails={{
+          equipment: exercise.equipment,
+          movementType: exercise.movementType,
+          forceType: exercise.forceType,
+          mechanic: exercise.mechanic,
+          tags: exercise.tags,
+          contraindications: exercise.contraindications,
+        }}
       />
 
       <div>

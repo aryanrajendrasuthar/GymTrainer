@@ -978,7 +978,7 @@ export default function SettingsPage() {
         </motion.div>
 
         {/* App version */}
-        <p className="text-center text-[10px] text-white/15 pb-2">Trainer v1.0.0 · © 2025 Aryan Suthar</p>
+        <p className="text-center text-[10px] text-white/15 pb-2">Trainer v1.2.2 · © 2025 Aryan Rajendra Suthar</p>
       </div>
 
       {/* Saved flash */}

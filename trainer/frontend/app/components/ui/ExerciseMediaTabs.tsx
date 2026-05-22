@@ -13,6 +13,15 @@ interface WgerData {
   alternativeNames: string[];
 }
 
+interface LocalExerciseDetails {
+  equipment: string[];
+  movementType: string;
+  forceType: string;
+  mechanic: string;
+  tags: string[];
+  contraindications: string[];
+}
+
 interface ExerciseMediaTabsProps {
   youtubeId: string;
   exerciseName: string;
@@ -24,11 +33,12 @@ interface ExerciseMediaTabsProps {
   mode?: "gym" | "physio";
   affectedArea?: MuscleGroup[];
   rehabilitationMuscles?: MuscleGroup[];
+  localDetails?: LocalExerciseDetails;
 }
 
 const TABS = [
   { id: "video" as const, label: "Video", icon: Play },
-  { id: "muscles" as const, label: "Muscle Map", icon: Activity },
+  { id: "muscles" as const, label: "Muscles", icon: Activity },
   { id: "wger" as const, label: "Details", icon: Database },
 ];
 
@@ -43,10 +53,12 @@ export function ExerciseMediaTabs({
   mode = "gym",
   affectedArea = [],
   rehabilitationMuscles = [],
+  localDetails,
 }: ExerciseMediaTabsProps) {
   const [activeTab, setActiveTab] = useState<"video" | "muscles" | "wger">(defaultTab);
   const [videoLoaded, setVideoLoaded] = useState(false);
   const [videoModalOpen, setVideoModalOpen] = useState(false);
+  const [videoThumbFailed, setVideoThumbFailed] = useState(false);
   const [isOnline] = useState(() => typeof navigator !== "undefined" ? navigator.onLine : true);
 
   const thumbnailUrl = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
@@ -73,7 +85,7 @@ export function ExerciseMediaTabs({
             )}
           >
             <Icon size={14} />
-            <span className="hidden sm:inline">{label}</span>
+            <span>{label}</span>
             {activeTab === id && (
               <motion.div
                 layoutId="media-tab-indicator"
@@ -100,13 +112,20 @@ export function ExerciseMediaTabs({
               {!videoLoaded ? (
                 <div
                   className="relative w-full h-full cursor-pointer group"
-                  onClick={handlePlayVideo}
-                  role="button"
+                  onClick={!videoThumbFailed ? handlePlayVideo : undefined}
+                  role={!videoThumbFailed ? "button" : undefined}
                   aria-label={`Play ${exerciseName} form video`}
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === "Enter" && handlePlayVideo()}
+                  tabIndex={!videoThumbFailed ? 0 : undefined}
+                  onKeyDown={(e) => !videoThumbFailed && e.key === "Enter" && handlePlayVideo()}
                 >
-                  {isOnline ? (
+                  {!isOnline ? (
+                    <OfflineFallback exerciseName={exerciseName} instructions={instructions} />
+                  ) : videoThumbFailed ? (
+                    <div className="flex flex-col items-center justify-center h-full gap-3 p-6 bg-trainer-elevated">
+                      <Play size={28} className="text-white/15" />
+                      <p className="text-xs text-white/30 text-center">No video available for this exercise</p>
+                    </div>
+                  ) : (
                     <>
                       <Image
                         src={thumbnailUrl}
@@ -114,7 +133,12 @@ export function ExerciseMediaTabs({
                         fill
                         className="object-cover"
                         onError={(e) => {
-                          (e.target as HTMLImageElement).src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+                          const img = e.target as HTMLImageElement;
+                          if (!img.src.includes("hqdefault")) {
+                            img.src = `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`;
+                          } else {
+                            setVideoThumbFailed(true);
+                          }
                         }}
                       />
                       <div className="absolute inset-0 bg-black/30 flex items-center justify-center group-hover:bg-black/20 transition-colors">
@@ -127,8 +151,6 @@ export function ExerciseMediaTabs({
                         </motion.div>
                       </div>
                     </>
-                  ) : (
-                    <OfflineFallback exerciseName={exerciseName} instructions={instructions} />
                   )}
                 </div>
               ) : (
@@ -195,11 +217,15 @@ export function ExerciseMediaTabs({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="p-4"
+              className="p-4 space-y-4"
             >
-              {wgerExerciseId ? (
+              {localDetails && (
+                <LocalDetailsPanel details={localDetails} />
+              )}
+              {wgerExerciseId && (
                 <WgerDataPanel exerciseId={wgerExerciseId} exerciseName={exerciseName} />
-              ) : (
+              )}
+              {!localDetails && !wgerExerciseId && (
                 <p className="text-sm text-white/40 text-center py-8">
                   No supplementary data available for this exercise.
                 </p>
@@ -244,6 +270,67 @@ function OfflineFallback({ exerciseName, instructions }: { exerciseName: string;
             <li key={i}>{step}</li>
           ))}
         </ol>
+      )}
+    </div>
+  );
+}
+
+function LocalDetailsPanel({ details }: { details: LocalExerciseDetails }) {
+  const rows: { label: string; value: string }[] = [
+    { label: "Movement", value: details.movementType },
+    { label: "Force", value: details.forceType },
+    { label: "Mechanic", value: details.mechanic },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="grid grid-cols-3 gap-2">
+        {rows.map(({ label, value }) => (
+          <div key={label} className="flex flex-col gap-1 p-2.5 rounded-[10px] bg-white/4 border border-white/8">
+            <p className="text-[9px] text-white/30 uppercase tracking-widest">{label}</p>
+            <p className="text-xs font-semibold text-white/70 capitalize">{value}</p>
+          </div>
+        ))}
+      </div>
+
+      {details.equipment.length > 0 && (
+        <div>
+          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Equipment</p>
+          <div className="flex flex-wrap gap-1.5">
+            {details.equipment.map((eq) => (
+              <span key={eq} className="text-xs px-2.5 py-1 rounded-full bg-white/8 text-white/60 capitalize">
+                {eq.replace(/-/g, " ")}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {details.tags.length > 0 && (
+        <div>
+          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Tags</p>
+          <div className="flex flex-wrap gap-1.5">
+            {details.tags.map((tag) => (
+              <span key={tag} className="text-xs px-2.5 py-1 rounded-full bg-trainer-indigo/10 text-trainer-indigo/70 capitalize">
+                {tag.replace(/-/g, " ")}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {details.contraindications.length > 0 && (
+        <div>
+          <p className="text-[10px] text-white/30 uppercase tracking-widest mb-2">Contraindications</p>
+          <ul className="space-y-1.5">
+            {details.contraindications.map((c, i) => (
+              <li key={i} className="flex gap-2 items-start">
+                <span className="w-1.5 h-1.5 rounded-full bg-trainer-danger/50 shrink-0 mt-1.5" />
+                <p className="text-xs text-white/50 leading-relaxed capitalize">{c}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
     </div>
   );
