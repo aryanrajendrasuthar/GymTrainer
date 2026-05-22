@@ -48,6 +48,7 @@ import { PreviousPerformancePanel } from "@/app/components/workout/PreviousPerfo
 import { ProgressiveOverloadSuggestion } from "@/app/components/workout/ProgressiveOverloadSuggestion";
 import { NextExerciseButton } from "@/app/components/workout/NextExerciseButton";
 import { SessionComplete } from "@/app/components/workout/SessionComplete";
+import { ExerciseMediaTabs } from "@/app/components/ui/ExerciseMediaTabs";
 import { SplitSessionSheet } from "@/app/components/workout/SplitSessionSheet";
 import { RestTimer } from "@/app/components/workout/RestTimer";
 import { Button } from "@/app/components/ui/Button";
@@ -684,7 +685,7 @@ function ExerciseView({
         </motion.div>
       )}
 
-      {/* Video demo modal */}
+      {/* Exercise media sheet — video + muscle map */}
       <AnimatePresence>
         {showVideo && (
           <>
@@ -707,8 +708,8 @@ function ExerciseView({
               <div className="flex justify-center pt-3 pb-1">
                 <div className="w-9 h-1 rounded-full bg-white/15" />
               </div>
-              <div className="px-4 pb-2 flex items-center justify-between">
-                <p className="text-sm font-bold text-white">{exercise.name} — Form Video</p>
+              <div className="px-4 pb-3 flex items-center justify-between">
+                <p className="text-sm font-bold text-white">{exercise.name}</p>
                 <button
                   onClick={() => setShowVideo(false)}
                   className="w-7 h-7 rounded-full bg-white/8 flex items-center justify-center text-white/40"
@@ -716,13 +717,15 @@ function ExerciseView({
                   <X size={14} />
                 </button>
               </div>
-              <div className="aspect-video mx-4 mb-6 rounded-[14px] overflow-hidden bg-black">
-                <iframe
-                  src={`https://www.youtube-nocookie.com/embed/${exercise.youtubeId}?autoplay=1&rel=0&modestbranding=1`}
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  className="w-full h-full"
-                  title={`${exercise.name} form video`}
+              <div className="px-4 pb-6">
+                <ExerciseMediaTabs
+                  youtubeId={exercise.youtubeId}
+                  exerciseName={exercise.name}
+                  primaryMuscles={exercise.primaryMuscles}
+                  secondaryMuscles={exercise.secondaryMuscles}
+                  wgerExerciseId={exercise.wgerExerciseId}
+                  instructions={exercise.instructions}
+                  defaultTab="video"
                 />
               </div>
             </motion.div>
