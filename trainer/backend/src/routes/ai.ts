@@ -7,6 +7,21 @@ export const aiRouter = Router();
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+async function groqWithRetry(
+  params: Parameters<typeof groq.chat.completions.create>[0],
+  retries = 2
+): Promise<Awaited<ReturnType<typeof groq.chat.completions.create>>> {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await groq.chat.completions.create(params);
+    } catch (err) {
+      if (attempt === retries) throw err;
+      await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));
+    }
+  }
+  throw new Error("unreachable");
+}
+
 // ─── POST /api/ai/tip ─────────────────────────────────────────────────────────
 // Returns a single motivational/coaching tip after a workout session.
 
@@ -33,7 +48,7 @@ aiRouter.post("/tip", authGuard, async (req: Request, res: Response) => {
   const prompt = `You are an elite personal trainer. A user just finished a ${splitDay} session: ${exerciseCount} exercises, ${totalSets} sets, ${durationMinutes} minutes, ${Math.round(volumeKg)} kg volume${prCount > 0 ? `, ${prCount} personal record${prCount > 1 ? "s" : ""}` : ""}. Their goal is ${goal}${fitnessLevel ? ` and their level is ${fitnessLevel}` : ""}. Write exactly ONE concise motivational coaching tip (max 2 sentences) tailored to this session. Be specific, direct, and data-aware. No generic filler. No emojis.`;
 
   try {
-    const completion = await groq.chat.completions.create({
+    const completion = await groqWithRetry({
       model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 100,
@@ -112,7 +127,7 @@ aiRouter.post("/chat", authGuard, async (req: Request, res: Response) => {
   const systemContent = SYSTEM_PROMPT + (contextBlock ? `\n\nUser profile:\n${contextBlock}` : "");
 
   try {
-    const completion = await groq.chat.completions.create({
+    const completion = await groqWithRetry({
       model: "llama-3.3-70b-versatile",
       messages: [
         { role: "system", content: systemContent },
@@ -170,7 +185,7 @@ ${sessionLines}
 Write a concise, data-driven weekly summary in 3-4 sentences. Cover: what they accomplished, whether the volume/frequency was good, one specific strength or improvement, and one specific actionable focus for next week. Be direct and personal. No fluff.`;
 
   try {
-    const completion = await groq.chat.completions.create({
+    const completion = await groqWithRetry({
       model: "llama-3.3-70b-versatile",
       messages: [{ role: "user", content: prompt }],
       max_tokens: 200,

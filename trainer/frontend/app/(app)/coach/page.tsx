@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Loader2, Bot, User, Trash2 } from "lucide-react";
+import { Send, Loader2, Bot, User, Trash2, RefreshCw } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { usePhysioStore } from "@/app/store/physioStore";
@@ -131,6 +131,7 @@ export default function CoachPage() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [clearConfirm, setClearConfirm] = useState(false);
+  const [lastFailedContent, setLastFailedContent] = useState<string | null>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -247,16 +248,38 @@ export default function CoachPage() {
     const next = [...messages, userMsg];
     setMessages(next);
     setInput("");
+    setLastFailedContent(null);
     setLoading(true);
 
     try {
       const { reply } = await aiApi.chat(accessToken, next.slice(-14), context);
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch {
+      setLastFailedContent(content);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Something went wrong. Try again in a moment." },
+        { role: "assistant", content: "__error__" },
       ]);
+    } finally {
+      setLoading(false);
+      setTimeout(() => inputRef.current?.focus(), 50);
+    }
+  }
+
+  async function retryLastMessage() {
+    if (!lastFailedContent || !accessToken) return;
+    // Pop the error message, keep conversation history
+    const historyWithoutError = messages.slice(0, -1);
+    setMessages(historyWithoutError);
+    setLastFailedContent(null);
+    setLoading(true);
+
+    try {
+      const { reply } = await aiApi.chat(accessToken, historyWithoutError.slice(-14), context);
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+    } catch {
+      setLastFailedContent(lastFailedContent);
+      setMessages((prev) => [...prev, { role: "assistant", content: "__error__" }]);
     } finally {
       setLoading(false);
       setTimeout(() => inputRef.current?.focus(), 50);
@@ -380,10 +403,26 @@ export default function CoachPage() {
                 "max-w-[80%] rounded-[16px] px-4 py-3 text-sm leading-relaxed",
                 msg.role === "user"
                   ? "bg-trainer-indigo text-white rounded-tr-[4px]"
+                  : msg.content === "__error__"
+                  ? "bg-trainer-danger/8 border border-trainer-danger/25 text-white/80 rounded-tl-[4px]"
                   : "bg-trainer-surface border border-white/8 text-white/80 rounded-tl-[4px]"
               )}
             >
-              {msg.role === "assistant" ? (
+              {msg.role === "assistant" && msg.content === "__error__" ? (
+                <div className="flex flex-col gap-2">
+                  <p className="text-xs text-trainer-danger/80">Couldn&apos;t reach the server. Check your connection and try again.</p>
+                  {lastFailedContent && (
+                    <button
+                      onClick={retryLastMessage}
+                      disabled={loading}
+                      className="flex items-center gap-1.5 self-start text-xs font-semibold text-trainer-indigo bg-trainer-indigo/10 px-3 py-1.5 rounded-full hover:bg-trainer-indigo/20 transition-colors disabled:opacity-40"
+                    >
+                      <RefreshCw size={11} />
+                      Retry
+                    </button>
+                  )}
+                </div>
+              ) : msg.role === "assistant" ? (
                 <MarkdownBubble content={msg.content} />
               ) : (
                 msg.content

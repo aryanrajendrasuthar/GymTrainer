@@ -239,7 +239,7 @@ export function AddInjurySheet({ open, onClose }: AddInjurySheetProps) {
             </div>
 
             {/* Condition list */}
-            <div className="overflow-y-auto flex-1 px-5 pb-4">
+            <div className="overflow-y-auto max-h-[55vh] px-5 pb-4">
               {search.trim().length > 0 && filtered.length > 0 && (
                 <p className="text-[10px] text-white/25 mb-3 tabular-nums">
                   {filtered.reduce((t, g) => t + g.conditions.length, 0)} result{filtered.reduce((t, g) => t + g.conditions.length, 0) !== 1 ? "s" : ""}
