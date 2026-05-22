@@ -7,7 +7,6 @@ import { useUserStore } from "@/app/store/userStore";
 import { useRouter } from "next/navigation";
 import { type FitnessGoal } from "@/app/types";
 import { getSplitsByGoal } from "@/app/data/splits";
-import { authApi } from "@/app/lib/api";
 
 const STORAGE_KEY = "trainer-goal-checkin";
 
@@ -89,7 +88,7 @@ interface GoalCheckinModalProps {
 
 export function GoalCheckinModal({ open, onClose, sessionCount }: GoalCheckinModalProps) {
   const router = useRouter();
-  const { profile, updateProfile, accessToken } = useUserStore();
+  const { profile, updateProfile } = useUserStore();
   const [step, setStep] = useState<"rate" | "suggest" | "done">("rate");
   const [rating, setRating] = useState<ProgressRating | null>(null);
 
@@ -102,15 +101,6 @@ export function GoalCheckinModal({ open, onClose, sessionCount }: GoalCheckinMod
     recordCheckin();
     setStep("rate");
     setRating(null);
-    onClose();
-  }
-
-  function handleGoalSwitch(newGoal: FitnessGoal) {
-    updateProfile({ goal: newGoal });
-    if (accessToken) {
-      authApi.updateProfile(accessToken, { goal: newGoal }).catch(() => {});
-    }
-    recordCheckin();
     onClose();
   }
 

@@ -258,7 +258,7 @@ export function VoiceCoach({ accessToken, context, exerciseName }: VoiceCoachPro
                     {transcript && (
                       <div className="bg-trainer-surface rounded-[10px] px-3 py-2">
                         <p className="text-[10px] text-white/30 mb-1">You said</p>
-                        <p className="text-sm text-white/70 italic">"{transcript}"</p>
+                        <p className="text-sm text-white/70 italic">&quot;{transcript}&quot;</p>
                       </div>
                     )}
                     {reply && (

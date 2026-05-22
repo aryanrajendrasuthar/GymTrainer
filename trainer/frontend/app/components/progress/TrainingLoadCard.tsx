@@ -34,7 +34,7 @@ function weekLabel(iso: string): string {
 }
 
 export function TrainingLoadCard({ sessions, unit }: TrainingLoadCardProps) {
-  const { weeks, thisWeekLoad, lastWeekLoad, peakWeekLoad, trend, acuteLoad, chronicLoad, acwr } = useMemo(() => {
+  const { weeks, thisWeekLoad, peakWeekLoad, trend, chronicLoad, acwr } = useMemo(() => {
     // Group volume by week
     const byWeek: Record<string, number> = {};
     for (const s of sessions) {

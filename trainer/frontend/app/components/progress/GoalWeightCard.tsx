@@ -17,7 +17,7 @@ function fmt(kg: number, unit: "kg" | "lb") {
 }
 
 export function GoalWeightCard({ logs, goalWeightKg, unit }: GoalWeightCardProps) {
-  const { currentKg, diffKg, weeklyRate, weeksToGoal, isAchieved, direction } = useMemo(() => {
+  const { diffKg, weeklyRate, weeksToGoal, isAchieved, direction } = useMemo(() => {
     if (logs.length === 0) return { currentKg: 0, diffKg: 0, weeklyRate: 0, weeksToGoal: null, isAchieved: false, direction: "maintain" as const };
 
     const currentKg = logs[0].weightKg;
@@ -52,12 +52,6 @@ export function GoalWeightCard({ logs, goalWeightKg, unit }: GoalWeightCardProps
     return { currentKg, diffKg, weeklyRate, weeksToGoal, isAchieved, direction };
   }, [logs, goalWeightKg]);
 
-  if (logs.length === 0 || goalWeightKg <= 0) return null;
-
-  const etaDate = weeksToGoal
-    ? new Date(Date.now() + weeksToGoal * 7 * 86400000).toLocaleDateString("en-US", { month: "long", year: "numeric" })
-    : null;
-
   const pct = useMemo(() => {
     if (logs.length < 2) return 0;
     const start = logs[logs.length - 1].weightKg;
@@ -67,6 +61,12 @@ export function GoalWeightCard({ logs, goalWeightKg, unit }: GoalWeightCardProps
     const progress = current - start;
     return Math.min(100, Math.max(0, Math.round((progress / total) * 100)));
   }, [logs, goalWeightKg]);
+
+  if (logs.length === 0 || goalWeightKg <= 0) return null;
+
+  const etaDate = weeksToGoal
+    ? new Date(Date.now() + weeksToGoal * 7 * 86400000).toLocaleDateString("en-US", { month: "long", year: "numeric" })
+    : null;
 
   const rateAssessment = (() => {
     const abs = Math.abs(weeklyRate);

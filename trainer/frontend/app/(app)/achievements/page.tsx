@@ -2,14 +2,13 @@
 
 import { useMemo } from "react";
 import { motion } from "framer-motion";
-import { Trophy, Lock, ChevronRight } from "lucide-react";
+import { Trophy, Lock } from "lucide-react";
 import {
   useAchievementStore,
   ACHIEVEMENT_DEFS,
   type AchievementId,
 } from "@/app/store/achievementStore";
 import { useSessionStore } from "@/app/store/sessionStore";
-import { estimateOneRepMax } from "@/app/lib/progression-engine";
 import { cn } from "@/app/lib/utils";
 
 // ─── Tier config ────────────────────────────────────────────────────────────

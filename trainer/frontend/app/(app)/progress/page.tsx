@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Clock, Dumbbell, TrendingUp, X, ChevronRight, Trash2, Share2, Ruler, Target, Flame, Plus, ChevronDown, ChevronUp, Download, Zap, BarChart3 } from "lucide-react";
+import { Clock, Dumbbell, TrendingUp, X, ChevronRight, Trash2, Share2, Ruler, Target, Flame, Plus, ChevronUp, Download, Zap, BarChart3 } from "lucide-react";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
@@ -32,7 +32,6 @@ import { SplitAdherenceCard } from "@/app/components/progress/SplitAdherenceCard
 import { SessionRatingChart } from "@/app/components/progress/SessionRatingChart";
 import { NotesJournalSheet } from "@/app/components/progress/NotesJournalSheet";
 import { TDEECard } from "@/app/components/progress/TDEECard";
-import { calculateBMR } from "@/app/lib/nutrition";
 import type { ActivityLevel } from "@/app/types";
 import { useNutritionStore } from "@/app/store/nutritionStore";
 import { exerciseMap } from "@/app/data/exercises";

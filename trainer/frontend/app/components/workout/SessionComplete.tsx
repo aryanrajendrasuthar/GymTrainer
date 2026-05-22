@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Clock, Dumbbell, BarChart3, Star, Save, X, Zap, Share2, Flame, Bookmark, Check } from "lucide-react";
+import { Trophy, Clock, Dumbbell, BarChart3, Star, Save, X, Zap, Share2, Flame, Bookmark } from "lucide-react";
 import { Button } from "@/app/components/ui/Button";
 import { Textarea } from "@/app/components/ui/Input";
 import { MuscleActivationDiagram } from "@/app/components/ui/MuscleActivationDiagram";
@@ -120,7 +120,6 @@ export function SessionComplete({
   const [coachTip, setCoachTip] = useState<string | null>(null);
   const [saveAsTemplate, setSaveAsTemplate] = useState(false);
   const [templateName, setTemplateName] = useState(session.splitDay ?? "My Workout");
-  const [templateSaved, setTemplateSaved] = useState(false);
   const exerciseIds = session.exercisesCompleted?.map((e) => e.exerciseId) ?? [];
   const hasPR = personalRecords.length > 0;
 
@@ -452,7 +451,6 @@ export function SessionComplete({
             onClick={() => {
               if (saveAsTemplate && exerciseIds.length > 0) {
                 saveTemplate(templateName.trim() || (session.splitDay ?? "My Workout"), exerciseIds);
-                setTemplateSaved(true);
               }
               onSave(notes, rating > 0 ? rating : undefined);
             }}

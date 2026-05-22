@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Sparkles, ChevronRight, Dumbbell, AlertCircle, ArrowRight } from "lucide-react";
+import { X, Sparkles, Dumbbell, AlertCircle, ArrowRight } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { authApi } from "@/app/lib/api";
 import { calculateNutritionTargets } from "@/app/lib/nutrition";
@@ -33,7 +32,6 @@ const DIFFICULTY_LABELS: Record<string, string> = {
 };
 
 export function GoalChangeSheet({ open, onClose }: GoalChangeSheetProps) {
-  const router = useRouter();
   const { profile, updateProfile, accessToken } = useUserStore();
   const [selected, setSelected] = useState<FitnessGoal | null>(
     profile?.goal ?? null
@@ -88,12 +86,6 @@ export function GoalChangeSheet({ open, onClose }: GoalChangeSheetProps) {
   function handleKeepSplit() {
     setShowSplitNudge(false);
     onClose();
-  }
-
-  function handleGoToSplits() {
-    setShowSplitNudge(false);
-    onClose();
-    router.push("/settings");
   }
 
   function handlePickSplit(splitId: string) {

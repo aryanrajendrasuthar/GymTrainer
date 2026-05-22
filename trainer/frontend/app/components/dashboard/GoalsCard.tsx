@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Target, Plus, X, Check, ChevronRight, Trophy } from "lucide-react";
+import { Target, Plus, X, Check, Trophy } from "lucide-react";
 import { useGoalStore, type PerformanceGoal } from "@/app/store/goalStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { useProgressStore } from "@/app/store/progressStore";

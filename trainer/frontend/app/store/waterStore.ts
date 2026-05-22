@@ -18,7 +18,7 @@ function today(): string {
 
 export const useWaterStore = create<WaterState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       todayIntakeMl: 0,
       lastResetDate: today(),
       dailyGoalMl: 2500,

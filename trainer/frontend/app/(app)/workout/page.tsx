@@ -1220,7 +1220,22 @@ function WorkoutPageContent() {
       if (!exercise) return [];
       return [{ exerciseName: exercise.name, weightKg: bestCurrentSet.weightUsed, reps: bestCurrentSet.repsCompleted, unit }];
     });
-  }, [completedSession, allExerciseLogs, unit]);
+  }, [completedSession, allExerciseLogs, unit, mergedExerciseMap]);
+
+  // Sets per primary muscle group this session — for VolumeLandmarkCard
+  const setsPerMuscle = useMemo(() => {
+    if (!session?.exercises) return {};
+    const counts: Record<string, number> = {};
+    for (const ex of session.exercises) {
+      const exercise = mergedExerciseMap[ex.exerciseId];
+      if (!exercise) continue;
+      const setsDone = ex.sets.length;
+      for (const m of exercise.primaryMuscles) {
+        counts[m] = (counts[m] ?? 0) + setsDone;
+      }
+    }
+    return counts;
+  }, [session?.exercises, mergedExerciseMap]);
 
   // ─── Session complete view (before guards — must always render after finish) ─
 
@@ -1474,21 +1489,6 @@ function WorkoutPageContent() {
   }
 
   // ─── Display exercise (may be superset partner) ────────────────────────────
-
-  // Sets per primary muscle group this session — for VolumeLandmarkCard
-  const setsPerMuscle = useMemo(() => {
-    if (!session?.exercises) return {};
-    const counts: Record<string, number> = {};
-    for (const ex of session.exercises) {
-      const exercise = mergedExerciseMap[ex.exerciseId];
-      if (!exercise) continue;
-      const setsDone = ex.sets.length;
-      for (const m of exercise.primaryMuscles) {
-        counts[m] = (counts[m] ?? 0) + setsDone;
-      }
-    }
-    return counts;
-  }, [session?.exercises]);
 
   const displayIdx = supersetTracker
     ? supersetTracker.activeSide === 0 ? supersetTracker.firstIdx : supersetTracker.secondIdx

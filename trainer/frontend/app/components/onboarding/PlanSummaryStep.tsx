@@ -132,8 +132,6 @@ export function PlanSummaryStep({
   goal,
   split,
   nutritionTargets,
-  unit,
-  name,
 }: PlanSummaryStepProps) {
   const meta = GOAL_META[goal];
 

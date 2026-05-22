@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Scale, X, ChevronRight } from "lucide-react";
+import { Scale, X } from "lucide-react";
 import Link from "next/link";
 
 interface WeightNudgeBannerProps {

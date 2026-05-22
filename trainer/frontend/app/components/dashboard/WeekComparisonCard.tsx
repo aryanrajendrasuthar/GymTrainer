@@ -47,7 +47,6 @@ function DeltaChip({ pct }: { pct: number | null }) {
   if (pct === null) return <span className="text-[10px] text-white/20">—</span>;
 
   const positive = pct >= 0;
-  const abs      = Math.abs(pct);
   const Icon     = pct === 0 ? Minus : positive ? TrendingUp : TrendingDown;
 
   return (
@@ -83,7 +82,6 @@ export function WeekComparisonCard() {
   const durationPct  = pctChange(thisWeek.avgDurationMin, lastWeek.avgDurationMin);
   const setsPct      = pctChange(thisWeek.totalSets, lastWeek.totalSets);
 
-  const thisVol = unit === "lb" ? thisWeek.volumeKg * 2.20462 : thisWeek.volumeKg;
   const lastVol = unit === "lb" ? lastWeek.volumeKg * 2.20462 : lastWeek.volumeKg;
 
   return (

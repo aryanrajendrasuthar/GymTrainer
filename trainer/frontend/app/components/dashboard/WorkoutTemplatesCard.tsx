@@ -7,7 +7,6 @@ import { Bookmark, Play } from "lucide-react";
 import { useWorkoutTemplateStore } from "@/app/store/workoutTemplateStore";
 import { useCustomExerciseStore } from "@/app/store/customExerciseStore";
 import { exerciseMap } from "@/app/data/exercises";
-import { cn } from "@/app/lib/utils";
 
 function relativeDate(iso: string): string {
   const diffDays = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);

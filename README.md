@@ -119,6 +119,7 @@ PORT=4000
 FRONTEND_URL=http://localhost:3000
 SUPABASE_URL=https://<your-project-ref>.supabase.co
 SUPABASE_SERVICE_ROLE_KEY=<your-service-role-key>
+GROQ_API_KEY=<your-groq-api-key>
 ```
 
 > **Where to find these values:** Supabase dashboard → **Settings → API**
@@ -193,6 +194,7 @@ The app is now running at [http://localhost:3000](http://localhost:3000).
    |---|---|
    | `SUPABASE_URL` | `https://<your-project-ref>.supabase.co` |
    | `SUPABASE_SERVICE_ROLE_KEY` | your service role key |
+   | `GROQ_API_KEY` | your Groq API key (from [console.groq.com](https://console.groq.com)) |
    | `FRONTEND_URL` | `https://<your-vercel-app>.vercel.app` *(add this after deploying the frontend)* |
 
 5. Click **Create Web Service**. Render builds and deploys automatically.
@@ -304,6 +306,7 @@ Work through this checklist after deploying:
 | `SUPABASE_URL` | Yes | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Service role key — **never expose publicly** |
 | `FRONTEND_URL` | Yes | Allowed CORS origin (your Vercel URL in production) |
+| `GROQ_API_KEY` | Yes | Groq API key for AI coaching features — get free at [console.groq.com](https://console.groq.com) |
 | `PORT` | No | Server port (default: 4000) |
 | `NODE_ENV` | No | Set to `production` by Render automatically |
 

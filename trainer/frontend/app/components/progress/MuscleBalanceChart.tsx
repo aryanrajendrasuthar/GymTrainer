@@ -30,8 +30,6 @@ const MUSCLE_GROUPS = [
 
 type GroupKey = (typeof MUSCLE_GROUPS)[number]["key"];
 
-const sessionIds = new Set<string>();
-
 export function MuscleBalanceChart({ sessions, allLogs }: Props) {
   const data = useMemo(() => {
     const totals: Record<GroupKey, number> = {

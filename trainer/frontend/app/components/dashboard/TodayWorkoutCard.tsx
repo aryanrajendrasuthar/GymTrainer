@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { ChevronRight, Clock, Coffee, Dumbbell, Moon, TrendingUp, Zap, CalendarDays, X } from "lucide-react";
+import { ChevronRight, Clock, Coffee, Dumbbell, Moon, TrendingUp, Zap, CalendarDays } from "lucide-react";
 import { type SplitDay, type WorkoutSplit } from "@/app/types";
 import { cn, formatVolume } from "@/app/lib/utils";
 import { exerciseMap } from "@/app/data/exercises";

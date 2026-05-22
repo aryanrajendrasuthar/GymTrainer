@@ -37,7 +37,6 @@ export function ActivityHeatmap({ sessions }: ActivityHeatmapProps) {
     const cells: { dateStr: string; volumeKg: number; active: boolean; isToday: boolean; isFuture: boolean }[] = [];
     const monthLabelMap = new Map<number, string>(); // column index → month abbr
 
-    let col = 0;
     let lastMonth = -1;
 
     for (let i = 0; i < Math.ceil((DAYS + startDow) / 7) * 7; i++) {
@@ -54,8 +53,6 @@ export function ActivityHeatmap({ sessions }: ActivityHeatmapProps) {
       }
 
       cells.push({ dateStr, volumeKg, active: volumeKg > 0, isToday, isFuture });
-
-      if ((i + 1) % 7 === 0) col++;
     }
 
     const monthLabels: { col: number; label: string }[] = [];

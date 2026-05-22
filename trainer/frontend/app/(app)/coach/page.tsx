@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Send, Loader2, Bot, User, Trash2, ChevronDown } from "lucide-react";
+import { Send, Loader2, Bot, User, Trash2 } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { usePhysioStore } from "@/app/store/physioStore";

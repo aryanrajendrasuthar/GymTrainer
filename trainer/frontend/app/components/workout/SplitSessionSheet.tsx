@@ -141,8 +141,8 @@ export function SplitSessionSheet({
 
   // ─── Search results ────────────────────────────────────────────────────────
 
-  const scheduledIds = new Set(exercises.map((e) => e.id));
-  const addedIds = new Set(added.map((a) => a.id));
+  const scheduledIds = useMemo(() => new Set(exercises.map((e) => e.id)), [exercises]);
+  const addedIds = useMemo(() => new Set(added.map((a) => a.id)), [added]);
 
   const workoutResults = useMemo(() => {
     if (!query.trim()) return [];
