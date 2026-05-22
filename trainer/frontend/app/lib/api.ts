@@ -153,6 +153,12 @@ export const authApi = {
       method: "POST",
     }),
 
+  deleteAccount: (token: string) =>
+    apiFetch<{ message: string }>("/api/auth/account", {
+      token,
+      method: "DELETE",
+    }),
+
   refresh: (refreshToken: string) =>
     apiFetch<{ accessToken: string; refreshToken: string; expiresAt: number }>(
       "/api/auth/refresh",

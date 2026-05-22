@@ -158,6 +158,23 @@ authRouter.get(
   }
 );
 
+// ─── DELETE /api/auth/account ─────────────────────────────────────────────────
+
+authRouter.delete(
+  "/account",
+  authGuard,
+  async (req: Request, res: Response, next: NextFunction) => {
+    const { userId } = req as AuthenticatedRequest;
+
+    await supabase.from("user_profiles").delete().eq("id", userId);
+
+    const { error } = await supabase.auth.admin.deleteUser(userId);
+    if (error) return next(createError(error.message, 500, "DELETE_ERROR"));
+
+    res.json({ message: "Account deleted." });
+  }
+);
+
 // ─── PATCH /api/auth/profile ──────────────────────────────────────────────────
 
 authRouter.patch(

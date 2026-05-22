@@ -23,6 +23,8 @@ import {
   Trophy,
   Shield,
   Code2,
+  ArrowLeftRight,
+  Trash2,
 } from "lucide-react";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
@@ -301,6 +303,9 @@ export default function SettingsPage() {
 
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
+  const [showSwitchAccountConfirm, setShowSwitchAccountConfirm] = useState(false);
+  const [showDeleteAccountConfirm, setShowDeleteAccountConfirm] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [showGoalSheet, setShowGoalSheet] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
@@ -336,6 +341,24 @@ export default function SettingsPage() {
 
   function handleSignOut() {
     if (accessToken) authApi.signOut(accessToken).catch(() => {});
+    signOut();
+    router.replace("/signin");
+  }
+
+  function handleSwitchAccount() {
+    if (accessToken) authApi.signOut(accessToken).catch(() => {});
+    signOut();
+    router.replace("/signin");
+  }
+
+  async function handleDeleteAccount() {
+    if (!accessToken) return;
+    setDeletingAccount(true);
+    try {
+      await authApi.deleteAccount(accessToken);
+    } catch {
+      // Account may already be partially deleted — proceed with local cleanup
+    }
     signOut();
     router.replace("/signin");
   }
@@ -923,6 +946,26 @@ export default function SettingsPage() {
               </div>
             </button>
             <button
+              onClick={() => setShowSwitchAccountConfirm(true)}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left border-b border-white/5 group"
+            >
+              <ArrowLeftRight size={15} className="text-white/40 group-hover:text-white/70 transition-colors shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white/70 group-hover:text-white/90 transition-colors">Switch Account</p>
+                <p className="text-[11px] text-white/30 mt-0.5">Sign out and log in with a different account</p>
+              </div>
+            </button>
+            <button
+              onClick={() => setShowDeleteAccountConfirm(true)}
+              className="flex items-center gap-3 w-full px-4 py-3.5 text-left border-b border-white/5 group"
+            >
+              <Trash2 size={15} className="text-trainer-danger/60 group-hover:text-trainer-danger transition-colors shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-trainer-danger/70 group-hover:text-trainer-danger transition-colors">Delete Account</p>
+                <p className="text-[11px] text-white/30 mt-0.5">Permanently remove your account and all data</p>
+              </div>
+            </button>
+            <button
               onClick={() => setShowSignOutConfirm(true)}
               className="flex items-center gap-3 w-full px-4 py-3.5 text-left group"
             >
@@ -1016,6 +1059,68 @@ export default function SettingsPage() {
         onCancel={() => setShowSignOutConfirm(false)}
         danger
       />
+
+      {/* Switch account confirm */}
+      <ConfirmSheet
+        open={showSwitchAccountConfirm}
+        title="Switch Account?"
+        body="You'll be signed out and taken to the sign-in screen where you can log in with a different account."
+        confirmLabel="Switch Account"
+        onConfirm={handleSwitchAccount}
+        onCancel={() => setShowSwitchAccountConfirm(false)}
+      />
+
+      {/* Delete account confirm */}
+      <AnimatePresence>
+        {showDeleteAccountConfirm && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => !deletingAccount && setShowDeleteAccountConfirm(false)}
+              className="fixed inset-0 bg-black/60 z-40"
+            />
+            <motion.div
+              initial={{ y: "100%" }}
+              animate={{ y: 0 }}
+              exit={{ y: "100%" }}
+              transition={{ type: "spring", stiffness: 380, damping: 40 }}
+              className="fixed bottom-0 inset-x-0 z-50 bg-trainer-elevated border-t border-white/10 rounded-t-[24px] px-5 pt-5 pb-10"
+            >
+              <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-5" />
+              <div className="w-10 h-10 rounded-full bg-trainer-danger/15 flex items-center justify-center mb-4">
+                <Trash2 size={18} className="text-trainer-danger" />
+              </div>
+              <p className="text-base font-bold text-white mb-2">Delete Account?</p>
+              <p className="text-sm text-white/45 leading-relaxed mb-2">
+                This will permanently delete your account, profile, and all workout history. This action <span className="text-trainer-danger font-semibold">cannot be undone</span>.
+              </p>
+              <p className="text-xs text-white/30 mb-6">All local data, sessions, and progress will be erased.</p>
+              <div className="flex flex-col gap-2">
+                <button
+                  onClick={handleDeleteAccount}
+                  disabled={deletingAccount}
+                  className="w-full py-3.5 rounded-[14px] text-sm font-bold bg-trainer-danger text-white active:bg-trainer-danger/80 disabled:opacity-60 flex items-center justify-center gap-2 transition-colors"
+                >
+                  {deletingAccount ? (
+                    <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    "Delete My Account"
+                  )}
+                </button>
+                <button
+                  onClick={() => setShowDeleteAccountConfirm(false)}
+                  disabled={deletingAccount}
+                  className="w-full py-3.5 rounded-[14px] text-sm font-semibold text-white/50 hover:text-white transition-colors disabled:opacity-40"
+                >
+                  Cancel
+                </button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

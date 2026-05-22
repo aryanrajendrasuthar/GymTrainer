@@ -7,13 +7,15 @@ export const aiRouter = Router();
 
 const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
+import type { ChatCompletion, ChatCompletionCreateParamsNonStreaming } from "groq-sdk/resources/chat/completions";
+
 async function groqWithRetry(
-  params: Parameters<typeof groq.chat.completions.create>[0],
+  params: ChatCompletionCreateParamsNonStreaming,
   retries = 2
-): Promise<Awaited<ReturnType<typeof groq.chat.completions.create>>> {
+): Promise<ChatCompletion> {
   for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      return await groq.chat.completions.create(params);
+      return await groq.chat.completions.create({ ...params, stream: false });
     } catch (err) {
       if (attempt === retries) throw err;
       await new Promise((r) => setTimeout(r, 800 * (attempt + 1)));

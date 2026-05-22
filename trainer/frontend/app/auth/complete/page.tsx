@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { supabase } from "@/app/lib/supabaseClient";
-import { authApi } from "@/app/lib/api";
+import { authApi, ApiError } from "@/app/lib/api";
 import { useUserStore } from "@/app/store/userStore";
 
 export default function AuthCompletePage() {
@@ -29,10 +29,16 @@ export default function AuthCompletePage() {
 
         const { access_token, refresh_token, expires_at } = session;
 
-        // Try to fetch profile; if it doesn't exist yet (new OAuth user), create it
-        let profile = await authApi.getProfile(access_token).catch(() => null);
+        // Fetch profile. Only create a new row for genuine 404 (first-ever OAuth login).
+        // Any other error (network, 500) is surfaced rather than silently creating a
+        // bare profile — which would wipe split_id and force returning users through onboarding.
+        let profile = await authApi.getProfile(access_token).catch((err: unknown) => {
+          if (err instanceof ApiError && err.status === 404) return null;
+          throw err;
+        });
 
         if (!profile) {
+          // Genuine new user — seed a row with their Google display name.
           const googleName =
             (session.user.user_metadata?.full_name as string) ??
             (session.user.user_metadata?.name as string) ??

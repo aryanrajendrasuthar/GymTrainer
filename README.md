@@ -1,7 +1,8 @@
-# Trainer
+# Trainer — v1.2.2
 
 **Author:** Aryan Rajendra Suthar  
-**License:** MIT — see [LICENSE](./LICENSE)
+**Contact:** aryanrajendrasuthar@gmail.com  
+**License:** Proprietary — see [LICENSE](./LICENSE)
 
 A premium, evidence-based fitness + physiotherapy web app. Offline-first architecture, real-time data sync, and clinical-level exercise science — built as a production-grade full-stack portfolio project.
 
@@ -9,14 +10,19 @@ A premium, evidence-based fitness + physiotherapy web app. Offline-first archite
 
 ## Features
 
-- **Personalised workout splits** — Push/Pull/Legs, Upper/Lower, Full Body, and more with evidence-based progressions
-- **Exercise library** — 200+ exercises with muscle activation diagrams, cues, and video links
+- **Personalised workout splits** — Push/Pull/Legs, Upper/Lower, Full Body, Dad Split (yoga/mobility), and more with evidence-based progressions
+- **Exercise library** — 200+ exercises across gym, mobility, and yoga categories; muscle activation diagrams, video links, form cues, and a searchable browser with category filters
 - **Live workout tracker** — Set-by-set logging with RPE, rest timers, and fire-and-forget backend sync
 - **Session splitting** — Split a scheduled workout into "Now" and "Later" buckets with pending session recovery
+- **AI Coach** — Context-aware chat powered by Llama 3.3 70B via Groq; post-workout tips and weekly AI-generated training summaries
 - **Progress analytics** — Volume trends by muscle group, personal records, and body weight charting
-- **Physiotherapy module** — Condition management with phase-gated rehab protocols and progression criteria
-- **Glossary** — 64 clinical terms with inline tooltips (anatomy, movement, assessment, conditions)
+- **Goals** — Performance goals with deadline tracking and achievement detection
+- **Achievements** — Unlockable milestones tied to volume, streaks, and personal records
+- **Physiotherapy module** — Condition management with phase-gated rehab protocols, progression criteria, and a dedicated exercise browser
+- **Supplements** — Daily supplement tracking with completion logging
+- **Glossary** — 64+ clinical terms with inline tooltips (anatomy, movement, assessment, conditions)
 - **Warmup protocols** — Session-type-aware warmup cards for every split type
+- **Account management** — Edit profile, switch account, and full account deletion
 - **Offline-first** — Zustand stores with IndexedDB persistence; all data survives refreshes without a network connection
 - **PWA-ready** — Installable on iOS and Android from the browser
 
@@ -32,6 +38,7 @@ A premium, evidence-based fitness + physiotherapy web app. Offline-first archite
 | Backend | Node.js 20, Express, Zod |
 | Database | Supabase (PostgreSQL + Row Level Security) |
 | Auth | Supabase Auth — Email/Password + Google OAuth |
+| AI | Groq API — Llama 3.3 70B (chat, tips, weekly summaries) |
 | Frontend hosting | Vercel |
 | Backend hosting | Render.com (free tier) |
 | CI | GitHub Actions |
@@ -51,12 +58,17 @@ A premium, evidence-based fitness + physiotherapy web app. Offline-first archite
 │   │   │   │   ├── exercises/
 │   │   │   │   ├── progress/
 │   │   │   │   ├── physio/
+│   │   │   │   ├── coach/
 │   │   │   │   ├── glossary/
+│   │   │   │   ├── achievements/
+│   │   │   │   ├── splits/
 │   │   │   │   └── settings/
 │   │   │   ├── onboarding/
 │   │   │   ├── signin/
 │   │   │   ├── signup/
-│   │   │   ├── auth/callback/  # Supabase OAuth callback
+│   │   │   ├── auth/
+│   │   │   │   ├── callback/   # Supabase OAuth code exchange (server)
+│   │   │   │   └── complete/   # OAuth session finalisation (client)
 │   │   │   ├── components/
 │   │   │   ├── data/           # Exercise library, glossary, splits, protocols
 │   │   │   ├── hooks/
@@ -67,7 +79,7 @@ A premium, evidence-based fitness + physiotherapy web app. Offline-first archite
 │   │   └── next.config.mjs
 │   ├── backend/                # Express REST API
 │   │   └── src/
-│   │       ├── routes/         # auth, sessions, exercises, progress, physio
+│   │       ├── routes/         # auth, sessions, exercises, progress, physio, ai
 │   │       ├── middleware/     # auth guard, rate limiter, error handler
 │   │       └── lib/            # Supabase admin client
 │   └── supabase/
@@ -125,6 +137,7 @@ GROQ_API_KEY=<your-groq-api-key>
 > **Where to find these values:** Supabase dashboard → **Settings → API**
 > - `SUPABASE_URL` — "Project URL"
 > - `SUPABASE_SERVICE_ROLE_KEY` — "service_role" key (keep this secret — never commit it)
+> - `GROQ_API_KEY` — from [console.groq.com](https://console.groq.com) (free tier available)
 
 ```bash
 npm run dev   # starts on http://localhost:4000
@@ -188,14 +201,14 @@ The app is now running at [http://localhost:3000](http://localhost:3000).
 
    If it doesn't auto-detect, fill those in manually.
 
-4. Scroll to **Environment Variables** and add the three secrets (leave `NODE_ENV` and `PORT` — `render.yaml` sets those):
+4. Scroll to **Environment Variables** and add the secrets (leave `NODE_ENV` and `PORT` — `render.yaml` sets those):
 
    | Key | Value |
    |---|---|
    | `SUPABASE_URL` | `https://<your-project-ref>.supabase.co` |
    | `SUPABASE_SERVICE_ROLE_KEY` | your service role key |
-   | `GROQ_API_KEY` | your Groq API key (from [console.groq.com](https://console.groq.com)) |
-   | `FRONTEND_URL` | `https://<your-vercel-app>.vercel.app` *(add this after deploying the frontend)* |
+   | `GROQ_API_KEY` | your Groq API key |
+   | `FRONTEND_URL` | `https://<your-vercel-app>.vercel.app` *(add after deploying the frontend)* |
 
 5. Click **Create Web Service**. Render builds and deploys automatically.
 
@@ -223,7 +236,7 @@ The app is now running at [http://localhost:3000](http://localhost:3000).
    | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | your anon key |
    | `NEXT_PUBLIC_API_URL` | `https://trainer-backend.onrender.com` |
 
-5. Click **Deploy**. Vercel builds and assigns a URL like `https://trainer-backend.vercel.app`.
+5. Click **Deploy**. Vercel builds and assigns a URL like `https://trainer-nskt.vercel.app`.
 
 6. Go back to Render → your `trainer-backend` service → **Environment** → update `FRONTEND_URL` to your Vercel URL. Render will redeploy automatically.
 
@@ -291,8 +304,10 @@ Work through this checklist after deploying:
 - [ ] Frontend loads at your Vercel URL
 - [ ] Email sign-up and sign-in work
 - [ ] Google OAuth sign-in completes without a redirect error
-- [ ] Dashboard loads and shows your workout split
+- [ ] Returning Google login goes directly to dashboard (not onboarding)
+- [ ] Dashboard loads and shows today's correct workout split
 - [ ] Logging a set syncs to Supabase (check the `sessions` table)
+- [ ] AI Coach responds in the Coach tab
 - [ ] App is installable as a PWA (Chrome → address bar → "Install" icon)
 
 ---
@@ -306,7 +321,7 @@ Work through this checklist after deploying:
 | `SUPABASE_URL` | Yes | Supabase project URL |
 | `SUPABASE_SERVICE_ROLE_KEY` | Yes | Service role key — **never expose publicly** |
 | `FRONTEND_URL` | Yes | Allowed CORS origin (your Vercel URL in production) |
-| `GROQ_API_KEY` | Yes | Groq API key for AI coaching features — get free at [console.groq.com](https://console.groq.com) |
+| `GROQ_API_KEY` | Yes | Groq API key for AI coaching features |
 | `PORT` | No | Server port (default: 4000) |
 | `NODE_ENV` | No | Set to `production` by Render automatically |
 
@@ -338,10 +353,11 @@ Render and Vercel both auto-deploy on push to `main` — no manual deploy step n
 
 ## Author
 
-**Aryan Rajendra Suthar**
+**Aryan Rajendra Suthar**  
+aryanrajendrasuthar@gmail.com
 
 ---
 
 ## License
 
-MIT © 2025 Aryan Rajendra Suthar — see [LICENSE](./LICENSE) for full text.
+Proprietary © 2025 Aryan Rajendra Suthar — see [LICENSE](./LICENSE) for full terms.

@@ -115,6 +115,7 @@ export default function OnboardingPage() {
   const { updateSettings } = useSettingsStore();
 
   const [step, setStep] = useState(0);
+  const [saving, setSaving] = useState(false);
   const direction = useRef(1);
 
   const [goal, setGoal] = useState<FitnessGoal | null>(null);
@@ -167,8 +168,8 @@ export default function OnboardingPage() {
     setStep((s) => s - 1);
   };
 
-  const handleComplete = () => {
-    if (!goal || !fitnessLevel || !splitId) return;
+  const handleComplete = async () => {
+    if (!goal || !fitnessLevel || !splitId || saving) return;
     const m = metricsComplete(metrics) ? metrics : null;
 
     const nutritionTargets = m
@@ -181,6 +182,34 @@ export default function OnboardingPage() {
           goal
         )
       : undefined;
+
+    // Persist split_id to the database FIRST — this is what the re-login check
+    // uses to decide whether onboarding is complete. Only proceed after it confirms.
+    // If the token is missing the session is broken; bail rather than marking
+    // onboarding complete without the DB write.
+    if (!accessToken) return;
+
+    setSaving(true);
+    try {
+      await authApi.updateProfile(accessToken, {
+        goal,
+        fitness_level: fitnessLevel,
+        equipment,
+        split_id: splitId,
+        ...(m
+          ? {
+              gender: m.gender,
+              age: m.age,
+              height_cm: m.heightCm,
+              weight_kg: m.weightKg,
+              activity_level: m.activityLevel,
+            }
+          : {}),
+      });
+    } catch {
+      setSaving(false);
+      return;
+    }
 
     updateProfile({
       goal,
@@ -200,7 +229,6 @@ export default function OnboardingPage() {
       ...(nutritionTargets ? { nutritionTargets } : {}),
       ...(weightUnit ? { units: weightUnit } : {}),
     });
-    // Persist unit + notification prefs chosen during onboarding
     updateSettings({
       ...(weightUnit ? { weightUnit } : {}),
       notifications: {
@@ -217,27 +245,6 @@ export default function OnboardingPage() {
     });
     if (injuries.length > 0) setInjuries(injuries);
     setOnboardingComplete(true);
-
-    if (accessToken) {
-      authApi
-        .updateProfile(accessToken, {
-          goal,
-          fitness_level: fitnessLevel,
-          equipment,
-          split_id: splitId,
-          ...(m
-            ? {
-                gender: m.gender,
-                age: m.age,
-                height_cm: m.heightCm,
-                weight_kg: m.weightKg,
-                activity_level: m.activityLevel,
-              }
-            : {}),
-        })
-        .catch(() => {});
-    }
-
     router.push("/dashboard");
   };
 
@@ -376,14 +383,18 @@ export default function OnboardingPage() {
           fullWidth
           size="lg"
           onClick={handleNext}
-          disabled={!canProceed()}
+          disabled={!canProceed() || saving}
           className="gap-2"
         >
           {isLast ? (
-            <>
-              <Sparkles className="w-4 h-4" />
-              Start Training
-            </>
+            saving ? (
+              <div className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+            ) : (
+              <>
+                <Sparkles className="w-4 h-4" />
+                Start Training
+              </>
+            )
           ) : (
             <>
               Continue
