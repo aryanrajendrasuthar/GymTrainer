@@ -130,6 +130,11 @@ export function NotesJournalSheet({ sessions }: Props) {
                   </div>
                 ) : (
                   <div className="flex flex-col gap-3">
+                    {query.trim() && (
+                      <p className="text-[10px] text-white/25 tabular-nums">
+                        {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+                      </p>
+                    )}
                     {filtered.map((session) => (
                       <motion.div
                         key={session.id}

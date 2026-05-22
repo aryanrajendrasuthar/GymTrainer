@@ -46,9 +46,10 @@ export function PainTrendChart({ condition, painHistory, className }: PainTrendC
 
   const polyline = pts.map((p) => `${p.x},${p.y}`).join(" ");
 
-  const first = entries[0].level;
-  const last = entries[entries.length - 1].level;
+  const first = entries[0]!.level;
+  const last = entries[entries.length - 1]!.level;
   const delta = last - first;
+  const avg = entries.reduce((s, e) => s + e.level, 0) / entries.length;
 
   const trendColor =
     delta < -1 ? "#34D399" : delta > 1 ? "#F87171" : "#9CA3AF";
@@ -107,11 +108,14 @@ export function PainTrendChart({ condition, painHistory, className }: PainTrendC
 
       <div className="flex items-center justify-between">
         <span className="text-[10px] text-white/25">
-          {new Date(entries[0].loggedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+          {new Date(entries[0]!.loggedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })}
         </span>
-        <span className="text-[10px] font-semibold" style={{ color: trendColor }}>
-          Now: {last}/10
-        </span>
+        <div className="flex items-center gap-2.5">
+          <span className="text-[10px] text-white/20 tabular-nums">avg {avg.toFixed(1)}</span>
+          <span className="text-[10px] font-semibold tabular-nums" style={{ color: trendColor }}>
+            now {last}/10
+          </span>
+        </div>
       </div>
     </div>
   );

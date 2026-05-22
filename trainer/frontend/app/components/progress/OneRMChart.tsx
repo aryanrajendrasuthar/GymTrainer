@@ -128,9 +128,12 @@ export function OneRMChart({ data, unit, className }: OneRMChartProps) {
       {delta !== null && (
         <div className="flex items-center justify-between mt-1.5 px-1">
           <span className="text-[10px] text-white/25 tabular-nums">{data.length} sessions</span>
-          <span className={cn("text-[10px] font-bold tabular-nums", delta >= 0 ? "text-trainer-success" : "text-red-400")}>
-            {delta >= 0 ? "+" : ""}{delta}% overall
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-trainer-gold/40 tabular-nums">peak {maxE1RM}{unit}</span>
+            <span className={cn("text-[10px] font-bold tabular-nums", delta >= 0 ? "text-trainer-success" : "text-red-400")}>
+              {delta >= 0 ? "+" : ""}{delta}% overall
+            </span>
+          </div>
         </div>
       )}
     </div>

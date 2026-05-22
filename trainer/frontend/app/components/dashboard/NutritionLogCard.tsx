@@ -322,6 +322,23 @@ export function NutritionLogCard() {
         <MacroBar label="Protein" logged={todayLog?.proteinG ?? 0} target={targets.proteinG} color="bg-sky-500" />
         <MacroBar label="Carbs" logged={todayLog?.carbsG ?? 0} target={targets.carbsG} color="bg-amber-500" />
         <MacroBar label="Fat" logged={todayLog?.fatG ?? 0} target={targets.fatG} color="bg-rose-500" />
+        {last7Logs.length > 1 && targets.proteinG > 0 && (() => {
+          const compliance = last7Logs.filter((l) => l.proteinG >= targets.proteinG * 0.9).length;
+          return compliance > 0 ? (
+            <div className="flex justify-end">
+              <span className={cn(
+                "text-[9px] font-bold px-1.5 py-0.5 rounded-full border tabular-nums",
+                compliance >= 5
+                  ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
+                  : compliance >= 3
+                  ? "text-amber-400 bg-amber-400/8 border-amber-400/20"
+                  : "text-white/25 bg-white/4 border-white/10"
+              )}>
+                {compliance}/7d protein ✓
+              </span>
+            </div>
+          ) : null;
+        })()}
       </div>
 
       {/* 7-day calorie history bars */}

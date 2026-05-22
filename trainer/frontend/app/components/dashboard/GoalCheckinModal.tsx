@@ -146,12 +146,19 @@ export function GoalCheckinModal({ open, onClose, sessionCount }: GoalCheckinMod
                   <Target size={16} className="text-trainer-indigo" />
                   <p className="text-sm font-bold text-white">4-Week Check-in</p>
                 </div>
-                <button
-                  onClick={handleDone}
-                  className="w-7 h-7 rounded-full bg-white/8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
-                >
-                  <X size={13} />
-                </button>
+                <div className="flex items-center gap-2">
+                  {currentGoal && (
+                    <span className="text-[10px] font-bold text-trainer-indigo/60 bg-trainer-indigo/8 border border-trainer-indigo/15 px-2 py-0.5 rounded-full truncate max-w-[90px]">
+                      {goalLabel}
+                    </span>
+                  )}
+                  <button
+                    onClick={handleDone}
+                    className="w-7 h-7 rounded-full bg-white/8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+                  >
+                    <X size={13} />
+                  </button>
+                </div>
               </div>
 
               <AnimatePresence mode="wait">

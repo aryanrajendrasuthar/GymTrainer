@@ -201,6 +201,11 @@ export function VoiceCoach({ accessToken, context, exerciseName }: VoiceCoachPro
                 <div className="flex items-center gap-2">
                   <Bot size={16} className="text-trainer-indigo" />
                   <p className="text-sm font-bold text-white">Voice Coach</p>
+                  {exerciseName && (
+                    <span className="text-[10px] font-bold text-trainer-indigo/60 bg-trainer-indigo/8 border border-trainer-indigo/15 px-2 py-0.5 rounded-full truncate max-w-[120px]">
+                      {exerciseName}
+                    </span>
+                  )}
                 </div>
                 <button
                   onClick={close}

@@ -252,6 +252,7 @@ export function AddInjurySheet({ open, onClose }: AddInjurySheetProps) {
                   <div key={group.label} className="mb-5">
                     <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest mb-2">
                       {group.label}
+                      <span className="text-white/15 font-normal"> ({group.conditions.length})</span>
                     </p>
                     <div className="flex flex-col gap-1.5">
                       {group.conditions.map((c) => {

@@ -65,6 +65,7 @@ export function WeeklySummaryCard({ sessions, accessToken, goal, streak }: Weekl
   const thisVol = thisWeek.reduce((s, se) => s + se.totalVolumeKg, 0);
   const lastVol = lastWeek.reduce((s, se) => s + se.totalVolumeKg, 0);
   const totalMin = thisWeek.reduce((s, se) => s + se.durationMinutes, 0);
+  const totalExercises = thisWeek.reduce((s, se) => s + se.exercisesCompleted.length, 0);
   const timeStr = totalMin >= 60
     ? `${Math.floor(totalMin / 60)}h${totalMin % 60 > 0 ? ` ${totalMin % 60}m` : ""}`
     : `${totalMin}m`;
@@ -178,6 +179,12 @@ export function WeeklySummaryCard({ sessions, accessToken, goal, streak }: Weekl
           <>
             <span>·</span>
             <span>{timeStr}</span>
+          </>
+        )}
+        {totalExercises > 0 && (
+          <>
+            <span>·</span>
+            <span>{totalExercises} ex</span>
           </>
         )}
         {trend !== "flat" && lastVol > 0 && (

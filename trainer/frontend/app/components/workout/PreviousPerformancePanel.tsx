@@ -78,11 +78,16 @@ export function PreviousPerformancePanel({
           </div>
         ))}
         {data.lastSession.sets.length > 0 && (() => {
-          const vol = Math.round(data.lastSession!.sets.reduce((s, set) => s + set.repsCompleted * set.weightUsed, 0));
+          const sets = data.lastSession!.sets;
+          const vol = Math.round(sets.reduce((s, set) => s + set.repsCompleted * set.weightUsed, 0));
+          const avgW = Math.round(sets.reduce((s, set) => s + set.weightUsed, 0) / sets.length * 10) / 10;
           return (
             <div className="flex items-center justify-between pt-1 border-t border-white/5">
               <span className="text-[10px] text-white/25">Session volume</span>
-              <span className="text-[10px] font-semibold text-white/40 tabular-nums">{vol} {unit}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-[9px] text-white/20 tabular-nums">avg {avgW}{unit}</span>
+                <span className="text-[10px] font-semibold text-white/40 tabular-nums">{vol} {unit}</span>
+              </div>
             </div>
           );
         })()}

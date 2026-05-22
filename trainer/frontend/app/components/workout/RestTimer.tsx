@@ -128,6 +128,7 @@ export function RestTimer({ open, seconds, onClose }: RestTimerProps) {
               <div className="flex items-center gap-2">
                 <Timer size={15} className="text-trainer-indigo" />
                 <p className="text-sm font-bold text-white">Rest Timer</p>
+                <span className="text-[10px] text-white/25 tabular-nums">{formatTime(total)}</span>
               </div>
               <button
                 onClick={onClose}

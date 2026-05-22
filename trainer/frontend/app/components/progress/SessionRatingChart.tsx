@@ -62,6 +62,19 @@ export function SessionRatingChart({ sessions }: Props) {
               {ratingTrend === "up" ? "↑" : "↓"}
             </span>
           )}
+          {(() => {
+            const greatPct = Math.round(((dist[5] + dist[4]) / rated.length) * 100);
+            return greatPct > 0 ? (
+              <span className={cn(
+                "text-[9px] font-bold px-1.5 py-0.5 rounded-full border tabular-nums",
+                greatPct >= 70
+                  ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
+                  : "text-white/25 bg-white/4 border-white/10"
+              )}>
+                {greatPct}% great
+              </span>
+            ) : null;
+          })()}
           {dist[5] > 0 && (
             <span className="text-[9px] font-bold text-trainer-gold/70 bg-trainer-gold/8 border border-trainer-gold/20 px-1.5 py-0.5 rounded-full tabular-nums">
               {dist[5]}×★★★★★

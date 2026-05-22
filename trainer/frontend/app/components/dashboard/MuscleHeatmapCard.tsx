@@ -83,6 +83,8 @@ export function MuscleHeatmapCard() {
   }, [muscleStatus]);
 
   const hasRecentActivity = groups.some((g) => g.hoursAgo !== null && g.hoursAgo < 72);
+  const fatiguedCount = groups.filter((g) => g.hoursAgo !== null && g.hoursAgo < 48).length;
+  const recoveredCount = groups.filter((g) => g.hoursAgo !== null && g.hoursAgo >= 48).length;
 
   if (recentSessions.length === 0) return null;
 
@@ -106,9 +108,16 @@ export function MuscleHeatmapCard() {
             All recovered
           </span>
         ) : (
-          <span className="text-[10px] text-trainer-danger/80 font-semibold bg-trainer-danger/8 border border-trainer-danger/20 px-2 py-0.5 rounded-full tabular-nums">
-            {groups.filter((g) => g.hoursAgo !== null && g.hoursAgo < 48).length}/{groups.length} fatigued
-          </span>
+          <div className="flex items-center gap-1.5">
+            {recoveredCount > 0 && (
+              <span className="text-[9px] font-bold text-trainer-success/60 bg-trainer-success/8 border border-trainer-success/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                {recoveredCount} ✓
+              </span>
+            )}
+            <span className="text-[10px] text-trainer-danger/80 font-semibold bg-trainer-danger/8 border border-trainer-danger/20 px-2 py-0.5 rounded-full tabular-nums">
+              {fatiguedCount}/{groups.length} fatigued
+            </span>
+          </div>
         )}
       </div>
 

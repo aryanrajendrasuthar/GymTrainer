@@ -114,11 +114,14 @@ export function SupplementCard() {
             className="overflow-hidden border-t border-white/5"
           >
             <div className="px-4 pt-3 pb-4">
-              <div className="flex items-center gap-1.5 mb-3">
-                <FlaskConical size={11} className="text-white/30" />
-                <p className="text-[10px] text-white/30 uppercase tracking-widest font-semibold">
-                  Configure stack
-                </p>
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-1.5">
+                  <FlaskConical size={11} className="text-white/30" />
+                  <p className="text-[10px] text-white/30 uppercase tracking-widest font-semibold">
+                    Configure stack
+                  </p>
+                </div>
+                <span className="text-[9px] text-white/20 tabular-nums">{supplements.length} total</span>
               </div>
               <div className="flex flex-col gap-2">
                 {supplements.map((supp) => (

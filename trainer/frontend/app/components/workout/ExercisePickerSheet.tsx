@@ -177,6 +177,11 @@ export function ExercisePickerSheet({
                         Templates
                       </button>
                     )}
+                    {selected.length > 0 && (
+                      <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                        {selected.length} ✓
+                      </span>
+                    )}
                   </div>
                   <div className="flex items-center gap-2">
                     {/* Add custom exercise */}

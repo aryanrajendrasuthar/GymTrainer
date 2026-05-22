@@ -107,6 +107,12 @@ function ExercisePicker({
 
       {/* Exercise list */}
       <div className="flex-1 overflow-y-auto px-4 py-2">
+        {(query.trim() || categoryFilter) && (
+          <p className="text-[10px] text-white/25 py-1 tabular-nums">
+            {filtered.length} result{filtered.length !== 1 ? "s" : ""}
+            {filtered.length === 60 ? " (top 60)" : ""}
+          </p>
+        )}
         {filtered.map((ex) => {
           const isSelected = selected.has(ex.id);
           return (
@@ -181,6 +187,11 @@ function DayRow({
             className="flex-1 bg-transparent text-sm font-semibold text-white placeholder:text-white/30 focus:outline-none min-w-0"
             placeholder="Day name (e.g. Push A)"
           />
+          {!day.isRestDay && (day.exercises ?? []).length > 0 && (
+            <span className="text-[9px] font-bold text-trainer-indigo/60 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums shrink-0">
+              {(day.exercises ?? []).length}ex
+            </span>
+          )}
           <button
             onClick={() => onUpdate({ isRestDay: !day.isRestDay })}
             className={cn(
@@ -366,7 +377,13 @@ export function CustomRoutineBuilder({ open, onClose, onSaved }: CustomRoutineBu
             <div className="flex items-center justify-between px-5 pt-2 pb-4 border-b border-white/8 shrink-0">
               <div>
                 <h2 className="text-base font-bold text-white">Custom Routine</h2>
-                <p className="text-xs text-white/35 mt-0.5">Build your own training split</p>
+                <p className="text-xs text-white/35 mt-0.5">
+                  Build your own training split
+                  {(() => {
+                    const total = days.reduce((s, d) => s + (d.exercises?.length ?? 0), 0);
+                    return total > 0 ? <span className="text-white/20"> · {total} exercises</span> : null;
+                  })()}
+                </p>
               </div>
               <button
                 onClick={onClose}

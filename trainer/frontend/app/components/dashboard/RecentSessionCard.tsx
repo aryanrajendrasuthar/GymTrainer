@@ -50,7 +50,10 @@ export function RecentSessionCard({ sessions, weightUnit }: RecentSessionCardPro
         className="rounded-[16px] bg-trainer-surface border border-white/8 p-5"
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-sm font-semibold text-white/70">Recent Sessions</h3>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-white/70">Recent Sessions</h3>
+            <span className="text-[10px] font-semibold text-white/20 tabular-nums">{sessions.length}</span>
+          </div>
           <Link
             href="/progress"
             className="flex items-center gap-0.5 text-xs text-trainer-indigo/80 hover:text-trainer-indigo transition-colors"

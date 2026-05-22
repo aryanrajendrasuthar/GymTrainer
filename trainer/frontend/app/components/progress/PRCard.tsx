@@ -146,6 +146,15 @@ export function PRCard({ prs, onSelectExercise, selectedExerciseId, sparklines }
               </span>
               <span className="text-[9px] text-white/25 uppercase tracking-wider">e1RM</span>
               <span className="text-[9px] text-white/20 tabular-nums">{relativeDate(pr.achievedDate)}</span>
+              {sparklines?.[pr.exerciseId] && sparklines[pr.exerciseId]!.length >= 2 && (() => {
+                const arr = sparklines[pr.exerciseId]!;
+                const pct = arr[0]! > 0 ? Math.round(((arr[arr.length - 1]! - arr[0]!) / arr[0]!) * 100) : null;
+                return pct !== null && pct !== 0 ? (
+                  <span className={cn("text-[8px] font-bold tabular-nums", pct > 0 ? "text-trainer-success" : "text-red-400")}>
+                    {pct > 0 ? "+" : ""}{pct}%
+                  </span>
+                ) : null;
+              })()}
               {Math.floor((Date.now() - new Date(pr.achievedDate).getTime()) / 86400000) <= 30 && (
                 <span className="text-[8px] font-black text-trainer-success bg-trainer-success/12 border border-trainer-success/20 px-1.5 py-0.5 rounded-full">
                   NEW

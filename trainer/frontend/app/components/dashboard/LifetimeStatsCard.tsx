@@ -120,13 +120,14 @@ export function LifetimeStatsCard() {
     }
     longestStreak = Math.max(longestStreak, currentStreak);
 
-    const firstDate = recentSessions.reduce((min, s) => (s.date < min ? s.date : min), recentSessions[0].date);
+    const firstDate = recentSessions.reduce((min, s) => (s.date < min ? s.date : min), recentSessions[0]!.date);
     const weeksSince = Math.max(1, (Date.now() - new Date(firstDate).getTime()) / (7 * 86400000));
     const avgPerWeek = Math.round((totalSessions / weeksSince) * 10) / 10;
     const avgSessionMin = Math.round(totalMinutes / totalSessions);
     const firstDateLabel = new Date(firstDate).toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    const totalSets = allExerciseLogs.reduce((s, l) => s + l.sets.length, 0);
 
-    return { totalSessions, totalVolumeKg, totalMinutes, totalCalories, totalPRs, longestStreak, avgPerWeek, avgSessionMin, firstDateLabel };
+    return { totalSessions, totalVolumeKg, totalMinutes, totalCalories, totalPRs, longestStreak, avgPerWeek, avgSessionMin, firstDateLabel, totalSets };
   }, [recentSessions, allExerciseLogs, userWeightKg]);
 
   if (!stats) return null;
@@ -149,6 +150,7 @@ export function LifetimeStatsCard() {
       icon: TrendingUp,
       label: "Volume",
       value: displayVolume,
+      sub: `${formatBigNumber(stats.totalSets)} sets`,
       color: "text-trainer-success",
       bg: "bg-trainer-success/15",
     },

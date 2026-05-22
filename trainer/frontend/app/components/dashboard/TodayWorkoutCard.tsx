@@ -79,7 +79,7 @@ export function TodayWorkoutCard({ split, splitDay, dayIndex, progressionHints, 
           <div className="flex items-center gap-2">
             <Coffee className="w-4 h-4 text-trainer-success/70" />
             <span className="text-xs text-white/40">
-              {split.name} · {split.daysPerWeek} days/week
+              {split.name} · {split.daysPerWeek} days/week · Day {dayIndex + 1}
             </span>
           </div>
           {onTrainAnyway && (

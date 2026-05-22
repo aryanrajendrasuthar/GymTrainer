@@ -102,6 +102,9 @@ export function DailyCheckinCard() {
                     {logStreak > 0 && (
                       <span className="ml-1.5 text-trainer-indigo/70">&middot; {logStreak}d streak</span>
                     )}
+                    {bodyWeightLogs.length > 0 && (
+                      <span className="ml-1.5 text-white/20 tabular-nums">&middot; {bodyWeightLogs.length} logs</span>
+                    )}
                   </p>
                 </div>
               </div>

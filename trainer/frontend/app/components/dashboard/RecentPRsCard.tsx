@@ -82,6 +82,12 @@ export function RecentPRsCard() {
           <span className="text-[10px] font-bold text-yellow-400/70 bg-yellow-400/8 border border-yellow-400/15 px-1.5 py-0.5 rounded-full tabular-nums">
             {prs.length}
           </span>
+          {(() => {
+            const d = prs[0] ? Math.floor((Date.now() - new Date(prs[0].date).getTime()) / 86400000) : null;
+            if (d === null) return null;
+            const label = d === 0 ? "today" : d === 1 ? "1d" : d < 7 ? `${d}d` : d < 30 ? `${Math.floor(d / 7)}wk` : `${Math.floor(d / 30)}mo`;
+            return <span className="text-[9px] text-white/20 tabular-nums">latest {label} ago</span>;
+          })()}
         </div>
         <Link
           href="/progress"

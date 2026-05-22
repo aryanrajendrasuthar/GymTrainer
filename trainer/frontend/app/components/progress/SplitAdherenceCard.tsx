@@ -59,7 +59,8 @@ export function SplitAdherenceCard({ sessions, daysPerWeek }: Props) {
     if (weeks[i].pct >= 80) streak++;
     else break;
   }
-  const weekTrendUp = weeks.length >= 2 && weeks[weeks.length - 1].pct >= weeks[weeks.length - 2].pct;
+  const weekTrendUp = weeks.length >= 2 && weeks[weeks.length - 1]!.pct >= weeks[weeks.length - 2]!.pct;
+  const perfectWeeks = weeks.filter((w) => w.pct >= 100).length;
 
   if (sessions.length < 3) return null;
 
@@ -123,6 +124,11 @@ export function SplitAdherenceCard({ sessions, daysPerWeek }: Props) {
           </p>
         ) : <span />}
         <div className="flex items-center gap-2">
+          {perfectWeeks > 0 && (
+            <span className="text-[9px] font-bold text-trainer-success/60 bg-trainer-success/8 border border-trainer-success/15 px-1.5 py-0.5 rounded-full tabular-nums">
+              {perfectWeeks}× 100%
+            </span>
+          )}
           {(() => {
             const best = Math.max(...weeks.map((w) => w.pct));
             return best > 0 ? (

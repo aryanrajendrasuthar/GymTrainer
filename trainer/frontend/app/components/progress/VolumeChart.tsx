@@ -128,7 +128,13 @@ export function VolumeChart({ data, unit, className }: VolumeChartProps) {
       </div>
       {totalSessions > 0 && (
         <div className="flex items-center justify-between mt-1.5 px-1">
-          <span className="text-[10px] text-white/25 tabular-nums">{totalSessions} sessions</span>
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] text-white/25 tabular-nums">{totalSessions} sessions</span>
+            {nonZeroData.length > 0 && (() => {
+              const peak = nonZeroData.reduce((best, d) => d.volume > best.volume ? d : best, nonZeroData[0]!);
+              return <span className="text-[9px] text-trainer-gold/40 tabular-nums">peak: {peak.week}</span>;
+            })()}
+          </div>
           {avgVol > 0 && (
             <span className="text-[10px] text-trainer-indigo/60 tabular-nums">
               ~{avgVol.toLocaleString()} {unit} avg/wk

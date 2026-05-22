@@ -156,7 +156,7 @@ export function SessionComplete({
     const splitDay = session.splitDay ?? "Workout";
     const text = [
       `${splitDay} complete!`,
-      `${exerciseCount} exercises · ${totalSets} sets`,
+      `${exerciseCount} exercises · ${totalSets} sets · ${totalReps} reps`,
       formatVolume(volumeKg, unit) + " volume",
       session.durationMinutes ? `${Math.floor(session.durationMinutes / 60)}h ${session.durationMinutes % 60}m` : "",
       personalRecords.length > 0 ? `${personalRecords.length} PR${personalRecords.length !== 1 ? "s" : ""}!` : "",
@@ -313,7 +313,7 @@ export function SessionComplete({
             className="bg-trainer-surface border border-white/8 rounded-[16px] p-4"
           >
             <h3 className="text-sm font-medium text-white/60 mb-4 text-center">
-              Muscles Trained
+              Muscles Trained <span className="text-trainer-indigo/50">· {musclesTrained.length}</span>
             </h3>
             <MuscleActivationDiagram
               primaryMuscles={musclesTrained}

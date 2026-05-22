@@ -227,7 +227,7 @@ export function AddCustomExerciseSheet({ open, onClose, onCreated }: Props) {
 
               {/* Primary Muscles */}
               <ChipGroup
-                label="Primary Muscles (select all that apply)"
+                label={muscles.length > 0 ? `Primary Muscles (${muscles.length} selected)` : "Primary Muscles (select all that apply)"}
                 options={MUSCLES}
                 selected={muscles}
                 multi
@@ -236,7 +236,7 @@ export function AddCustomExerciseSheet({ open, onClose, onCreated }: Props) {
 
               {/* Equipment */}
               <ChipGroup
-                label="Equipment"
+                label={equipment.length > 0 ? `Equipment (${equipment.length} selected)` : "Equipment"}
                 options={EQUIPMENT_OPTIONS}
                 selected={equipment}
                 multi

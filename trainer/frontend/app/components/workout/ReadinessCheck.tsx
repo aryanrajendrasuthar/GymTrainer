@@ -54,6 +54,9 @@ interface ReadinessCheckProps {
 }
 
 export function ReadinessCheck({ open, dayName, onSelect, onClose }: ReadinessCheckProps) {
+  const hour = new Date().getHours();
+  const greeting = hour < 12 ? "Good morning" : hour < 17 ? "Good afternoon" : "Good evening";
+
   return (
     <AnimatePresence>
       {open && (
@@ -84,7 +87,7 @@ export function ReadinessCheck({ open, dayName, onSelect, onClose }: ReadinessCh
               <div className="flex items-start justify-between mb-6">
                 <div>
                   <p className="text-xs text-white/40 font-semibold uppercase tracking-wider mb-1">
-                    Before you begin
+                    {greeting} · before you begin
                   </p>
                   <h2 className="text-lg font-bold text-white">How are you feeling?</h2>
                   <p className="text-sm text-white/40 mt-0.5">{dayName}</p>

@@ -142,6 +142,11 @@ export function GoalChangeSheet({ open, onClose }: GoalChangeSheetProps) {
                       <p className="text-xs text-white/35 mt-0.5">
                         Nutrition targets will be recalculated
                       </p>
+                      {profile?.goal && (
+                        <span className="text-[10px] font-bold text-trainer-indigo/60 bg-trainer-indigo/8 border border-trainer-indigo/15 px-2 py-0.5 rounded-full mt-1.5 inline-block">
+                          Currently: {GOAL_LABELS[profile.goal]}
+                        </span>
+                      )}
                     </div>
                     <button
                       onClick={onClose}
@@ -200,9 +205,10 @@ export function GoalChangeSheet({ open, onClose }: GoalChangeSheetProps) {
                         </p>
                       </div>
                     </div>
-                    <p className="text-sm font-semibold text-white/70">
-                      Recommended splits for your goal
-                    </p>
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm font-semibold text-white/70">Recommended splits for your goal</p>
+                      <span className="text-[10px] text-white/25 tabular-nums">{nudgeSplits.length} options</span>
+                    </div>
                   </div>
 
                   {/* Split cards */}

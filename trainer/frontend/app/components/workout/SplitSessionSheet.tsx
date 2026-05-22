@@ -267,7 +267,7 @@ export function SplitSessionSheet({
               <div>
                 <h2 className="text-base font-bold text-white">Split Session</h2>
                 <p className="text-xs text-white/40 mt-0.5">
-                  Choose what to do now vs. schedule for later
+                  {dayName} · choose now vs. later
                 </p>
                 {(() => {
                   const nowCount = Object.values(assignments).filter((a) => a === "now").length

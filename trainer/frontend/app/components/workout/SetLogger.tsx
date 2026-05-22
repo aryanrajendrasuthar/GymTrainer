@@ -7,6 +7,7 @@ import { Button } from "@/app/components/ui/Button";
 import { PlateCalculator } from "@/app/components/workout/PlateCalculator";
 import { type SetLog } from "@/app/types";
 import { cn } from "@/app/lib/utils";
+import { estimateOneRepMax } from "@/app/lib/progression-engine";
 
 interface SetLoggerProps {
   setNumber: number;
@@ -157,6 +158,10 @@ function CompletedSetRow({
         >
           {repsCompleted} × {weightUsed}{unit}
           <span className="text-white/25 font-normal ml-1.5">= {Math.round(repsCompleted * weightUsed)}{unit}</span>
+          {repsCompleted > 1 && weightUsed > 0 && (() => {
+            const e1rm = Math.round(estimateOneRepMax(weightUsed, repsCompleted));
+            return e1rm > 0 ? <span className="text-white/20 font-normal ml-1.5 tabular-nums">~{e1rm}{unit} e1RM</span> : null;
+          })()}
           {rpe && <span className="text-white/40 font-normal ml-1.5">RPE {rpe}</span>}
         </motion.span>
         {onEdit && <Pencil size={11} className="text-white/20 shrink-0" />}

@@ -160,7 +160,14 @@ export function ProfileEditSheet({ open, onClose }: ProfileEditSheetProps) {
 
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-3 border-b border-white/8 shrink-0">
-              <p className="text-base font-bold text-white">Edit Profile</p>
+              <div className="flex items-center gap-2">
+                <p className="text-base font-bold text-white">Edit Profile</p>
+                {hasChanges && (
+                  <span className="text-[10px] font-bold text-amber-400/70 bg-amber-400/8 border border-amber-400/20 px-1.5 py-0.5 rounded-full">
+                    unsaved
+                  </span>
+                )}
+              </div>
               <button
                 onClick={onClose}
                 className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white"

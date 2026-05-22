@@ -141,7 +141,10 @@ export function GoalWeightCard({ logs, goalWeightKg, unit }: GoalWeightCardProps
               transition={{ duration: 0.7, ease: "easeOut" }}
             />
           </div>
-          <p className="text-[10px] text-white/30 mt-1 text-right">{pct}% of the way</p>
+          <div className="flex items-center justify-between mt-1">
+            <span className="text-[9px] text-white/15 tabular-nums">{logs.length} weigh-ins</span>
+            <p className="text-[10px] text-white/30">{pct}% of the way</p>
+          </div>
         </div>
       )}
 

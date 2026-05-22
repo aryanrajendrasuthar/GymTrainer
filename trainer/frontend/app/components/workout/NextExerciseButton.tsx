@@ -46,7 +46,12 @@ export function NextExerciseButton({
       )}
       aria-label={isLast ? "Complete workout" : label ?? "Next exercise"}
     >
-      <span>{isLast ? "Complete Workout" : (label ?? "Next Exercise")}</span>
+      <div className="flex flex-col items-center gap-0.5">
+        {!isLast && label && (
+          <span className="text-[9px] uppercase tracking-widest opacity-50 font-normal">up next</span>
+        )}
+        <span>{isLast ? "Complete Workout" : (label ?? "Next Exercise")}</span>
+      </div>
       <ChevronRight size={20} />
     </motion.button>
   );

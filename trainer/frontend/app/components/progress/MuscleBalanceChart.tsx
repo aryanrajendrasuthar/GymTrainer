@@ -90,9 +90,12 @@ export function MuscleBalanceChart({ sessions, allLogs }: Props) {
           <Activity size={13} className="text-trainer-indigo" />
           <p className="text-xs text-white/35 uppercase tracking-widest font-semibold">Muscle Balance</p>
         </div>
-        <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-2 py-0.5 rounded-full tabular-nums">
-          {totalSets} sets
-        </span>
+        <div className="flex items-center gap-1.5">
+          <span className="text-[9px] text-white/20 tabular-nums">{sessions.length} sessions</span>
+          <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-2 py-0.5 rounded-full tabular-nums">
+            {totalSets} sets
+          </span>
+        </div>
       </div>
       <p className="text-[10px] text-white/20 mb-4">Sets per muscle group — selected period</p>
 

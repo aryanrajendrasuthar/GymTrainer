@@ -61,6 +61,8 @@ export function TDEECard({ weightKg, heightCm, age, gender, activityLevel }: Pro
               <span className="text-white/65 font-semibold tabular-nums">{tdee.toLocaleString()} kcal</span>
               <span className="text-white/30"> · </span>
               <span className="text-white/50 font-semibold tabular-nums">{Math.round(weightKg * 1.8)}g protein</span>
+              <span className="text-white/30"> · </span>
+              <span className="text-white/30 tabular-nums">{Math.round(tdee / weightKg)} kcal/kg</span>
             </p>
             <span className="text-[10px] text-trainer-success/70 font-semibold tabular-nums shrink-0">
               +{(tdee - bmr).toLocaleString()} activity

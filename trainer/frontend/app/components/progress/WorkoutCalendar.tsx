@@ -71,6 +71,9 @@ export function WorkoutCalendar({ sessions }: WorkoutCalendarProps) {
 
   const today = new Date();
   const todayStr = today.toISOString().slice(0, 10);
+  const monthSessionCount = Object.keys(sessionVolumeMap).length;
+  const monthTotalVol = Math.round(Object.values(sessionVolumeMap).reduce((a, b) => a + b, 0));
+  const monthAvgVol = monthSessionCount > 0 ? Math.round(monthTotalVol / monthSessionCount) : 0;
 
   return (
     <div>
@@ -145,14 +148,15 @@ export function WorkoutCalendar({ sessions }: WorkoutCalendarProps) {
       </div>
 
       {/* Month stats */}
-      {Object.keys(sessionVolumeMap).length > 0 && (
+      {monthSessionCount > 0 && (
         <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5 text-[10px] text-white/30">
-          <span>{Object.keys(sessionVolumeMap).length} session{Object.keys(sessionVolumeMap).length !== 1 ? "s" : ""} this month</span>
+          <span>{monthSessionCount} session{monthSessionCount !== 1 ? "s" : ""} this month</span>
           <div className="flex items-center gap-2">
             {longestStreak >= 2 && (
               <span className="text-trainer-indigo/60 tabular-nums">{longestStreak}d streak</span>
             )}
-            <span className="tabular-nums">{Math.round(Object.values(sessionVolumeMap).reduce((a, b) => a + b, 0)).toLocaleString()} kg vol</span>
+            <span className="tabular-nums">{monthTotalVol.toLocaleString()} kg vol</span>
+            <span className="text-white/15 tabular-nums">~{monthAvgVol.toLocaleString()} avg</span>
           </div>
         </div>
       )}

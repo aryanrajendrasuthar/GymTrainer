@@ -102,7 +102,7 @@ export function WaterIntakeCard() {
       </p>
       <p className={cn("text-[10px] mb-3 flex items-center gap-1.5", pct >= 100 ? "text-trainer-success/60" : "text-white/25")}>
         {pct >= 100
-          ? "Daily goal achieved ✓"
+          ? <>Daily goal achieved ✓{effectiveIntake > dailyGoalMl && <span className="text-trainer-success/40"> · +{(effectiveIntake - dailyGoalMl).toLocaleString()}ml extra</span>}</>
           : <>
               {`~${(dailyGoalMl - effectiveIntake).toLocaleString()}ml to go · ~${Math.ceil((dailyGoalMl - effectiveIntake) / 250)} glasses`}
               {(() => {

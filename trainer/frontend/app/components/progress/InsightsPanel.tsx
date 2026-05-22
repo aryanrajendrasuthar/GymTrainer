@@ -250,7 +250,10 @@ export function InsightsPanel({ sessions, allLogs, unit }: Props) {
     <div className="flex flex-col gap-3">
       {insightCount > 0 && (
         <div className="flex items-center justify-between">
-          <p className="text-xs font-bold text-white">Training Insights</p>
+          <div>
+            <p className="text-xs font-bold text-white">Training Insights</p>
+            <p className="text-[9px] text-white/20 tabular-nums">{sessions.length} sessions</p>
+          </div>
           <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-2 py-0.5 rounded-full tabular-nums">
             {insightCount} insights
           </span>

@@ -147,6 +147,10 @@ export function WeeklyPlanSheet({ split, todayDayIndex }: WeeklyPlanSheetProps) 
   const weekVariant = getCurrentWeekVariant();
   const weekLabel = getWeekLabel();
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
+  const totalExercisesThisWeek = split.days.reduce((s, d) => {
+    const exs = (weekVariant === 1 && d.exercisesAlt?.length) ? d.exercisesAlt : (d.exercises ?? []);
+    return s + exs.length;
+  }, 0);
 
   const selectedSplitDay = selectedDay !== null ? split.days[selectedDay] : null;
   const selectedExercises = selectedSplitDay
@@ -160,7 +164,12 @@ export function WeeklyPlanSheet({ split, todayDayIndex }: WeeklyPlanSheetProps) 
       <div className="flex flex-col gap-3">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold text-white/35 uppercase tracking-widest">This Week</p>
+          <div className="flex items-center gap-2">
+            <p className="text-xs font-semibold text-white/35 uppercase tracking-widest">This Week</p>
+            {totalExercisesThisWeek > 0 && (
+              <span className="text-[9px] text-white/20 tabular-nums">{totalExercisesThisWeek} exercises</span>
+            )}
+          </div>
           <div className="flex items-center gap-1.5 bg-trainer-indigo/10 border border-trainer-indigo/20 px-2.5 py-1 rounded-full">
             <Repeat2 size={11} className="text-trainer-indigo/70" />
             <span className="text-[11px] font-bold text-trainer-indigo/80">{weekLabel}</span>
