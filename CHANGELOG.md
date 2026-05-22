@@ -5,6 +5,24 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ---
 
+## [2.0.1] — 2026-05-21
+
+### Added — Yoga Exercise Library
+- 8 new yoga poses added to the home & mobility exercise library: Mountain Pose (Tadasana), Tree Pose (Vrksasana), Warrior I (Virabhadrasana I), Warrior II (Virabhadrasana II), Wide-Legged Forward Fold (Prasarita Padottanasana), Downward-Facing Dog (Adho Mukha Svanasana), Happy Baby Pose (Ananda Balasana), Legs Up the Wall (Viparita Karani)
+- All poses include shoulder/cervical/L4-L5 modifications documented inline in instructions and common mistakes
+- All YouTube IDs verified and sourced from Yoga with Adriene's Foundations of Yoga series
+
+### Added — Dad Split Yoga Integration
+- Day 3 (Lower Body & Balance): Warrior II and Tree Pose replace standing hip flexor stretch and figure-four; alt variant uses Warrior I and Tree Pose
+- Day 4 (Yoga Flow & Deep Flexibility): Full standing-to-floor yoga sequence — Mountain → Down Dog → Warrior I → Warrior II → Wide-Legged Fold → Happy Baby → Spinal Twist → Corpse; alt variant uses gentle floor-first flow with Legs Up Wall
+- Day 6 (Active Recovery & Breathing): Mountain Pose and Legs Up Wall replace seated ankle circles and knee-to-chest; alt variant adds Happy Baby
+
+### Added — Exercise Media in Workout & Physio Screens
+- `ExerciseMediaTabs` (Video + Muscle Map) added to the live workout session screen — tapping the play button now opens a bottom sheet with both the YouTube tutorial and the anatomical muscle activation diagram, not just video
+- `ExerciseMediaTabs` added to physio exercise cards — expanding any rehab exercise now shows the video and a red/green muscle map (affected vs rehabilitating) before the text instructions
+
+---
+
 ## [2.0.0] — 2025-05-21
 
 ### Added — AI Coaching

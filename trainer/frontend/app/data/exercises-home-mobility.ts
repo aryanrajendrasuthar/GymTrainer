@@ -1657,7 +1657,7 @@ export const homeMobilityExercises: Exercise[] = [
       "Holding the breath — this is a breathing and body-awareness exercise.",
     ],
     breathingPattern: "Slow, full diaphragmatic breaths. Inhale to grow taller; exhale to root deeper.",
-    youtubeId: "jkZ6lBJMUyI",
+    youtubeId: "NYhH8Gr35cI",
     repRanges: {
       muscleGain:  { sets: 2, repsMin: 1, repsMax: 1, restSuggestion: "hold 60s" },
       fatLoss:     { sets: 2, repsMin: 1, repsMax: 1, restSuggestion: "hold 60s" },
@@ -1705,7 +1705,7 @@ export const homeMobilityExercises: Exercise[] = [
       "Letting the gaze wander, which destabilises the pose immediately.",
     ],
     breathingPattern: "Steady, relaxed breaths. Use each exhale to settle deeper into stillness.",
-    youtubeId: "j8jNPXWQKPo",
+    youtubeId: "yVE4XXFFO70",
     repRanges: {
       muscleGain:  { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s each side" },
       fatLoss:     { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s each side" },
@@ -1753,7 +1753,7 @@ export const homeMobilityExercises: Exercise[] = [
       "Shortening the stance so the back heel lifts — widen for stability.",
     ],
     breathingPattern: "Breathe into the front of the chest. Inhale to lengthen the spine; exhale to sink the hips deeper.",
-    youtubeId: "k6bI0QFlCkU",
+    youtubeId: "5rT--p_cLOc",
     repRanges: {
       muscleGain:  { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s each side" },
       fatLoss:     { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s each side" },
@@ -1803,7 +1803,7 @@ export const homeMobilityExercises: Exercise[] = [
       "Rotating the neck to look over the front hand when cervical pain is present — keep the gaze neutral and forward.",
     ],
     breathingPattern: "Breathe broadly across the chest. Each inhale widens the arms; each exhale deepens the bend.",
-    youtubeId: "4RG1AHEOU8M",
+    youtubeId: "4Ejz7IgODlU",
     repRanges: {
       muscleGain:  { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s each side" },
       fatLoss:     { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s each side" },
@@ -1851,7 +1851,7 @@ export const homeMobilityExercises: Exercise[] = [
       "Letting the inner arches of the feet collapse.",
     ],
     breathingPattern: "Exhale as you fold deeper. Inhale to create length in the spine between holds.",
-    youtubeId: "PcSIMmfFjFQ",
+    youtubeId: "F7you4Sw1o0",
     repRanges: {
       muscleGain:  { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s" },
       fatLoss:     { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s" },
@@ -1899,7 +1899,7 @@ export const homeMobilityExercises: Exercise[] = [
       "Forcing through shoulder or wrist pain — use the chair modification without hesitation.",
     ],
     breathingPattern: "Long, steady breaths. Use each exhale to press the floor further away and let the spine lengthen.",
-    youtubeId: "j8HG0_fYLmI",
+    youtubeId: "j97SSGsnCAQ",
     repRanges: {
       muscleGain:  { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s" },
       fatLoss:     { sets: 2, repsMin: 1, repsMax: 3, restSuggestion: "hold 30–45s" },
@@ -1947,7 +1947,7 @@ export const homeMobilityExercises: Exercise[] = [
       "Holding the breath; this pose calls for the most relaxed breathing in the practice.",
     ],
     breathingPattern: "Very slow, full breaths into the belly. Each exhale allows the hips to open further passively.",
-    youtubeId: "LnLKSdvIvGY",
+    youtubeId: "dZTvfk9EVE0",
     repRanges: {
       muscleGain:  { sets: 2, repsMin: 1, repsMax: 1, restSuggestion: "hold 45–60s" },
       fatLoss:     { sets: 2, repsMin: 1, repsMax: 1, restSuggestion: "hold 45–60s" },
@@ -1995,7 +1995,7 @@ export const homeMobilityExercises: Exercise[] = [
       "Tensing the legs — the wall does all the work.",
     ],
     breathingPattern: "Completely effortless, natural breathing. This is the most restorative pose in the sequence.",
-    youtubeId: "3W_A_EVNWJ4",
+    youtubeId: "xmcDj4Bf--0",
     repRanges: {
       muscleGain:  { sets: 1, repsMin: 1, repsMax: 1, restSuggestion: "hold 3–5 min" },
       fatLoss:     { sets: 1, repsMin: 1, repsMax: 1, restSuggestion: "hold 3–5 min" },
