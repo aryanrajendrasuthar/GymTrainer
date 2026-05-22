@@ -25,6 +25,7 @@ import {
   Code2,
   ArrowLeftRight,
   Trash2,
+  X,
 } from "lucide-react";
 import { useSettingsStore } from "@/app/store/settingsStore";
 import { useUserStore } from "@/app/store/userStore";
@@ -227,25 +228,25 @@ function ConfirmSheet({
   return (
     <AnimatePresence>
       {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onCancel}
-            className="fixed inset-0 bg-black/60 z-40"
-          />
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 380, damping: 40 }}
-            className="fixed bottom-0 inset-x-0 z-50 bg-trainer-elevated border-t border-white/10 rounded-t-[24px] px-5 pt-5 pb-10"
-          >
-            <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-5" />
-            <p className="text-base font-bold text-white mb-2">{title}</p>
-            <p className="text-sm text-white/45 leading-relaxed mb-6">{body}</p>
-            <div className="flex flex-col gap-2">
+        <motion.div
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "100%" }}
+          transition={{ type: "spring", stiffness: 380, damping: 42 }}
+          className="fixed inset-0 z-50 bg-trainer-elevated flex flex-col"
+        >
+          <div className="flex items-center justify-between px-5 pt-12 pb-4 border-b border-white/8 shrink-0">
+            <p className="text-base font-bold text-white">{title}</p>
+            <button
+              onClick={onCancel}
+              className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+            >
+              <X size={15} />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-5 py-6 pb-16 flex flex-col justify-between">
+            <p className="text-sm text-white/50 leading-relaxed">{body}</p>
+            <div className="flex flex-col gap-2 mt-8">
               <button
                 onClick={onConfirm}
                 className={cn(
@@ -264,8 +265,8 @@ function ConfirmSheet({
                 Cancel
               </button>
             </div>
-          </motion.div>
-        </>
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );
@@ -1073,31 +1074,35 @@ export default function SettingsPage() {
       {/* Delete account confirm */}
       <AnimatePresence>
         {showDeleteAccountConfirm && (
-          <>
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => !deletingAccount && setShowDeleteAccountConfirm(false)}
-              className="fixed inset-0 bg-black/60 z-40"
-            />
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 380, damping: 40 }}
-              className="fixed bottom-0 inset-x-0 z-50 bg-trainer-elevated border-t border-white/10 rounded-t-[24px] px-5 pt-5 pb-10"
-            >
-              <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mb-5" />
-              <div className="w-10 h-10 rounded-full bg-trainer-danger/15 flex items-center justify-center mb-4">
-                <Trash2 size={18} className="text-trainer-danger" />
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", stiffness: 380, damping: 42 }}
+            className="fixed inset-0 z-50 bg-trainer-elevated flex flex-col"
+          >
+            <div className="flex items-center justify-between px-5 pt-12 pb-4 border-b border-white/8 shrink-0">
+              <p className="text-base font-bold text-white">Delete Account</p>
+              {!deletingAccount && (
+                <button
+                  onClick={() => setShowDeleteAccountConfirm(false)}
+                  className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+                >
+                  <X size={15} />
+                </button>
+              )}
+            </div>
+            <div className="flex-1 overflow-y-auto px-5 py-6 pb-16 flex flex-col justify-between">
+              <div>
+                <div className="w-12 h-12 rounded-full bg-trainer-danger/15 flex items-center justify-center mb-5">
+                  <Trash2 size={20} className="text-trainer-danger" />
+                </div>
+                <p className="text-sm text-white/55 leading-relaxed mb-2">
+                  This will permanently delete your account, profile, and all workout history. This action <span className="text-trainer-danger font-semibold">cannot be undone</span>.
+                </p>
+                <p className="text-xs text-white/30">All local data, sessions, and progress will be erased.</p>
               </div>
-              <p className="text-base font-bold text-white mb-2">Delete Account?</p>
-              <p className="text-sm text-white/45 leading-relaxed mb-2">
-                This will permanently delete your account, profile, and all workout history. This action <span className="text-trainer-danger font-semibold">cannot be undone</span>.
-              </p>
-              <p className="text-xs text-white/30 mb-6">All local data, sessions, and progress will be erased.</p>
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 mt-8">
                 <button
                   onClick={handleDeleteAccount}
                   disabled={deletingAccount}
@@ -1117,8 +1122,8 @@ export default function SettingsPage() {
                   Cancel
                 </button>
               </div>
-            </motion.div>
-          </>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </div>

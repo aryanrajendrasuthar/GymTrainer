@@ -44,93 +44,82 @@ function ExerciseSheet({
   return (
     <AnimatePresence>
       {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            className="fixed inset-0 bg-black/60 z-50"
-          />
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 360, damping: 38 }}
-            className="fixed bottom-0 inset-x-0 z-50 bg-trainer-elevated border-t border-white/10 rounded-t-[24px] max-h-[80vh] flex flex-col"
-          >
-            <div className="w-10 h-1 bg-white/15 rounded-full mx-auto mt-3 mb-1 shrink-0" />
-
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/6 shrink-0">
-              <div>
-                <p className="text-base font-bold text-white">{dayName}</p>
-                <div className="flex gap-1.5 mt-1 flex-wrap">
-                  {muscleGroups.map((m) => (
-                    <span key={m} className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize", chip(m))}>
-                      {m}
-                    </span>
-                  ))}
-                </div>
+        <motion.div
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "100%" }}
+          transition={{ type: "spring", stiffness: 380, damping: 42 }}
+          className="fixed inset-0 z-50 bg-trainer-elevated flex flex-col"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 pt-12 pb-4 border-b border-white/6 shrink-0">
+            <div>
+              <p className="text-base font-bold text-white">{dayName}</p>
+              <div className="flex gap-1.5 mt-1 flex-wrap">
+                {muscleGroups.map((m) => (
+                  <span key={m} className={cn("text-[10px] font-semibold px-2 py-0.5 rounded-full capitalize", chip(m))}>
+                    {m}
+                  </span>
+                ))}
               </div>
-              <button
-                onClick={onClose}
-                className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white"
-              >
-                <X size={15} />
-              </button>
             </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white"
+            >
+              <X size={15} />
+            </button>
+          </div>
 
-            {/* Exercise list */}
-            <div className="overflow-y-auto flex-1 px-5 py-4">
-              {(() => {
-                const compoundCount = exercises.filter((id) => exerciseMap[id]?.movementType === "compound").length;
-                const isolationCount = exercises.filter((id) => exerciseMap[id]?.movementType === "isolation").length;
+          {/* Exercise list */}
+          <div className="overflow-y-auto flex-1 px-5 py-4 pb-16">
+            {(() => {
+              const compoundCount = exercises.filter((id) => exerciseMap[id]?.movementType === "compound").length;
+              const isolationCount = exercises.filter((id) => exerciseMap[id]?.movementType === "isolation").length;
+              return (
+                <div className="flex items-center gap-2 mb-3">
+                  <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest">
+                    {exercises.length} Exercises · {getWeekLabel()}
+                  </p>
+                  {compoundCount > 0 && (
+                    <span className="text-[9px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                      {compoundCount}C
+                    </span>
+                  )}
+                  {isolationCount > 0 && (
+                    <span className="text-[9px] font-bold text-white/30 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-full tabular-nums">
+                      {isolationCount}I
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
+            <div className="flex flex-col gap-2">
+              {exercises.map((exId, idx) => {
+                const ex = exerciseMap[exId];
                 return (
-                  <div className="flex items-center gap-2 mb-3">
-                    <p className="text-[10px] font-semibold text-white/30 uppercase tracking-widest">
-                      {exercises.length} Exercises · {getWeekLabel()}
-                    </p>
-                    {compoundCount > 0 && (
-                      <span className="text-[9px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
-                        {compoundCount}C
-                      </span>
-                    )}
-                    {isolationCount > 0 && (
-                      <span className="text-[9px] font-bold text-white/30 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-full tabular-nums">
-                        {isolationCount}I
-                      </span>
+                  <div
+                    key={exId}
+                    className="flex items-center gap-3 bg-trainer-surface border border-white/6 rounded-[12px] px-3.5 py-3"
+                  >
+                    <span className="text-xs font-bold text-white/25 tabular-nums w-4">{idx + 1}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-white/85 truncate">{ex?.name ?? exId}</p>
+                      {ex && (
+                        <p className="text-[11px] text-white/30 mt-0.5 capitalize">
+                          {ex.movementType} · {ex.difficulty}
+                        </p>
+                      )}
+                    </div>
+                    {ex && (
+                      <span className="text-[10px] text-white/30 capitalize shrink-0">{ex.equipment[0]}</span>
                     )}
                   </div>
                 );
-              })()}
-              <div className="flex flex-col gap-2">
-                {exercises.map((exId, idx) => {
-                  const ex = exerciseMap[exId];
-                  return (
-                    <div
-                      key={exId}
-                      className="flex items-center gap-3 bg-trainer-surface border border-white/6 rounded-[12px] px-3.5 py-3"
-                    >
-                      <span className="text-xs font-bold text-white/25 tabular-nums w-4">{idx + 1}</span>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-white/85 truncate">{ex?.name ?? exId}</p>
-                        {ex && (
-                          <p className="text-[11px] text-white/30 mt-0.5 capitalize">
-                            {ex.movementType} · {ex.difficulty}
-                          </p>
-                        )}
-                      </div>
-                      {ex && (
-                        <span className="text-[10px] text-white/30 capitalize shrink-0">{ex.equipment[0]}</span>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
+              })}
             </div>
-          </motion.div>
-        </>
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

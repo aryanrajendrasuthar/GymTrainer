@@ -163,148 +163,133 @@ export function AddCustomExerciseSheet({ open, onClose, onCreated }: Props) {
   return (
     <AnimatePresence>
       {open && (
-        <>
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={handleClose}
-            className="fixed inset-0 bg-black/65 z-40"
-          />
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 360, damping: 38 }}
-            className="fixed inset-x-0 bottom-0 z-50 bg-trainer-elevated border-t border-white/10 rounded-t-[24px]"
-            style={{ maxHeight: "90vh" }}
-          >
-            {/* Handle */}
-            <div className="flex justify-center pt-3 pb-1 shrink-0">
-              <div className="w-9 h-1 rounded-full bg-white/15" />
-            </div>
+        <motion.div
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "100%" }}
+          transition={{ type: "spring", stiffness: 380, damping: 42 }}
+          className="fixed inset-0 z-50 bg-trainer-elevated flex flex-col"
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 pt-12 pb-4 border-b border-white/8 shrink-0">
+            <p className="text-base font-bold text-white">New Custom Exercise</p>
+            <button
+              onClick={handleClose}
+              className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
+            >
+              <X size={15} />
+            </button>
+          </div>
 
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 pb-3">
-              <p className="text-base font-bold text-white">New Custom Exercise</p>
-              <button
-                onClick={handleClose}
-                className="w-7 h-7 rounded-full bg-white/8 flex items-center justify-center text-white/40 hover:text-white transition-colors"
-              >
-                <X size={14} />
-              </button>
-            </div>
+          {/* Scrollable form */}
+          <div className="overflow-y-auto flex-1 px-5 py-5 pb-16 flex flex-col gap-4">
 
-            {/* Scrollable form */}
-            <div className="overflow-y-auto px-4 pb-8 flex flex-col gap-4" style={{ maxHeight: "calc(90vh - 100px)" }}>
-
-              {/* Name */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <p className="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Exercise Name</p>
-                  {name.length > 0 && (
-                    <span className="text-[10px] text-white/25 tabular-nums">{name.length}/60</span>
-                  )}
-                </div>
-                <input
-                  type="text"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="e.g. Cable Fly Crossover"
-                  className="w-full bg-trainer-surface border border-white/10 rounded-[10px] px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-trainer-indigo/40"
-                  style={{ fontSize: "16px" }}
-                  maxLength={60}
-                />
+            {/* Name */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-[10px] text-white/30 uppercase tracking-widest font-semibold">Exercise Name</p>
+                {name.length > 0 && (
+                  <span className="text-[10px] text-white/25 tabular-nums">{name.length}/60</span>
+                )}
               </div>
-
-              {/* Category */}
-              <ChipGroup
-                label="Category"
-                options={CATEGORIES}
-                selected={category}
-                onChange={(v) => setCategory(v as ExerciseCategory)}
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="e.g. Cable Fly Crossover"
+                className="w-full bg-trainer-surface border border-white/10 rounded-[10px] px-3 py-2.5 text-sm text-white placeholder:text-white/25 focus:outline-none focus:border-trainer-indigo/40"
+                style={{ fontSize: "16px" }}
+                maxLength={60}
               />
-
-              {/* Primary Muscles */}
-              <ChipGroup
-                label={muscles.length > 0 ? `Primary Muscles (${muscles.length} selected)` : "Primary Muscles (select all that apply)"}
-                options={MUSCLES}
-                selected={muscles}
-                multi
-                onChange={(v) => setMuscles(v as MuscleGroup[])}
-              />
-
-              {/* Equipment */}
-              <ChipGroup
-                label={equipment.length > 0 ? `Equipment (${equipment.length} selected)` : "Equipment"}
-                options={EQUIPMENT_OPTIONS}
-                selected={equipment}
-                multi
-                onChange={(v) => setEquipment(v as Equipment[])}
-              />
-
-              {/* Movement Type */}
-              <ChipGroup
-                label="Movement Type"
-                options={MOVEMENT_TYPES}
-                selected={movement}
-                onChange={(v) => setMovement(v as typeof movement)}
-              />
-
-              {/* Difficulty */}
-              <ChipGroup
-                label="Difficulty"
-                options={DIFFICULTIES}
-                selected={difficulty}
-                onChange={(v) => setDifficulty(v as typeof difficulty)}
-              />
-
-              {/* Save */}
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                onClick={handleSave}
-                disabled={!canSave}
-                className={cn(
-                  "w-full py-3.5 rounded-[14px] text-sm font-bold flex items-center justify-center gap-2 transition-all mt-2",
-                  saved
-                    ? "bg-trainer-success text-white"
-                    : canSave
-                    ? "bg-trainer-indigo text-white shadow-lg shadow-trainer-indigo/30"
-                    : "bg-white/6 text-white/25 cursor-not-allowed"
-                )}
-              >
-                {saved ? (
-                  <><Check size={15} /> Saved!</>
-                ) : (
-                  <><Plus size={15} /> Create Exercise</>
-                )}
-              </motion.button>
-
-              {!canSave && (
-                <div className="flex flex-wrap gap-2 justify-center -mt-2">
-                  {[
-                    { label: "Name", done: name.trim().length >= 2 },
-                    { label: "Category", done: category !== null },
-                    { label: "Muscles", done: muscles.length > 0 },
-                    { label: "Equipment", done: equipment.length > 0 },
-                  ].map(({ label, done }) => (
-                    <span
-                      key={label}
-                      className={cn(
-                        "text-[10px] font-semibold px-2 py-0.5 rounded-full border",
-                        done
-                          ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
-                          : "text-white/25 bg-white/4 border-white/8"
-                      )}
-                    >
-                      {done ? "✓" : "○"} {label}
-                    </span>
-                  ))}
-                </div>
-              )}
             </div>
-          </motion.div>
-        </>
+
+            {/* Category */}
+            <ChipGroup
+              label="Category"
+              options={CATEGORIES}
+              selected={category}
+              onChange={(v) => setCategory(v as ExerciseCategory)}
+            />
+
+            {/* Primary Muscles */}
+            <ChipGroup
+              label={muscles.length > 0 ? `Primary Muscles (${muscles.length} selected)` : "Primary Muscles (select all that apply)"}
+              options={MUSCLES}
+              selected={muscles}
+              multi
+              onChange={(v) => setMuscles(v as MuscleGroup[])}
+            />
+
+            {/* Equipment */}
+            <ChipGroup
+              label={equipment.length > 0 ? `Equipment (${equipment.length} selected)` : "Equipment"}
+              options={EQUIPMENT_OPTIONS}
+              selected={equipment}
+              multi
+              onChange={(v) => setEquipment(v as Equipment[])}
+            />
+
+            {/* Movement Type */}
+            <ChipGroup
+              label="Movement Type"
+              options={MOVEMENT_TYPES}
+              selected={movement}
+              onChange={(v) => setMovement(v as typeof movement)}
+            />
+
+            {/* Difficulty */}
+            <ChipGroup
+              label="Difficulty"
+              options={DIFFICULTIES}
+              selected={difficulty}
+              onChange={(v) => setDifficulty(v as typeof difficulty)}
+            />
+
+            {/* Save */}
+            <motion.button
+              whileTap={{ scale: 0.97 }}
+              onClick={handleSave}
+              disabled={!canSave}
+              className={cn(
+                "w-full py-3.5 rounded-[14px] text-sm font-bold flex items-center justify-center gap-2 transition-all mt-2",
+                saved
+                  ? "bg-trainer-success text-white"
+                  : canSave
+                  ? "bg-trainer-indigo text-white shadow-lg shadow-trainer-indigo/30"
+                  : "bg-white/6 text-white/25 cursor-not-allowed"
+              )}
+            >
+              {saved ? (
+                <><Check size={15} /> Saved!</>
+              ) : (
+                <><Plus size={15} /> Create Exercise</>
+              )}
+            </motion.button>
+
+            {!canSave && (
+              <div className="flex flex-wrap gap-2 justify-center -mt-2">
+                {[
+                  { label: "Name", done: name.trim().length >= 2 },
+                  { label: "Category", done: category !== null },
+                  { label: "Muscles", done: muscles.length > 0 },
+                  { label: "Equipment", done: equipment.length > 0 },
+                ].map(({ label, done }) => (
+                  <span
+                    key={label}
+                    className={cn(
+                      "text-[10px] font-semibold px-2 py-0.5 rounded-full border",
+                      done
+                        ? "text-trainer-success bg-trainer-success/8 border-trainer-success/20"
+                        : "text-white/25 bg-white/4 border-white/8"
+                    )}
+                  >
+                    {done ? "✓" : "○"} {label}
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        </motion.div>
       )}
     </AnimatePresence>
   );

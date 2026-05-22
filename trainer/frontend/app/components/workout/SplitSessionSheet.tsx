@@ -244,318 +244,305 @@ export function SplitSessionSheet({
     <AnimatePresence>
       {open && (
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-end"
-          onClick={(e) => e.target === e.currentTarget && onClose()}
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "100%" }}
+          transition={{ type: "spring", stiffness: 380, damping: 42 }}
+          className="fixed inset-0 z-50 bg-trainer-surface flex flex-col"
         >
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 380, damping: 36 }}
-            className="w-full bg-trainer-surface border-t border-white/10 rounded-t-[24px] max-h-[92vh] flex flex-col"
-          >
-            {/* Handle */}
-            <div className="flex justify-center pt-3 pb-1 shrink-0">
-              <div className="w-10 h-1 rounded-full bg-white/15" />
-            </div>
-
-            {/* Header */}
-            <div className="flex items-center justify-between px-5 pb-4 shrink-0">
-              <div>
-                <h2 className="text-base font-bold text-white">Split Session</h2>
-                <p className="text-xs text-white/40 mt-0.5">
-                  {dayName} · choose now vs. later
-                </p>
-                {(() => {
-                  const nowCount = Object.values(assignments).filter((a) => a === "now").length
-                    + added.filter((a) => a.assignment === "now").length;
-                  return (
-                    <div className="flex items-center gap-1.5 mt-1.5">
-                      <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
-                        {nowCount} now
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 pt-12 pb-4 border-b border-white/8 shrink-0">
+            <div>
+              <h2 className="text-base font-bold text-white">Split Session</h2>
+              <p className="text-xs text-white/40 mt-0.5">
+                {dayName} · choose now vs. later
+              </p>
+              {(() => {
+                const nowCount = Object.values(assignments).filter((a) => a === "now").length
+                  + added.filter((a) => a.assignment === "now").length;
+                return (
+                  <div className="flex items-center gap-1.5 mt-1.5">
+                    <span className="text-[10px] font-bold text-trainer-indigo/70 bg-trainer-indigo/8 border border-trainer-indigo/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                      {nowCount} now
+                    </span>
+                    {laterCount > 0 && (
+                      <span className="text-[10px] font-bold text-trainer-warning/70 bg-trainer-warning/8 border border-trainer-warning/15 px-1.5 py-0.5 rounded-full tabular-nums">
+                        {laterCount} later
                       </span>
-                      {laterCount > 0 && (
-                        <span className="text-[10px] font-bold text-trainer-warning/70 bg-trainer-warning/8 border border-trainer-warning/15 px-1.5 py-0.5 rounded-full tabular-nums">
-                          {laterCount} later
-                        </span>
-                      )}
-                    </div>
-                  );
-                })()}
-              </div>
-              <button
-                onClick={onClose}
-                className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
-              >
-                <X size={16} />
-              </button>
+                    )}
+                  </div>
+                );
+              })()}
+            </div>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+            >
+              <X size={16} />
+            </button>
+          </div>
+
+          {/* Scrollable body */}
+          <div className="flex-1 overflow-y-auto px-5 py-5 pb-16 space-y-5 no-scrollbar">
+
+            {/* Scheduled exercises */}
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold text-white/35 uppercase tracking-widest">
+                Today&apos;s Schedule · {exercises.length} exercises
+              </p>
+              {exercises.map((ex) => (
+                <ExerciseRow
+                  key={ex.id}
+                  name={ex.name}
+                  sub={ex.primaryMuscles.slice(0, 2).join(", ").replace(/-/g, " ")}
+                  assignment={assignments[ex.id] ?? "now"}
+                  onAssign={(v) => setAssignment(ex.id, v)}
+                />
+              ))}
             </div>
 
-            {/* Scrollable body */}
-            <div className="flex-1 overflow-y-auto px-5 pb-6 space-y-5 no-scrollbar">
-
-              {/* Scheduled exercises */}
+            {/* Added extras */}
+            {added.length > 0 && (
               <div className="space-y-2">
                 <p className="text-[11px] font-semibold text-white/35 uppercase tracking-widest">
-                  Today&apos;s Schedule · {exercises.length} exercises
+                  Added · {added.length}
                 </p>
-                {exercises.map((ex) => (
-                  <ExerciseRow
-                    key={ex.id}
-                    name={ex.name}
-                    sub={ex.primaryMuscles.slice(0, 2).join(", ").replace(/-/g, " ")}
-                    assignment={assignments[ex.id] ?? "now"}
-                    onAssign={(v) => setAssignment(ex.id, v)}
-                  />
-                ))}
+                {added.map((a) => {
+                  const isPhysio = a.type === "physio";
+                  const label = isPhysio
+                    ? allPhysioExercises.find((e) => e.id === a.id)?.name ?? a.id
+                    : allExercises.find((e) => e.id === a.id)?.name ?? a.id;
+                  const sub = isPhysio
+                    ? (allPhysioExercises.find((e) => e.id === a.id)?.condition ?? "").replace(/-/g, " ")
+                    : (allExercises.find((e) => e.id === a.id)?.primaryMuscles.slice(0, 2).join(", ").replace(/-/g, " ") ?? "");
+                  return (
+                    <ExerciseRow
+                      key={a.id}
+                      name={label}
+                      sub={sub}
+                      isPhysio={isPhysio}
+                      assignment={a.assignment}
+                      onAssign={(v) => setAddedAssignment(a.id, v)}
+                      onRemove={() => removeAdded(a.id)}
+                    />
+                  );
+                })}
               </div>
+            )}
 
-              {/* Added extras */}
-              {added.length > 0 && (
-                <div className="space-y-2">
-                  <p className="text-[11px] font-semibold text-white/35 uppercase tracking-widest">
-                    Added · {added.length}
-                  </p>
-                  {added.map((a) => {
-                    const isPhysio = a.type === "physio";
-                    const label = isPhysio
-                      ? allPhysioExercises.find((e) => e.id === a.id)?.name ?? a.id
-                      : allExercises.find((e) => e.id === a.id)?.name ?? a.id;
-                    const sub = isPhysio
-                      ? (allPhysioExercises.find((e) => e.id === a.id)?.condition ?? "").replace(/-/g, " ")
-                      : (allExercises.find((e) => e.id === a.id)?.primaryMuscles.slice(0, 2).join(", ").replace(/-/g, " ") ?? "");
-                    return (
-                      <ExerciseRow
-                        key={a.id}
-                        name={label}
-                        sub={sub}
-                        isPhysio={isPhysio}
-                        assignment={a.assignment}
-                        onAssign={(v) => setAddedAssignment(a.id, v)}
-                        onRemove={() => removeAdded(a.id)}
-                      />
-                    );
-                  })}
+            {/* Add more exercises */}
+            <div className="border border-white/8 rounded-[16px] overflow-hidden">
+              <button
+                onClick={() => setShowSearch((v) => !v)}
+                className="w-full flex items-center justify-between px-4 py-3.5 text-left"
+              >
+                <div className="flex items-center gap-2.5 text-white/60">
+                  <Plus size={16} className="text-trainer-indigo" />
+                  <span className="text-sm font-semibold">Add more exercises</span>
                 </div>
-              )}
+                {showSearch ? (
+                  <ChevronUp size={15} className="text-white/30" />
+                ) : (
+                  <ChevronDown size={15} className="text-white/30" />
+                )}
+              </button>
 
-              {/* Add more exercises */}
-              <div className="border border-white/8 rounded-[16px] overflow-hidden">
-                <button
-                  onClick={() => setShowSearch((v) => !v)}
-                  className="w-full flex items-center justify-between px-4 py-3.5 text-left"
-                >
-                  <div className="flex items-center gap-2.5 text-white/60">
-                    <Plus size={16} className="text-trainer-indigo" />
-                    <span className="text-sm font-semibold">Add more exercises</span>
-                  </div>
-                  {showSearch ? (
-                    <ChevronUp size={15} className="text-white/30" />
-                  ) : (
-                    <ChevronDown size={15} className="text-white/30" />
-                  )}
-                </button>
-
-                <AnimatePresence>
-                  {showSearch && (
-                    <motion.div
-                      initial={{ height: 0, opacity: 0 }}
-                      animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className="overflow-hidden border-t border-white/8"
-                    >
-                      <div className="p-4 space-y-3">
-                        {/* Tab row */}
-                        <div className="flex gap-2">
-                          {(["workout", "physio"] as const).map((tab) => (
-                            <button
-                              key={tab}
-                              onClick={() => setSearchTab(tab)}
-                              className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-all",
-                                searchTab === tab
-                                  ? "bg-trainer-indigo text-white"
-                                  : "bg-white/8 text-white/45 hover:text-white/70"
-                              )}
-                            >
-                              {tab === "workout" ? (
-                                <Dumbbell size={11} />
-                              ) : (
-                                <Heart size={11} />
-                              )}
-                              {tab === "workout" ? "Workout" : "Physio"}
-                            </button>
-                          ))}
-                        </div>
-
-                        {/* Search input */}
-                        <div className="relative">
-                          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
-                          <input
-                            type="text"
-                            placeholder={
-                              searchTab === "workout"
-                                ? "Search exercises…"
-                                : "Search by name or condition…"
-                            }
-                            value={query}
-                            onChange={(e) => setQuery(e.target.value)}
-                            className="w-full pl-9 pr-3 py-2.5 rounded-[10px] bg-trainer-elevated border border-white/10 text-sm text-white placeholder:text-white/25 outline-none focus:border-trainer-indigo/50"
-                          />
-                        </div>
-
-                        {/* Results */}
-                        <div className="flex flex-col gap-1.5 max-h-52 overflow-y-auto no-scrollbar">
-                          {searchTab === "workout" &&
-                            (workoutResults.length === 0 && query.trim() ? (
-                              <p className="text-xs text-white/30 text-center py-3">
-                                No exercises found
-                              </p>
-                            ) : (
-                              workoutResults.map((ex) => (
-                                <button
-                                  key={ex.id}
-                                  onClick={() => addWorkoutExercise(ex)}
-                                  className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] bg-trainer-elevated border border-white/8 hover:border-trainer-indigo/30 transition-colors text-left"
-                                >
-                                  <Dumbbell size={13} className="text-trainer-indigo shrink-0" />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-white/80 truncate">
-                                      {ex.name}
-                                    </p>
-                                    <p className="text-[11px] text-white/30 truncate capitalize">
-                                      {ex.primaryMuscles.slice(0, 2).join(", ").replace(/-/g, " ")}
-                                    </p>
-                                  </div>
-                                  <Plus size={14} className="text-white/25 shrink-0" />
-                                </button>
-                              ))
-                            ))}
-
-                          {searchTab === "physio" &&
-                            (physioResults.length === 0 ? (
-                              <p className="text-xs text-white/30 text-center py-3">
-                                {query.trim()
-                                  ? "No physio exercises found"
-                                  : activeInjuries.length === 0
-                                  ? "No active injuries — search to find physio exercises"
-                                  : "All your physio exercises are added"}
-                              </p>
-                            ) : (
-                              physioResults.map((ex) => (
-                                <button
-                                  key={ex.id}
-                                  onClick={() => addPhysioExercise(ex)}
-                                  className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] bg-trainer-elevated border border-white/8 hover:border-trainer-success/30 transition-colors text-left"
-                                >
-                                  <Heart size={13} className="text-trainer-success/70 shrink-0" />
-                                  <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-medium text-white/80 truncate">
-                                      {ex.name}
-                                    </p>
-                                    <p className="text-[11px] text-white/30 truncate capitalize">
-                                      {ex.condition.replace(/-/g, " ")}
-                                    </p>
-                                  </div>
-                                  <Plus size={14} className="text-white/25 shrink-0" />
-                                </button>
-                              ))
-                            ))}
-                        </div>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-
-              {/* Slot picker — only shown when something is scheduled for later */}
               <AnimatePresence>
-                {hasLater && (
+                {showSearch && (
                   <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 8 }}
-                    className="space-y-2.5"
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden border-t border-white/8"
                   >
-                    <div className="flex items-center gap-2">
-                      <Clock size={13} className="text-trainer-warning/70" />
-                      <p className="text-[11px] font-semibold text-white/40 uppercase tracking-widest">
-                        When to do the later part? ({laterCount} exercises)
-                      </p>
-                    </div>
-                    <div className="grid grid-cols-2 gap-2">
-                      {SLOTS.map((s) => (
-                        <button
-                          key={s.value}
-                          onClick={() => setSlot(s.value)}
-                          className={cn(
-                            "px-3 py-2.5 rounded-[12px] border text-left transition-all",
-                            slot === s.value
-                              ? "bg-trainer-warning/12 border-trainer-warning/40"
-                              : "bg-trainer-elevated border-white/8 hover:border-white/20"
-                          )}
-                        >
-                          <p
+                    <div className="p-4 space-y-3">
+                      {/* Tab row */}
+                      <div className="flex gap-2">
+                        {(["workout", "physio"] as const).map((tab) => (
+                          <button
+                            key={tab}
+                            onClick={() => setSearchTab(tab)}
                             className={cn(
-                              "text-sm font-semibold",
-                              slot === s.value
-                                ? "text-trainer-warning"
-                                : "text-white/70"
+                              "flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-xs font-semibold transition-all",
+                              searchTab === tab
+                                ? "bg-trainer-indigo text-white"
+                                : "bg-white/8 text-white/45 hover:text-white/70"
                             )}
                           >
-                            {s.label}
-                          </p>
-                          <p className="text-[11px] text-white/30 mt-0.5">{s.sub}</p>
-                        </button>
-                      ))}
+                            {tab === "workout" ? (
+                              <Dumbbell size={11} />
+                            ) : (
+                              <Heart size={11} />
+                            )}
+                            {tab === "workout" ? "Workout" : "Physio"}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Search input */}
+                      <div className="relative">
+                        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30" />
+                        <input
+                          type="text"
+                          placeholder={
+                            searchTab === "workout"
+                              ? "Search exercises…"
+                              : "Search by name or condition…"
+                          }
+                          value={query}
+                          onChange={(e) => setQuery(e.target.value)}
+                          className="w-full pl-9 pr-3 py-2.5 rounded-[10px] bg-trainer-elevated border border-white/10 text-sm text-white placeholder:text-white/25 outline-none focus:border-trainer-indigo/50"
+                        />
+                      </div>
+
+                      {/* Results */}
+                      <div className="flex flex-col gap-1.5 max-h-52 overflow-y-auto no-scrollbar">
+                        {searchTab === "workout" &&
+                          (workoutResults.length === 0 && query.trim() ? (
+                            <p className="text-xs text-white/30 text-center py-3">
+                              No exercises found
+                            </p>
+                          ) : (
+                            workoutResults.map((ex) => (
+                              <button
+                                key={ex.id}
+                                onClick={() => addWorkoutExercise(ex)}
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] bg-trainer-elevated border border-white/8 hover:border-trainer-indigo/30 transition-colors text-left"
+                              >
+                                <Dumbbell size={13} className="text-trainer-indigo shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-white/80 truncate">
+                                    {ex.name}
+                                  </p>
+                                  <p className="text-[11px] text-white/30 truncate capitalize">
+                                    {ex.primaryMuscles.slice(0, 2).join(", ").replace(/-/g, " ")}
+                                  </p>
+                                </div>
+                                <Plus size={14} className="text-white/25 shrink-0" />
+                              </button>
+                            ))
+                          ))}
+
+                        {searchTab === "physio" &&
+                          (physioResults.length === 0 ? (
+                            <p className="text-xs text-white/30 text-center py-3">
+                              {query.trim()
+                                ? "No physio exercises found"
+                                : activeInjuries.length === 0
+                                ? "No active injuries — search to find physio exercises"
+                                : "All your physio exercises are added"}
+                            </p>
+                          ) : (
+                            physioResults.map((ex) => (
+                              <button
+                                key={ex.id}
+                                onClick={() => addPhysioExercise(ex)}
+                                className="flex items-center gap-3 px-3 py-2.5 rounded-[10px] bg-trainer-elevated border border-white/8 hover:border-trainer-success/30 transition-colors text-left"
+                              >
+                                <Heart size={13} className="text-trainer-success/70 shrink-0" />
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-white/80 truncate">
+                                    {ex.name}
+                                  </p>
+                                  <p className="text-[11px] text-white/30 truncate capitalize">
+                                    {ex.condition.replace(/-/g, " ")}
+                                  </p>
+                                </div>
+                                <Plus size={14} className="text-white/25 shrink-0" />
+                              </button>
+                            ))
+                          ))}
+                      </div>
                     </div>
                   </motion.div>
                 )}
               </AnimatePresence>
             </div>
 
-            {/* Footer CTA */}
-            <div className="px-5 pt-3 pb-safe border-t border-white/8 shrink-0" style={{ paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
+            {/* Slot picker — only shown when something is scheduled for later */}
+            <AnimatePresence>
               {hasLater && (
-                <p className="text-[11px] text-white/35 text-center mb-3">
-                  {laterCount} exercise{laterCount !== 1 ? "s" : ""} will be saved to{" "}
-                  <span className="text-trainer-warning/70">
-                    {SLOTS.find((s) => s.value === slot)?.label}
-                  </span>
-                </p>
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 8 }}
+                  className="space-y-2.5"
+                >
+                  <div className="flex items-center gap-2">
+                    <Clock size={13} className="text-trainer-warning/70" />
+                    <p className="text-[11px] font-semibold text-white/40 uppercase tracking-widest">
+                      When to do the later part? ({laterCount} exercises)
+                    </p>
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {SLOTS.map((s) => (
+                      <button
+                        key={s.value}
+                        onClick={() => setSlot(s.value)}
+                        className={cn(
+                          "px-3 py-2.5 rounded-[12px] border text-left transition-all",
+                          slot === s.value
+                            ? "bg-trainer-warning/12 border-trainer-warning/40"
+                            : "bg-trainer-elevated border-white/8 hover:border-white/20"
+                        )}
+                      >
+                        <p
+                          className={cn(
+                            "text-sm font-semibold",
+                            slot === s.value
+                              ? "text-trainer-warning"
+                              : "text-white/70"
+                          )}
+                        >
+                          {s.label}
+                        </p>
+                        <p className="text-[11px] text-white/30 mt-0.5">{s.sub}</p>
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
               )}
-              <button
-                onClick={handleConfirm}
-                disabled={
-                  Object.values(assignments).every((a) => a === "later") &&
-                  added.filter((a) => a.assignment === "now").length === 0
-                }
-                className={cn(
-                  "w-full py-3.5 rounded-[14px] text-sm font-bold transition-all",
-                  "bg-trainer-indigo text-white hover:bg-trainer-indigo-hover active:scale-[0.98]",
-                  "disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100"
-                )}
-              >
-                Start Now
-                {Object.values(assignments).filter((a) => a === "now").length +
-                  added.filter((a) => a.assignment === "now" && a.type === "workout").length >
-                  0 && (
-                  <span className="ml-1.5 opacity-70 font-normal">
-                    ·{" "}
-                    {Object.values(assignments).filter((a) => a === "now").length +
-                      added.filter(
-                        (a) => a.assignment === "now" && a.type === "workout"
-                      ).length}{" "}
-                    exercises
-                  </span>
-                )}
-              </button>
-            </div>
-          </motion.div>
+            </AnimatePresence>
+          </div>
+
+          {/* Footer CTA */}
+          <div className="px-5 pt-3 pb-10 border-t border-white/8 shrink-0">
+            {hasLater && (
+              <p className="text-[11px] text-white/35 text-center mb-3">
+                {laterCount} exercise{laterCount !== 1 ? "s" : ""} will be saved to{" "}
+                <span className="text-trainer-warning/70">
+                  {SLOTS.find((s) => s.value === slot)?.label}
+                </span>
+              </p>
+            )}
+            <button
+              onClick={handleConfirm}
+              disabled={
+                Object.values(assignments).every((a) => a === "later") &&
+                added.filter((a) => a.assignment === "now").length === 0
+              }
+              className={cn(
+                "w-full py-3.5 rounded-[14px] text-sm font-bold transition-all",
+                "bg-trainer-indigo text-white hover:bg-trainer-indigo-hover active:scale-[0.98]",
+                "disabled:opacity-40 disabled:cursor-not-allowed disabled:scale-100"
+              )}
+            >
+              Start Now
+              {Object.values(assignments).filter((a) => a === "now").length +
+                added.filter((a) => a.assignment === "now" && a.type === "workout").length >
+                0 && (
+                <span className="ml-1.5 opacity-70 font-normal">
+                  ·{" "}
+                  {Object.values(assignments).filter((a) => a === "now").length +
+                    added.filter(
+                      (a) => a.assignment === "now" && a.type === "workout"
+                    ).length}{" "}
+                  exercises
+                </span>
+              )}
+            </button>
+          </div>
         </motion.div>
       )}
     </AnimatePresence>

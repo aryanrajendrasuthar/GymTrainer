@@ -81,28 +81,30 @@ export function GlossaryTooltip({ term, children, className }: GlossaryTooltipPr
           <AnimatePresence>
             {isOpen && (
               <>
-                {/* Mobile overlay */}
+                {/* Mobile full-page slide-in */}
                 <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="fixed inset-0 z-50 bg-black/50 md:hidden"
-                  onClick={() => setIsOpen(false)}
-                />
-
-                {/* Mobile bottom sheet */}
-                <motion.div
-                  initial={{ y: "100%" }}
-                  animate={{ y: 0 }}
-                  exit={{ y: "100%" }}
-                  transition={{ type: "spring", damping: 30, stiffness: 300 }}
-                  className="fixed bottom-0 left-0 right-0 z-50 bg-trainer-surface rounded-t-[24px] p-5 md:hidden max-h-[60vh] overflow-y-auto"
+                  initial={{ x: "100%" }}
+                  animate={{ x: 0 }}
+                  exit={{ x: "100%" }}
+                  transition={{ type: "spring", stiffness: 380, damping: 42 }}
+                  className="fixed inset-0 z-50 bg-trainer-elevated flex flex-col md:hidden"
                   role="dialog"
                   aria-modal="true"
                   aria-label={entry.term}
                 >
-                  <div className="w-10 h-1 bg-white/20 rounded-full mx-auto mb-4" />
-                  <GlossaryContent entry={entry} onClose={() => setIsOpen(false)} />
+                  <div className="flex items-center justify-between px-5 pt-12 pb-4 border-b border-white/8 shrink-0">
+                    <p className="text-base font-bold text-white">Glossary</p>
+                    <button
+                      onClick={() => setIsOpen(false)}
+                      className="w-8 h-8 rounded-full bg-white/8 flex items-center justify-center text-white/50 hover:text-white transition-colors"
+                      aria-label="Close"
+                    >
+                      <X size={15} />
+                    </button>
+                  </div>
+                  <div className="overflow-y-auto flex-1 px-5 py-5 pb-16">
+                    <GlossaryContent entry={entry} onClose={() => setIsOpen(false)} />
+                  </div>
                 </motion.div>
 
                 {/* Desktop tooltip */}
