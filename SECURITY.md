@@ -11,7 +11,7 @@
 
 If you discover a security vulnerability, **do not open a public GitHub issue.**
 
-Email the details directly to: **asuthar1@asu.edu**
+Email the details directly to: **aryanrajendrasuthar@gmail.com**
 
 Please include:
 - A description of the vulnerability and its potential impact

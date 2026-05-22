@@ -953,15 +953,15 @@ export default function SettingsPage() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50">Version</span>
-              <span className="text-sm font-semibold text-white tabular-nums">1.0.0</span>
+              <span className="text-sm font-semibold text-white tabular-nums">1.2.2</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50">Developer</span>
-              <span className="text-sm font-semibold text-white">Aryan Suthar</span>
+              <span className="text-sm font-semibold text-white">Aryan Rajendra Suthar</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50">Contact</span>
-              <span className="text-sm font-semibold text-white">asuthar1@asu.edu</span>
+              <span className="text-sm font-semibold text-white">aryanrajendrasuthar@gmail.com</span>
             </div>
           </div>
 
@@ -969,7 +969,7 @@ export default function SettingsPage() {
             <div className="flex items-start gap-2">
               <Code2 size={12} className="text-white/20 mt-0.5 shrink-0" />
               <p className="text-[10px] text-white/20 leading-relaxed">
-                © {new Date().getFullYear()} Aryan Suthar. All rights reserved. Trainer is a proprietary
+                © {new Date().getFullYear()} Aryan Rajendra Suthar. All rights reserved. Trainer is a proprietary
                 fitness application. Unauthorised copying, distribution, or use of this software or its
                 concepts is strictly prohibited.
               </p>
