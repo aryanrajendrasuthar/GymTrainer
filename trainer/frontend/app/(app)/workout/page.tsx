@@ -704,12 +704,14 @@ function ExerciseView({
               animate={{ y: 0 }}
               exit={{ y: "100%" }}
               transition={{ type: "spring", stiffness: 380, damping: 38 }}
-              className="fixed bottom-0 inset-x-0 z-50 bg-trainer-elevated border-t border-white/10 rounded-t-[24px] pb-safe"
+              className="fixed bottom-0 inset-x-0 z-50 bg-trainer-elevated border-t border-white/10 rounded-t-[24px] max-h-[80vh] flex flex-col"
             >
-              <div className="flex justify-center pt-3 pb-1">
+              {/* Handle — always visible at top */}
+              <div className="flex justify-center pt-3 pb-1 shrink-0">
                 <div className="w-9 h-1 rounded-full bg-white/15" />
               </div>
-              <div className="px-4 pb-3 flex items-center justify-between">
+              {/* Header with X — always visible */}
+              <div className="px-4 pb-3 flex items-center justify-between shrink-0">
                 <p className="text-sm font-bold text-white">{exercise.name}</p>
                 <button
                   onClick={() => setShowVideo(false)}
@@ -718,7 +720,8 @@ function ExerciseView({
                   <X size={14} />
                 </button>
               </div>
-              <div className="px-4 pb-6">
+              {/* Scrollable content */}
+              <div className="overflow-y-auto flex-1 px-4 pb-8">
                 <ExerciseMediaTabs
                   youtubeId={exercise.youtubeId}
                   exerciseName={exercise.name}
@@ -1087,7 +1090,7 @@ function WorkoutPageContent() {
   const pendingParam = searchParams.get("pending");
   const exercisesParam = searchParams.get("exercises");
   const templateNameParam = searchParams.get("name");
-  const dayIndex = dayParam !== null && !isNaN(Number(dayParam)) ? parseInt(dayParam, 10) : 0;
+  const parsedDayParam = dayParam !== null && !isNaN(Number(dayParam)) ? parseInt(dayParam, 10) : null;
 
   const { profile, accessToken } = useUserStore();
   const { allExerciseLogs, sessionDates, addCompletedSession, recentSessions, setDraftSession, clearDraftSession } = useSessionStore();
@@ -1113,7 +1116,11 @@ function WorkoutPageContent() {
     [profile?.splitId]
   );
 
-  const splitDay = split?.days[dayIndex % (split?.days.length ?? 1)] ?? null;
+  const dayIndex = parsedDayParam ?? (split
+    ? ((new Date().getDay() + 6) % 7) % split.days.length
+    : 0);
+
+  const splitDay = split?.days[dayIndex] ?? null;
 
   // Exercise IDs: from pending session or from split day
   const exerciseIds = useMemo(() => {
