@@ -49,6 +49,7 @@ import { ProgressiveOverloadSuggestion } from "@/app/components/workout/Progress
 import { NextExerciseButton } from "@/app/components/workout/NextExerciseButton";
 import { SessionComplete } from "@/app/components/workout/SessionComplete";
 import { ExerciseMediaTabs } from "@/app/components/ui/ExerciseMediaTabs";
+import { ExerciseBrowser } from "@/app/components/ui/ExerciseBrowser";
 import { SplitSessionSheet } from "@/app/components/workout/SplitSessionSheet";
 import { RestTimer } from "@/app/components/workout/RestTimer";
 import { Button } from "@/app/components/ui/Button";
@@ -911,13 +912,14 @@ function PreWorkoutView({
   supersetPairs?: Set<string>;
   onToggleSuperset?: (idA: string, idB: string) => void;
 }) {
+  const [activeTab, setActiveTab] = useState<"workout" | "exercises">("workout");
   const sessionTag = muscleGroupsToSessionTag(muscleGroups);
   const warmup = getWarmupForSession(sessionTag);
 
   return (
     <div className="flex flex-col min-h-full">
       {/* Header */}
-      <div className="px-5 pt-14 pb-6">
+      <div className="px-5 pt-14 pb-4">
         <p className="text-xs text-trainer-indigo/80 font-semibold uppercase tracking-wider mb-1">
           {isPendingSession ? "Scheduled Session" : "Today's Workout"}
         </p>
@@ -936,6 +938,30 @@ function PreWorkoutView({
         </div>
       </div>
 
+      {/* Tab bar */}
+      <div className="px-5 pb-4">
+        <div className="flex gap-1 p-1 rounded-[12px] bg-white/6 border border-white/8">
+          {(["workout", "exercises"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "flex-1 py-2 text-sm font-semibold rounded-[9px] transition-all capitalize",
+                activeTab === tab
+                  ? "bg-trainer-surface text-white shadow-sm"
+                  : "text-white/40 hover:text-white/60"
+              )}
+            >
+              {tab === "workout" ? "Workout" : "Exercises"}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {activeTab === "exercises" ? (
+        <ExerciseBrowser />
+      ) : (
+      <>
       {/* Warmup protocol */}
       {warmup && !isPendingSession && (
         <div className="mx-5 mb-5 bg-trainer-elevated border border-white/8 rounded-[14px] p-4">
@@ -1046,6 +1072,8 @@ function PreWorkoutView({
           </Button>
         )}
       </div>
+      </>
+      )}
     </div>
   );
 }

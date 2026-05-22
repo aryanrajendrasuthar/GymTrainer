@@ -2,41 +2,24 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { Heart, ChevronRight, PlayCircle, X, Bot, Sparkles, Dumbbell } from "lucide-react";
+import { Heart, ChevronRight, PlayCircle, X, Bot, Sparkles } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { usePhysioStore } from "@/app/store/physioStore";
 import { useSettingsStore } from "@/app/store/settingsStore";
-import { usePendingSessionStore } from "@/app/store/pendingSessionStore";
 import { TodayWorkoutCard } from "@/app/components/dashboard/TodayWorkoutCard";
 import { StreakCard, WeekGridCard } from "@/app/components/dashboard/StreakCard";
 import { RecentSessionCard } from "@/app/components/dashboard/RecentSessionCard";
 import { WeeklyPlanSheet } from "@/app/components/dashboard/WeeklyPlanSheet";
-import { DailyCheckinCard } from "@/app/components/dashboard/DailyCheckinCard";
 import { PendingSessionCard } from "@/app/components/dashboard/PendingSessionCard";
-import { AchievementsCard } from "@/app/components/dashboard/AchievementsCard";
-import { MuscleHeatmapCard } from "@/app/components/dashboard/MuscleHeatmapCard";
 import { RecentPRsCard } from "@/app/components/dashboard/RecentPRsCard";
-import { UpcomingSessionsCard } from "@/app/components/dashboard/UpcomingSessionsCard";
 import { DeloadBanner } from "@/app/components/dashboard/DeloadBanner";
 import { MilestoneBanner } from "@/app/components/dashboard/MilestoneBanner";
 import { WeeklySummaryCard } from "@/app/components/dashboard/WeeklySummaryCard";
-import { NutritionLogCard } from "@/app/components/dashboard/NutritionLogCard";
-import { WaterIntakeCard } from "@/app/components/dashboard/WaterIntakeCard";
-import { SleepLogCard } from "@/app/components/dashboard/SleepLogCard";
-import { RecoveryScoreCard } from "@/app/components/dashboard/RecoveryScoreCard";
-import { HabitTrackerCard } from "@/app/components/dashboard/HabitTrackerCard";
-import { GoalsCard } from "@/app/components/dashboard/GoalsCard";
 import { WeekComparisonCard } from "@/app/components/dashboard/WeekComparisonCard";
-import { BodyStatsCard } from "@/app/components/dashboard/BodyStatsCard";
-import { LifetimeStatsCard } from "@/app/components/dashboard/LifetimeStatsCard";
-import { SupplementCard } from "@/app/components/dashboard/SupplementCard";
-import { WorkoutTemplatesCard } from "@/app/components/dashboard/WorkoutTemplatesCard";
 import { InstallBanner } from "@/app/components/ui/InstallBanner";
 import { GoalCheckinModal, shouldShowCheckin } from "@/app/components/dashboard/GoalCheckinModal";
-import { ExercisePickerSheet } from "@/app/components/workout/ExercisePickerSheet";
 import { WeightNudgeBanner } from "@/app/components/dashboard/WeightNudgeBanner";
 import { useProgressStore } from "@/app/store/progressStore";
 import { getSplitById } from "@/app/data/splits";
@@ -100,17 +83,14 @@ function getWeekSessionDates(sessions: WorkoutSession[]): string[] {
 }
 
 export default function DashboardPage() {
-  const router = useRouter();
   const [showCheckin, setShowCheckin] = useState(() => {
     if (typeof window === "undefined") return false;
     return shouldShowCheckin();
   });
-  const [showPicker, setShowPicker] = useState(false);
   const { profile, accessToken } = useUserStore();
   const { recentSessions, allExerciseLogs, draftSession, clearDraftSession } = useSessionStore();
   const { activeInjuries, todayCompletedSlots } = usePhysioStore();
   const { settings } = useSettingsStore();
-  const { addSession: addPendingSession } = usePendingSessionStore();
   const { bodyWeightLogs } = useProgressStore();
 
   const split = useMemo(
@@ -149,7 +129,6 @@ export default function DashboardPage() {
   const firstName = profile?.name?.split(" ")[0] ?? "Athlete";
   const weightUnit = (settings.weightUnit ?? profile?.units ?? "kg") as "kg" | "lb";
 
-  // Latest tracked weight vs profile weight for nudge banner
   const latestTrackedKg = bodyWeightLogs[0]?.weightKg ?? null;
   const profileWeightKg = profile?.weightKg ?? null;
 
@@ -169,7 +148,6 @@ export default function DashboardPage() {
     }));
   }, [todayExerciseIds, allExerciseLogs, profile?.goal, settings.overloadAmount, todaySplitDay?.isRestDay]);
 
-  // Estimate today's workout based on past sessions with same split day name
   const todayEstimate = useMemo(() => {
     if (!todaySplitDay || todaySplitDay.isRestDay) return undefined;
     const past = recentSessions.filter(
@@ -181,36 +159,8 @@ export default function DashboardPage() {
     return { durationMinutes: avgDuration, volumeKg: avgVolume };
   }, [todaySplitDay, recentSessions]);
 
-  const recentExerciseIds = useMemo(() => {
-    const seen = new Set<string>();
-    const ids: string[] = [];
-    for (const s of recentSessions) {
-      for (const ex of s.exercisesCompleted ?? []) {
-        if (!seen.has(ex.exerciseId)) {
-          seen.add(ex.exerciseId);
-          ids.push(ex.exerciseId);
-        }
-      }
-      if (ids.length >= 20) break;
-    }
-    return ids;
-  }, [recentSessions]);
-
-  function handleStartQuickWorkout(exerciseIds: string[], dayName: string) {
-    const today = new Date().toISOString().split("T")[0];
-    const id = addPendingSession({
-      dayName,
-      exercises: exerciseIds.map((eid) => ({ id: eid, type: "workout" })),
-      slot: "anytime",
-      date: today,
-    });
-    setShowPicker(false);
-    router.push(`/workout?pending=${id}`);
-  }
-
   return (
     <div className="flex flex-col min-h-full pb-6 page-enter">
-      {/* PWA install banner */}
       <InstallBanner />
 
       {/* Header */}
@@ -220,7 +170,6 @@ export default function DashboardPage() {
         transition={{ duration: 0.35 }}
         className="relative px-5 pt-14 pb-6 overflow-hidden"
       >
-        {/* Overhead spotlight behind the greeting */}
         <div
           className="pointer-events-none absolute -top-8 left-1/2 -translate-x-1/2 w-64 h-40 rounded-full"
           style={{ background: "radial-gradient(ellipse at 50% 0%, rgba(108,99,255,0.18) 0%, transparent 70%)" }}
@@ -230,7 +179,7 @@ export default function DashboardPage() {
       </motion.div>
 
       <div className="flex flex-col gap-4 px-5">
-        {/* Resume workout banner */}
+        {/* Resume unfinished workout */}
         {draftSession && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
@@ -260,7 +209,7 @@ export default function DashboardPage() {
           </motion.div>
         )}
 
-        {/* Today's workout */}
+        {/* Today's workout — primary action */}
         {split && todaySplitDay ? (
           <TodayWorkoutCard
             split={split}
@@ -269,131 +218,16 @@ export default function DashboardPage() {
             progressionHints={progressionHints}
             estimate={todayEstimate}
             unit={weightUnit}
-            onTrainAnyway={todaySplitDay.isRestDay ? () => setShowPicker(true) : undefined}
           />
         ) : (
           <NoProgrammeCard />
         )}
 
-        {/* Upcoming sessions horizontal scroll */}
-        <UpcomingSessionsCard />
-
-        {/* Quick Workout builder */}
-        <motion.button
+        {/* AI Coach — prominently placed */}
+        <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.05 }}
-          whileTap={{ scale: 0.98 }}
-          onClick={() => setShowPicker(true)}
-          className="w-full flex items-center gap-4 p-4 rounded-[16px] bg-trainer-surface border border-white/8 hover:border-white/16 transition-all text-left"
-        >
-          <div className="w-10 h-10 rounded-[12px] bg-trainer-indigo/15 flex items-center justify-center shrink-0">
-            <Dumbbell size={18} className="text-trainer-indigo" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-white">Quick Workout</p>
-            <p className="text-xs text-white/40 mt-0.5">Pick exercises and start immediately</p>
-          </div>
-          <ChevronRight size={15} className="text-white/25 shrink-0" />
-        </motion.button>
-
-        {/* Weekly plan */}
-        {split && (
-          <WeeklyPlanSheet split={split} todayDayIndex={todayDayIndex} />
-        )}
-
-        {/* Streak + Week grid */}
-        <div className="flex gap-3">
-          <StreakCard
-            streak={streak}
-            weekSessionCount={weekSessionCount}
-            totalSessions={recentSessions.length}
-          />
-          <WeekGridCard sessionDates={weekDates} />
-        </div>
-
-        {/* Quick-start saved routines */}
-        <WorkoutTemplatesCard />
-
-        {/* Week-over-week comparison */}
-        <WeekComparisonCard />
-
-        {/* Body stats — weight trend, BMI, BF% */}
-        <BodyStatsCard />
-
-        {/* Daily recovery score */}
-        <RecoveryScoreCard />
-
-        {/* Weekly AI summary */}
-        <WeeklySummaryCard
-          sessions={recentSessions}
-          accessToken={accessToken ?? undefined}
-          goal={profile?.goal}
-          streak={streak}
-        />
-
-        {/* Milestone / suggestion banner */}
-        <MilestoneBanner
-          sessions={recentSessions}
-          allLogs={allExerciseLogs}
-          streak={streak}
-        />
-
-        {/* Deload recommendation */}
-        <DeloadBanner exerciseIds={todayExerciseIds} />
-
-        {/* Weight divergence nudge */}
-        {latestTrackedKg !== null && profileWeightKg !== null && (
-          <WeightNudgeBanner
-            trackedKg={latestTrackedKg}
-            profileKg={profileWeightKg}
-            unit={weightUnit}
-          />
-        )}
-
-        {/* Physio reminder */}
-        {pendingPhysioCount > 0 && (
-          <PhysioReminderBanner count={pendingPhysioCount} />
-        )}
-
-        {/* Daily weight check-in */}
-        <DailyCheckinCard />
-
-        {/* Water intake */}
-        <WaterIntakeCard />
-
-        {/* Sleep log */}
-        <SleepLogCard />
-
-        {/* Daily habits */}
-        <HabitTrackerCard />
-
-        {/* Supplement tracker */}
-        <SupplementCard />
-
-        {/* Daily nutrition log */}
-        <NutritionLogCard />
-
-        {/* Pending scheduled sessions */}
-        <PendingSessionCard />
-
-        {/* Recent PRs horizontal scroll */}
-        <RecentPRsCard />
-
-        {/* Performance goals */}
-        <GoalsCard />
-
-        {/* All-time lifetime totals */}
-        <LifetimeStatsCard />
-
-        {/* Muscle recovery heatmap */}
-        <MuscleHeatmapCard />
-
-        {/* AI Coach card */}
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
         >
           <Link
             href="/coach"
@@ -415,29 +249,68 @@ export default function DashboardPage() {
           </Link>
         </motion.div>
 
-        {/* Achievement badges */}
-        <AchievementsCard />
+        {/* Weekly plan */}
+        {split && (
+          <WeeklyPlanSheet split={split} todayDayIndex={todayDayIndex} />
+        )}
+
+        {/* Streak + week grid */}
+        <div className="flex gap-3">
+          <StreakCard
+            streak={streak}
+            weekSessionCount={weekSessionCount}
+            totalSessions={recentSessions.length}
+          />
+          <WeekGridCard sessionDates={weekDates} />
+        </div>
+
+        {/* Week-over-week comparison */}
+        <WeekComparisonCard />
+
+        {/* AI weekly summary */}
+        <WeeklySummaryCard
+          sessions={recentSessions}
+          accessToken={accessToken ?? undefined}
+          goal={profile?.goal}
+          streak={streak}
+        />
+
+        {/* Recent PRs */}
+        <RecentPRsCard />
+
+        {/* Conditional banners */}
+        <MilestoneBanner
+          sessions={recentSessions}
+          allLogs={allExerciseLogs}
+          streak={streak}
+        />
+        <DeloadBanner exerciseIds={todayExerciseIds} />
+        {latestTrackedKg !== null && profileWeightKg !== null && (
+          <WeightNudgeBanner
+            trackedKg={latestTrackedKg}
+            profileKg={profileWeightKg}
+            unit={weightUnit}
+          />
+        )}
+        {pendingPhysioCount > 0 && (
+          <PhysioReminderBanner count={pendingPhysioCount} />
+        )}
 
         {/* Recent sessions */}
         <RecentSessionCard
           sessions={recentSessions.slice(0, 3)}
           weightUnit={weightUnit}
         />
+
+        {/* Pending scheduled sessions */}
+        <PendingSessionCard />
       </div>
 
-      {/* 4-week goal check-in */}
+      {/* 4-week goal check-in modal */}
       <GoalCheckinModal
         open={showCheckin}
         onClose={() => setShowCheckin(false)}
         sessionCount={recentSessions.length}
-      />
-
-      {/* Quick Workout exercise picker */}
-      <ExercisePickerSheet
-        open={showPicker}
-        onClose={() => setShowPicker(false)}
-        onStart={handleStartQuickWorkout}
-        recentIds={recentExerciseIds}
       />
     </div>
   );

@@ -3,12 +3,12 @@
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Dumbbell, BookOpen, Heart, Settings } from "lucide-react";
+import { Home, Dumbbell, Bot, Heart, Settings } from "lucide-react";
 import { cn } from "@/app/lib/utils";
 
 const navItems = [
   { href: "/dashboard",  icon: Home,     label: "Home" },
-  { href: "/exercises",  icon: BookOpen, label: "Exercises" },
+  { href: "/coach",      icon: Bot,      label: "Coach" },
   { href: "/workout",    icon: Dumbbell, label: "Train" },
   { href: "/physio",     icon: Heart,    label: "Physio" },
   { href: "/settings",   icon: Settings, label: "Settings" },

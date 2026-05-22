@@ -31,6 +31,7 @@ import {
 import type { PhysioSession } from "@/app/lib/physio-engine";
 import { cn } from "@/app/lib/utils";
 import { ExerciseMediaTabs } from "@/app/components/ui/ExerciseMediaTabs";
+import { ExerciseBrowser } from "@/app/components/ui/ExerciseBrowser";
 
 // ─── Display maps ───────────────────────────────────────────────────────────────
 
@@ -344,6 +345,7 @@ export default function PhysioPage() {
   const injuries = useMemo(() => profile?.injuries ?? [], [profile]);
 
   const [view, setView] = useState<PhysioView>("list");
+  const [physioTab, setPhysioTab] = useState<"rehab" | "exercises">("rehab");
   const [showAddInjury, setShowAddInjury] = useState(false);
   const [selectedInjury, setSelectedInjury] = useState<UserInjury | null>(null);
   const [selectedSlot, setSelectedSlot] = useState<"morning" | "evening">("morning");
@@ -661,7 +663,7 @@ export default function PhysioPage() {
       <motion.div
         initial={{ opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
-        className="px-5 pt-14 pb-6"
+        className="px-5 pt-14 pb-4"
       >
         <div className="flex items-center justify-between">
           <div>
@@ -680,55 +682,79 @@ export default function PhysioPage() {
         </div>
       </motion.div>
 
-      <div className="flex flex-col gap-4 px-5">
-        {injuries.map((injury) => {
-          const slots = todayCompletedSlots[injury.condition] ?? [];
-          const gate = phaseGateMap.get(injury.condition);
-          const latestPain = getLatestPain(injury.condition);
-
-          return (
-            <div key={injury.condition}>
-              <ConditionCard
-                injury={injury}
-                completedSlots={slots}
-                onStartSlot={(slot) => handleStartSlot(injury, slot)}
-                latestPain={latestPain}
-                painHistory={painHistory}
-              />
-
-              {/* Phase gate banner */}
-              {gate?.canProgress && gate.suggestedPhase && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  className="mt-2 flex items-start gap-2.5 px-3.5 py-3 rounded-[10px] bg-trainer-success/8 border border-trainer-success/25"
-                >
-                  <TrendingUp size={14} className="text-trainer-success shrink-0 mt-0.5" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-white/65 leading-relaxed">
-                      <span className="font-semibold text-trainer-success">Ready to progress </span>
-                      to {PHASE_STYLE[gate.suggestedPhase].label} phase. {gate.reason}
-                    </p>
-                    <button
-                      onClick={() => {
-                        updateInjury(injury.condition, { phase: gate.suggestedPhase! });
-                        if (accessToken && injury.backendId) {
-                          physioApi
-                            .updateInjury(accessToken, injury.backendId, { phase: gate.suggestedPhase! })
-                            .catch(() => {});
-                        }
-                      }}
-                      className="mt-2 text-xs font-bold text-trainer-success bg-trainer-success/15 border border-trainer-success/30 px-3 py-1.5 rounded-full hover:bg-trainer-success/25 transition-colors"
-                    >
-                      Advance to {PHASE_STYLE[gate.suggestedPhase].label} →
-                    </button>
-                  </div>
-                </motion.div>
+      {/* Tab bar */}
+      <div className="px-5 pb-4">
+        <div className="flex gap-1 p-1 rounded-[12px] bg-white/6 border border-white/8">
+          {(["rehab", "exercises"] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setPhysioTab(tab)}
+              className={cn(
+                "flex-1 py-2 text-sm font-semibold rounded-[9px] transition-all capitalize",
+                physioTab === tab
+                  ? "bg-trainer-surface text-white shadow-sm"
+                  : "text-white/40 hover:text-white/60"
               )}
-            </div>
-          );
-        })}
+            >
+              {tab === "rehab" ? "Rehab" : "Exercises"}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {physioTab === "rehab" ? (
+        <div className="flex flex-col gap-4 px-5">
+          {injuries.map((injury) => {
+            const slots = todayCompletedSlots[injury.condition] ?? [];
+            const gate = phaseGateMap.get(injury.condition);
+            const latestPain = getLatestPain(injury.condition);
+
+            return (
+              <div key={injury.condition}>
+                <ConditionCard
+                  injury={injury}
+                  completedSlots={slots}
+                  onStartSlot={(slot) => handleStartSlot(injury, slot)}
+                  latestPain={latestPain}
+                  painHistory={painHistory}
+                />
+
+                {/* Phase gate banner */}
+                {gate?.canProgress && gate.suggestedPhase && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    className="mt-2 flex items-start gap-2.5 px-3.5 py-3 rounded-[10px] bg-trainer-success/8 border border-trainer-success/25"
+                  >
+                    <TrendingUp size={14} className="text-trainer-success shrink-0 mt-0.5" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs text-white/65 leading-relaxed">
+                        <span className="font-semibold text-trainer-success">Ready to progress </span>
+                        to {PHASE_STYLE[gate.suggestedPhase].label} phase. {gate.reason}
+                      </p>
+                      <button
+                        onClick={() => {
+                          updateInjury(injury.condition, { phase: gate.suggestedPhase! });
+                          if (accessToken && injury.backendId) {
+                            physioApi
+                              .updateInjury(accessToken, injury.backendId, { phase: gate.suggestedPhase! })
+                              .catch(() => {});
+                          }
+                        }}
+                        className="mt-2 text-xs font-bold text-trainer-success bg-trainer-success/15 border border-trainer-success/30 px-3 py-1.5 rounded-full hover:bg-trainer-success/25 transition-colors"
+                      >
+                        Advance to {PHASE_STYLE[gate.suggestedPhase].label} →
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <ExerciseBrowser />
+      )}
 
       <AddInjurySheet open={showAddInjury} onClose={() => setShowAddInjury(false)} />
     </div>
