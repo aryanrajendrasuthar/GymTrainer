@@ -57,7 +57,7 @@ async function apiFetch<T>(
 
 // ─── Profile mapping (Supabase snake_case → camelCase) ───────────────────────
 
-interface RawProfile {
+export interface RawProfile {
   id: string;
   email: string;
   name: string;
@@ -76,7 +76,7 @@ interface RawProfile {
   updated_at: string;
 }
 
-function mapProfile(raw: RawProfile): UserProfile {
+export function mapProfile(raw: RawProfile): UserProfile {
   return {
     id: raw.id,
     email: raw.email,

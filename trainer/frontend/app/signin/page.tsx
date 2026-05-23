@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
-import { authApi, ApiError } from "@/app/lib/api";
+import { mapProfile, type RawProfile } from "@/app/lib/api";
 import { supabase } from "@/app/lib/supabaseClient";
 import { TrainerLogo } from "@/app/components/ui/TrainerLogo";
 import { GymBackground } from "@/app/components/ui/GymBackground";
@@ -46,31 +46,48 @@ export default function SignInPage() {
     setLoading(true);
     setError(null);
 
-    try {
-      const { accessToken, refreshToken, expiresAt } = await authApi.signIn(email, password);
-      const profile = await authApi.getProfile(accessToken);
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      setAuth(accessToken, profile, refreshToken, expiresAt);
-
-      if (profile.splitId) {
-        setOnboardingComplete(true);
-        router.replace("/dashboard");
-      } else {
-        setOnboardingComplete(false);
-        router.replace("/onboarding");
-      }
-    } catch (err) {
-      if (err instanceof ApiError) {
-        setError(
-          err.status === 401
-            ? "Incorrect email or password."
-            : err.message
-        );
-      } else {
-        setError("Unable to connect. Check your internet connection.");
-      }
-    } finally {
+    if (signInError) {
       setLoading(false);
+      const msg = signInError.message.toLowerCase();
+      if (msg.includes("email not confirmed")) {
+        setError("Your email isn't confirmed yet. Check your inbox for the confirmation link.");
+      } else if (msg.includes("invalid login credentials") || msg.includes("invalid email") || msg.includes("wrong")) {
+        setError("Incorrect email or password.");
+      } else {
+        setError(signInError.message || "Sign-in failed. Please try again.");
+      }
+      return;
+    }
+
+    const { access_token, refresh_token, expires_at } = data.session;
+
+    const { data: rawProfile, error: profileError } = await supabase
+      .from("user_profiles")
+      .select("*")
+      .eq("id", data.user.id)
+      .single<RawProfile>();
+
+    setLoading(false);
+
+    if (profileError || !rawProfile) {
+      setError("Could not load your profile. Please try again.");
+      return;
+    }
+
+    const profile = mapProfile(rawProfile);
+    setAuth(access_token, profile, refresh_token ?? null, expires_at ?? null);
+
+    if (profile.splitId) {
+      setOnboardingComplete(true);
+      router.replace("/dashboard");
+    } else {
+      setOnboardingComplete(false);
+      router.replace("/onboarding");
     }
   }
 
