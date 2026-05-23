@@ -3,7 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { type UserProfile, type UserInjury } from "@/app/types";
-import { authApi } from "@/app/lib/api";
+import { supabase } from "@/app/lib/supabaseClient";
 
 interface UserState {
   profile: UserProfile | null;
@@ -44,7 +44,10 @@ export const useUserStore = create<UserState>()(
       setAuth: (accessToken, profile, refreshToken = null, expiresAt = null) =>
         set({ accessToken, profile, isAuthenticated: true, refreshToken, expiresAt }),
 
-      signOut: () =>
+      signOut: () => {
+        // Revoke the Supabase session (clears cookie + invalidates refresh token server-side).
+        // Fire-and-forget — local state clears immediately regardless.
+        supabase.auth.signOut().catch(() => {});
         set({
           profile: null,
           isAuthenticated: false,
@@ -52,7 +55,8 @@ export const useUserStore = create<UserState>()(
           refreshToken: null,
           expiresAt: null,
           onboardingComplete: false,
-        }),
+        });
+      },
 
       setOnboardingComplete: (val) => set({ onboardingComplete: val }),
 
@@ -91,22 +95,54 @@ export const useUserStore = create<UserState>()(
         })),
 
       ensureValidToken: async () => {
-        const { accessToken, refreshToken, expiresAt } = get();
+        const { accessToken, refreshToken: storedRefreshToken, expiresAt } = get();
         if (!accessToken) return null;
+
+        // Fast path: token still fresh with >60s buffer
         const nowSec = Math.floor(Date.now() / 1000);
         if (expiresAt && nowSec < expiresAt - 60) return accessToken;
-        if (!refreshToken) {
-          get().signOut();
-          return null;
-        }
+
+        // Token is expired or near-expiry.
+        // Strategy 1: ask the Supabase browser client — it manages its own session
+        // in a long-lived cookie and refreshes automatically without hitting our backend.
         try {
-          const result = await authApi.refresh(refreshToken);
-          set({ accessToken: result.accessToken, refreshToken: result.refreshToken, expiresAt: result.expiresAt });
-          return result.accessToken;
+          const { data: { session } } = await supabase.auth.getSession();
+          if (session) {
+            set({
+              accessToken: session.access_token,
+              refreshToken: session.refresh_token,
+              expiresAt: session.expires_at ?? null,
+            });
+            return session.access_token;
+          }
         } catch {
-          get().signOut();
-          return null;
+          // getSession threw (network error, etc.) — fall through
         }
+
+        // Strategy 2: Supabase cookie was cleared but Zustand still has a refresh
+        // token (e.g. existing users who signed in before the Supabase-direct login).
+        // Attempt a manual refresh directly against Supabase — no backend involved.
+        if (storedRefreshToken) {
+          try {
+            const { data, error } = await supabase.auth.refreshSession({
+              refresh_token: storedRefreshToken,
+            });
+            if (!error && data.session) {
+              set({
+                accessToken: data.session.access_token,
+                refreshToken: data.session.refresh_token,
+                expiresAt: data.session.expires_at ?? null,
+              });
+              return data.session.access_token;
+            }
+          } catch {
+            // Manual refresh also failed
+          }
+        }
+
+        // Both strategies exhausted — session is genuinely dead.
+        get().signOut();
+        return null;
       },
     }),
     {
