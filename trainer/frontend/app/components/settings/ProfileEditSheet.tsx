@@ -186,7 +186,7 @@ export function ProfileEditSheet({ open, onClose }: ProfileEditSheetProps) {
           </div>
 
           {/* Scrollable content */}
-          <div className="overflow-y-auto flex-1 px-5 py-5 flex flex-col gap-5 pb-16">
+          <div className="overflow-y-auto flex-1 px-5 py-5 flex flex-col gap-5 pb-cta">
             {/* Name */}
             <div>
               <FieldLabel>Name</FieldLabel>
@@ -304,10 +304,7 @@ export function ProfileEditSheet({ open, onClose }: ProfileEditSheetProps) {
             <p className="text-[11px] text-white/25 text-center leading-relaxed">
               Saving recalculates your calorie and macro targets.
             </p>
-          </div>
 
-          {/* Save button */}
-          <div className="shrink-0 px-5 pb-10 pt-3 border-t border-white/8">
             <button
               onClick={handleSave}
               disabled={saving || !hasChanges}
