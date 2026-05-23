@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ChevronRight, Sparkles } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
 import { authApi } from "@/app/lib/api";
+import { supabase } from "@/app/lib/supabaseClient";
 import { calculateNutritionTargets } from "@/app/lib/nutrition";
 import { Button } from "@/app/components/ui/Button";
 import { GoalStep } from "@/app/components/onboarding/GoalStep";
@@ -109,7 +110,7 @@ function metricsComplete(m: Partial<BodyMetrics>): m is BodyMetrics {
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const { isAuthenticated, onboardingComplete, updateProfile, setOnboardingComplete, accessToken } =
+  const { isAuthenticated, onboardingComplete, updateProfile, setOnboardingComplete, accessToken, refreshToken, profile } =
     useUserStore();
   const { setInjuries } = usePhysioStore();
   const { updateSettings } = useSettingsStore();
@@ -185,32 +186,53 @@ export default function OnboardingPage() {
         )
       : undefined;
 
-    if (!accessToken) {
+    if (!accessToken || !profile?.id) {
       setError("Session expired — please sign in again.");
       return;
     }
 
     setSaving(true);
-    try {
-      await authApi.updateProfile(accessToken, {
-        goal,
-        fitness_level: fitnessLevel,
-        equipment,
-        split_id: splitId,
-        ...(m
-          ? {
-              gender: m.gender,
-              age: m.age,
-              height_cm: m.heightCm,
-              weight_kg: m.weightKg,
-              activity_level: m.activityLevel,
-            }
-          : {}),
-      });
-    } catch {
-      setSaving(false);
-      setError("Something went wrong. Please try again.");
-      return;
+
+    const profilePayload = {
+      goal,
+      fitness_level: fitnessLevel,
+      equipment,
+      split_id: splitId,
+      ...(m
+        ? {
+            gender: m.gender,
+            age: m.age,
+            height_cm: m.heightCm,
+            weight_kg: m.weightKg,
+            activity_level: m.activityLevel,
+          }
+        : {}),
+    };
+
+    // Ensure the Supabase browser client has a session so the upsert passes RLS.
+    // Users who signed in before the Supabase-direct auth fix won't have a cookie;
+    // restore it from Zustand tokens so the direct write still works.
+    const { data: { session: existing } } = await supabase.auth.getSession();
+    if (!existing && refreshToken) {
+      await supabase.auth
+        .setSession({ access_token: accessToken, refresh_token: refreshToken })
+        .catch(() => {});
+    }
+
+    // Write directly to Supabase — always available, no backend cold-start risk.
+    const { error: upsertError } = await supabase
+      .from("user_profiles")
+      .upsert({ id: profile.id, ...profilePayload }, { onConflict: "id" });
+
+    if (upsertError) {
+      // Supabase direct failed (e.g. session couldn't be restored) — try backend.
+      try {
+        await authApi.updateProfile(accessToken, profilePayload);
+      } catch {
+        setSaving(false);
+        setError("Something went wrong. Please try again.");
+        return;
+      }
     }
 
     updateProfile({
