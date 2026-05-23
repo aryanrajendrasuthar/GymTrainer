@@ -116,6 +116,7 @@ export default function OnboardingPage() {
 
   const [step, setStep] = useState(0);
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const direction = useRef(1);
 
   const [goal, setGoal] = useState<FitnessGoal | null>(null);
@@ -170,6 +171,7 @@ export default function OnboardingPage() {
 
   const handleComplete = async () => {
     if (!goal || !fitnessLevel || !splitId || saving) return;
+    setError(null);
     const m = metricsComplete(metrics) ? metrics : null;
 
     const nutritionTargets = m
@@ -183,11 +185,10 @@ export default function OnboardingPage() {
         )
       : undefined;
 
-    // Persist split_id to the database FIRST — this is what the re-login check
-    // uses to decide whether onboarding is complete. Only proceed after it confirms.
-    // If the token is missing the session is broken; bail rather than marking
-    // onboarding complete without the DB write.
-    if (!accessToken) return;
+    if (!accessToken) {
+      setError("Session expired — please sign in again.");
+      return;
+    }
 
     setSaving(true);
     try {
@@ -208,6 +209,7 @@ export default function OnboardingPage() {
       });
     } catch {
       setSaving(false);
+      setError("Something went wrong. Please try again.");
       return;
     }
 
@@ -254,10 +256,10 @@ export default function OnboardingPage() {
   const isLast = step === STEPS.length - 1;
 
   return (
-    <div className="min-h-screen gym-bg-auth flex flex-col">
+    <div className="min-h-[100dvh] gym-bg-auth flex flex-col">
       <GymBackground variant="auth" />
       {/* Header */}
-      <div className="flex items-center justify-between px-5 pt-safe pt-12 pb-4">
+      <div className="flex items-center justify-between px-5 pt-12 pb-4">
         <motion.button
           whileTap={{ scale: 0.92 }}
           onClick={handleBack}
@@ -378,7 +380,10 @@ export default function OnboardingPage() {
       </div>
 
       {/* CTA */}
-      <div className="px-5 pb-safe pb-10 pt-4 border-t border-white/6">
+      <div className="shrink-0 px-5 pb-cta pt-4 border-t border-white/6">
+        {error && (
+          <p className="text-xs text-trainer-danger text-center mb-2">{error}</p>
+        )}
         <Button
           fullWidth
           size="lg"

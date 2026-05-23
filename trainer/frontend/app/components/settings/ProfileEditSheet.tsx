@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Check } from "lucide-react";
 import { useUserStore } from "@/app/store/userStore";
@@ -44,17 +44,39 @@ function NumericField({
   step?: number;
   onChange: (v: number) => void;
 }) {
+  const [raw, setRaw] = useState(() => (value ? String(value) : ""));
+
+  useEffect(() => {
+    setRaw(value ? String(value) : "");
+  }, [value]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const s = e.target.value;
+    setRaw(s);
+    const v = parseFloat(s);
+    if (!isNaN(v) && v >= min && v <= max) onChange(v);
+  };
+
+  const handleBlur = () => {
+    const v = parseFloat(raw);
+    if (isNaN(v) || raw === "") {
+      setRaw(value ? String(value) : "");
+    } else {
+      const clamped = Math.min(max, Math.max(min, v));
+      setRaw(String(clamped));
+      if (clamped !== value) onChange(clamped);
+    }
+  };
+
   return (
     <div>
       <FieldLabel>{label}</FieldLabel>
       <div className="flex items-center gap-3">
         <input
           type="number"
-          value={value || ""}
-          onChange={(e) => {
-            const v = parseFloat(e.target.value);
-            if (!isNaN(v) && v >= min && v <= max) onChange(v);
-          }}
+          value={raw}
+          onChange={handleChange}
+          onBlur={handleBlur}
           min={min}
           max={max}
           step={step}

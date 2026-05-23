@@ -196,7 +196,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   // Show shell with BottomNav while hydrating so there is never a blank screen
   if (!hydrated || !isAuthenticated || !onboardingComplete) {
     return (
-      <div className="flex flex-col min-h-screen gym-bg">
+      <div className="flex flex-col min-h-[100dvh] gym-bg overflow-x-hidden">
         <GymBackground />
         <div className="flex-1 pb-20" />
         <BottomNav />
@@ -205,7 +205,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex flex-col min-h-screen gym-bg">
+    <div className="flex flex-col min-h-[100dvh] gym-bg overflow-x-hidden">
       <GymBackground />
       <OfflineBanner />
       <NotificationToast />

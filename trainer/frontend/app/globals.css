@@ -119,9 +119,16 @@ input, select, textarea {
   animation: page-enter 0.28s ease-out both;
 }
 
-/* Bottom safe area for mobile */
-@supports (padding-bottom: env(safe-area-inset-bottom)) {
+/* Safe area utilities — env() returns 0 without viewport-fit=cover, non-zero with it */
+@layer utilities {
+  .pt-safe {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
   .pb-safe {
-    padding-bottom: env(safe-area-inset-bottom);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  /* CTA footers: safe area bottom + 2.5rem base so the button is never clipped */
+  .pb-cta {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 2.5rem);
   }
 }
