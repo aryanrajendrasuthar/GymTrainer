@@ -1,4 +1,4 @@
-const CACHE_NAME = "trainer-v1";
+const CACHE_NAME = "trainer-v2";
 const STATIC_ASSETS = [
   "/",
   "/dashboard",
@@ -69,5 +69,36 @@ self.addEventListener("fetch", (event) => {
   // Everything else: network-first
   event.respondWith(
     fetch(request).catch(() => caches.match(request))
+  );
+});
+
+// ─── Push notifications ────────────────────────────────────────────────────────
+
+self.addEventListener("push", (event) => {
+  let data = {};
+  try { data = event.data?.json() ?? {}; } catch {}
+
+  const title = data.title ?? "Trainer";
+  const options = {
+    body: data.body ?? "",
+    icon: "/icon.svg",
+    badge: "/icon.svg",
+    tag: data.tag ?? "trainer-notification",
+    renotify: true,
+    data: { url: data.url ?? "/dashboard" },
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = event.notification.data?.url ?? "/dashboard";
+  event.waitUntil(
+    clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      const existing = list.find((c) => c.url.includes(self.location.origin));
+      if (existing) return existing.focus();
+      return clients.openWindow(url);
+    })
   );
 });

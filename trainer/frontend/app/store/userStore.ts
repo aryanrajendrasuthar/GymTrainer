@@ -105,6 +105,8 @@ export const useUserStore = create<UserState>()(
         // Token is expired or near-expiry.
         // Strategy 1: ask the Supabase browser client — it manages its own session
         // in a long-lived cookie and refreshes automatically without hitting our backend.
+        // NOTE: on iOS PWA the cookie jar is isolated from Safari, so this often
+        // returns null even for valid sessions — Strategy 2 handles that case.
         try {
           const { data: { session } } = await supabase.auth.getSession();
           if (session) {
@@ -116,12 +118,11 @@ export const useUserStore = create<UserState>()(
             return session.access_token;
           }
         } catch {
-          // getSession threw (network error, etc.) — fall through
+          // Network error — fall through to Strategy 2
         }
 
-        // Strategy 2: Supabase cookie was cleared but Zustand still has a refresh
-        // token (e.g. existing users who signed in before the Supabase-direct login).
-        // Attempt a manual refresh directly against Supabase — no backend involved.
+        // Strategy 2: use the refresh token stored in Zustand (survives iOS PWA
+        // cookie isolation and app restarts via localStorage persistence).
         if (storedRefreshToken) {
           try {
             const { data, error } = await supabase.auth.refreshSession({
@@ -135,14 +136,24 @@ export const useUserStore = create<UserState>()(
               });
               return data.session.access_token;
             }
+            // Supabase returned an explicit auth error (invalid/revoked token).
+            // Only sign out here — this is a deliberate rejection, not a network issue.
+            if (error) {
+              get().signOut();
+              return null;
+            }
           } catch {
-            // Manual refresh also failed
+            // Network error during refresh (device offline, momentary outage).
+            // Return the existing token rather than signing the user out — the
+            // session is likely still valid, we just couldn't reach Supabase right now.
+            return accessToken;
           }
         }
 
-        // Both strategies exhausted — session is genuinely dead.
-        get().signOut();
-        return null;
+        // getSession returned null and no refresh token is stored.
+        // Keep the user logged in with the stale token rather than forcing a
+        // sign-out that could be caused by iOS cookie isolation, not an invalid session.
+        return accessToken;
       },
     }),
     {

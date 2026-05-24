@@ -32,6 +32,7 @@ import { useUserStore } from "@/app/store/userStore";
 import { useSessionStore } from "@/app/store/sessionStore";
 import { useProgressStore } from "@/app/store/progressStore";
 import { useAchievementStore } from "@/app/store/achievementStore";
+import { usePushNotifications } from "@/app/hooks/usePushNotifications";
 import { authApi } from "@/app/lib/api";
 import { workoutSplits } from "@/app/data/splits";
 import { calculateNutritionTargets, getCalorieRangeLabel } from "@/app/lib/nutrition";
@@ -310,9 +311,7 @@ export default function SettingsPage() {
   const [showGoalSheet, setShowGoalSheet] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [savedFlash, setSavedFlash] = useState(false);
-  const [pushStatus, setPushStatus] = useState<NotificationPermission | "unsupported">(
-    typeof Notification !== "undefined" ? Notification.permission : "unsupported"
-  );
+  const { permission: pushStatus, subscribe: subscribePush } = usePushNotifications();
 
   const currentSplit = workoutSplits.find((s) => s.id === profile?.splitId);
 
@@ -404,9 +403,7 @@ export default function SettingsPage() {
   }
 
   async function handleRequestPush() {
-    if (typeof Notification === "undefined") return;
-    const perm = await Notification.requestPermission();
-    setPushStatus(perm);
+    await subscribePush();
   }
 
   return (
