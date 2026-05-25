@@ -18,13 +18,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 
-  const body = await req.json();
-  const { endpoint, keys, timezone, notificationPrefs } = body as {
-    endpoint: string;
-    keys: { p256dh: string; auth: string };
-    timezone: string;
-    notificationPrefs: Record<string, unknown>;
-  };
+  let body: { endpoint?: string; keys?: { p256dh?: string; auth?: string }; timezone?: string; notificationPrefs?: Record<string, unknown> };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  const { endpoint, keys, timezone, notificationPrefs } = body;
 
   if (!endpoint || !keys?.p256dh || !keys?.auth) {
     return NextResponse.json({ error: "Invalid subscription" }, { status: 400 });

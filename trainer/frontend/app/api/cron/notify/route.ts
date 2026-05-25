@@ -8,7 +8,7 @@ const supabase = createClient(
 );
 
 webpush.setVapidDetails(
-  process.env.VAPID_SUBJECT ?? "mailto:admin@gymtrainer.app",
+  process.env.VAPID_SUBJECT!,
   process.env.VAPID_PUBLIC_KEY!,
   process.env.VAPID_PRIVATE_KEY!
 );
@@ -57,8 +57,9 @@ async function sendPush(
 
 export async function POST(req: NextRequest) {
   // Protect the cron endpoint — Vercel sends the CRON_SECRET as a bearer token.
+  // Always enforced; CRON_SECRET must be set in environment variables.
   const auth = req.headers.get("authorization");
-  if (process.env.CRON_SECRET && auth !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET || auth !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 

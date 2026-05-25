@@ -18,7 +18,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid token" }, { status: 401 });
   }
 
-  const { endpoint } = await req.json() as { endpoint?: string };
+  let endpoint: string | undefined;
+  try {
+    const body = await req.json() as { endpoint?: string };
+    endpoint = body.endpoint;
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
 
   if (endpoint) {
     await supabase
