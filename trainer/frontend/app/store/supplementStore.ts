@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export interface SupplementDef {
   id: string;
@@ -87,6 +88,6 @@ export const useSupplementStore = create<SupplementState>()(
         return get().completions.find((c) => c.date === today)?.takenIds ?? [];
       },
     }),
-    { name: "trainer-supplements" }
+    { name: "trainer-supplements", storage: userScopedStorage }
   )
 );

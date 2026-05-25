@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export interface HabitDef {
   id: string;
@@ -135,6 +136,6 @@ export const useHabitStore = create<HabitState>()(
         return streak;
       },
     }),
-    { name: "trainer-habits" }
+    { name: "trainer-habits", storage: userScopedStorage }
   )
 );

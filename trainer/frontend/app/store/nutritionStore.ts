@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export interface DailyMacroLog {
   date: string; // ISO date "YYYY-MM-DD"
@@ -108,6 +109,6 @@ export const useNutritionStore = create<NutritionState>()(
         set((state) => ({ mealPresets: state.mealPresets.filter((p) => p.id !== id) }));
       },
     }),
-    { name: "trainer-nutrition" }
+    { name: "trainer-nutrition", storage: userScopedStorage }
   )
 );

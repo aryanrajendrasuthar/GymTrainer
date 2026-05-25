@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export type PendingSlot = "morning" | "afternoon" | "evening" | "anytime";
 
@@ -63,6 +64,6 @@ export const usePendingSessionStore = create<PendingSessionState>()(
         return get().sessions.filter((s) => s.date === today);
       },
     }),
-    { name: "trainer-pending-sessions" }
+    { name: "trainer-pending-sessions", storage: userScopedStorage }
   )
 );

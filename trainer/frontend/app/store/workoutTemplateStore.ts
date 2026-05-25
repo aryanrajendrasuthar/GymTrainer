@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export interface WorkoutTemplate {
   id: string;
@@ -51,6 +52,6 @@ export const useWorkoutTemplateStore = create<WorkoutTemplateState>()(
           ),
         })),
     }),
-    { name: "trainer-workout-templates" }
+    { name: "trainer-workout-templates", storage: userScopedStorage }
   )
 );

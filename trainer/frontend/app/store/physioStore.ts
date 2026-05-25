@@ -7,6 +7,7 @@ import {
   type PhysioPhase,
   type UserInjury,
 } from "@/app/types";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 interface PainEntry {
   condition: PhysioCondition;
@@ -106,6 +107,7 @@ export const usePhysioStore = create<PhysioState>()(
     }),
     {
       name: "trainer-physio",
+      storage: userScopedStorage,
       partialize: (state) => ({
         activeInjuries: state.activeInjuries,
         sessionHistory: state.sessionHistory.slice(0, 100),

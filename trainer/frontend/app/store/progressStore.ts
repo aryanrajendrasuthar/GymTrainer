@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export interface BodyWeightEntry {
   date: string; // YYYY-MM-DD
@@ -71,6 +72,6 @@ export const useProgressStore = create<ProgressState>()(
         });
       },
     }),
-    { name: "trainer-progress" }
+    { name: "trainer-progress", storage: userScopedStorage }
   )
 );

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export type AchievementId =
   | "first_workout"
@@ -111,7 +112,7 @@ export const useAchievementStore = create<AchievementState>()(
 
       isUnlocked: (id) => !!get().unlocked[id],
     }),
-    { name: "trainer-achievements" }
+    { name: "trainer-achievements", storage: userScopedStorage }
   )
 );
 

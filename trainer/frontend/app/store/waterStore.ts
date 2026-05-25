@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 interface WaterState {
   todayIntakeMl: number;
@@ -35,6 +36,6 @@ export const useWaterStore = create<WaterState>()(
 
       reset: () => set({ todayIntakeMl: 0, lastResetDate: today() }),
     }),
-    { name: "trainer-water" }
+    { name: "trainer-water", storage: userScopedStorage }
   )
 );

@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 import type { Exercise, ExerciseCategory, Equipment, MuscleGroup } from "@/app/types";
 
 export interface CustomExercise extends Exercise {
@@ -74,6 +75,6 @@ export const useCustomExerciseStore = create<CustomExerciseState>()(
           customExercises: state.customExercises.filter((e) => e.id !== id),
         })),
     }),
-    { name: "trainer-custom-exercises" }
+    { name: "trainer-custom-exercises", storage: userScopedStorage }
   )
 );

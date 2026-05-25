@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export type GoalType = "strength" | "bodyweight" | "custom";
 
@@ -56,6 +57,6 @@ export const useGoalStore = create<GoalState>()(
           ),
         })),
     }),
-    { name: "trainer-goals" }
+    { name: "trainer-goals", storage: userScopedStorage }
   )
 );

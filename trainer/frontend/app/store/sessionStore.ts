@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { type WorkoutSession, type ExerciseLog } from "@/app/types";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 import { type ActiveSession } from "@/app/hooks/useSession";
 
 export interface DraftSession {
@@ -116,6 +117,7 @@ export const useSessionStore = create<SessionState>()(
     }),
     {
       name: "trainer-sessions",
+      storage: userScopedStorage,
       partialize: (state) => ({
         recentSessions: state.recentSessions,
         allExerciseLogs: state.allExerciseLogs,

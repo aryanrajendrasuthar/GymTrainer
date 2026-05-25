@@ -24,12 +24,6 @@ interface UserState {
   ensureValidToken: () => Promise<string | null>;
 }
 
-function clearOtherStores() {
-  Object.keys(localStorage)
-    .filter((k) => k.startsWith("trainer-") && k !== "trainer-user")
-    .forEach((k) => localStorage.removeItem(k));
-}
-
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
@@ -48,22 +42,21 @@ export const useUserStore = create<UserState>()(
         })),
 
       setAuth: (accessToken, profile, refreshToken = null, expiresAt = null) => {
-        // If a different user is signing in, wipe all other stores so no data leaks
-        // across accounts (sessions, PRs, achievements, physio, etc.).
-        const currentId = get().profile?.id;
-        if (typeof window !== "undefined" && currentId && currentId !== profile.id) {
-          clearOtherStores();
-        }
-        set({ accessToken, profile, isAuthenticated: true, refreshToken, expiresAt });
+        set({
+          accessToken,
+          profile,
+          isAuthenticated: true,
+          refreshToken,
+          expiresAt,
+          onboardingComplete: !!profile.splitId,
+        });
+        // Hard reload so all in-memory Zustand stores re-hydrate from localStorage,
+        // which is now keyed per user via userScopedStorage — correct data loads automatically.
+        window.location.replace(profile.splitId ? "/dashboard" : "/onboarding");
       },
 
       signOut: () => {
-        // Revoke the Supabase session (clears cookie + invalidates refresh token server-side).
-        // Fire-and-forget — local state clears immediately regardless.
         supabase.auth.signOut().catch(() => {});
-        // Wipe every trainer-* localStorage key except the user store itself so the
-        // next person who signs in on this device starts with a clean slate.
-        if (typeof window !== "undefined") clearOtherStores();
         set({
           profile: null,
           isAuthenticated: false,
@@ -160,15 +153,14 @@ export const useUserStore = create<UserState>()(
             }
           } catch {
             // Network error during refresh (device offline, momentary outage).
-            // Return the existing token rather than signing the user out — the
-            // session is likely still valid, we just couldn't reach Supabase right now.
+            // Return the existing token rather than signing the user out.
             return accessToken;
           }
         }
 
         // getSession returned null and no refresh token is stored.
-        // Keep the user logged in with the stale token rather than forcing a
-        // sign-out that could be caused by iOS cookie isolation, not an invalid session.
+        // Keep the user logged in with the stale token rather than forcing a sign-out
+        // that could be caused by iOS cookie isolation, not an invalid session.
         return accessToken;
       },
     }),

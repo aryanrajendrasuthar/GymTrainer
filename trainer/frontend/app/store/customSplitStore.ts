@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 import type { WorkoutSplit, SplitDay } from "@/app/types";
 
 interface CustomSplitState {
@@ -31,7 +32,7 @@ export const useCustomSplitStore = create<CustomSplitState>()(
           customSplits: state.customSplits.filter((s) => s.id !== id),
         })),
     }),
-    { name: "trainer-custom-splits" }
+    { name: "trainer-custom-splits", storage: userScopedStorage }
   )
 );
 

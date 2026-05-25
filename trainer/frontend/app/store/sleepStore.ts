@@ -2,6 +2,7 @@
 
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 export interface SleepEntry {
   date: string; // YYYY-MM-DD
@@ -52,6 +53,6 @@ export const useSleepStore = create<SleepState>()(
           .sort((a, b) => b.date.localeCompare(a.date));
       },
     }),
-    { name: "trainer-sleep" }
+    { name: "trainer-sleep", storage: userScopedStorage }
   )
 );

@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { type UserSettings } from "@/app/types";
 import { DEFAULT_SETTINGS } from "@/app/hooks/useSettings";
+import { userScopedStorage } from "@/app/lib/userScopedStorage";
 
 type SettingsSlice = Omit<UserSettings, "id" | "userId">;
 
@@ -33,6 +34,7 @@ export const useSettingsStore = create<SettingsState>()(
     }),
     {
       name: "trainer-settings",
+      storage: userScopedStorage,
     }
   )
 );
