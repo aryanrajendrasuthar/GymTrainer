@@ -180,7 +180,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!hydrated) return;
-    if (!isAuthenticated) { router.replace("/signin"); return; }
+    if (!isAuthenticated) {
+      // Hard reload so all in-memory Zustand stores reinitialize from localStorage
+      // (which signOut() already wiped). Prevents previous account's data from
+      // leaking into the next session via stale in-memory state.
+      window.location.replace("/signin");
+      return;
+    }
     if (!onboardingComplete) { router.replace("/onboarding"); return; }
   }, [hydrated, isAuthenticated, onboardingComplete, router]);
 

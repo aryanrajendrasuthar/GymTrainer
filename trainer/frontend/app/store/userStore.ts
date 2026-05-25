@@ -24,6 +24,12 @@ interface UserState {
   ensureValidToken: () => Promise<string | null>;
 }
 
+function clearOtherStores() {
+  Object.keys(localStorage)
+    .filter((k) => k.startsWith("trainer-") && k !== "trainer-user")
+    .forEach((k) => localStorage.removeItem(k));
+}
+
 export const useUserStore = create<UserState>()(
   persist(
     (set, get) => ({
@@ -41,13 +47,23 @@ export const useUserStore = create<UserState>()(
           profile: state.profile ? { ...state.profile, ...patch } : null,
         })),
 
-      setAuth: (accessToken, profile, refreshToken = null, expiresAt = null) =>
-        set({ accessToken, profile, isAuthenticated: true, refreshToken, expiresAt }),
+      setAuth: (accessToken, profile, refreshToken = null, expiresAt = null) => {
+        // If a different user is signing in, wipe all other stores so no data leaks
+        // across accounts (sessions, PRs, achievements, physio, etc.).
+        const currentId = get().profile?.id;
+        if (typeof window !== "undefined" && currentId && currentId !== profile.id) {
+          clearOtherStores();
+        }
+        set({ accessToken, profile, isAuthenticated: true, refreshToken, expiresAt });
+      },
 
       signOut: () => {
         // Revoke the Supabase session (clears cookie + invalidates refresh token server-side).
         // Fire-and-forget — local state clears immediately regardless.
         supabase.auth.signOut().catch(() => {});
+        // Wipe every trainer-* localStorage key except the user store itself so the
+        // next person who signs in on this device starts with a clean slate.
+        if (typeof window !== "undefined") clearOtherStores();
         set({
           profile: null,
           isAuthenticated: false,
